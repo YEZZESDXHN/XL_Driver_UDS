@@ -35,12 +35,12 @@ typedef enum __NETWORK_FLOW_STATUS__
 	FS_RESERVED                    // 非法
 }network_flow_status_t;
 //typedef int(*DLL_FUNCTION_GenerateKeyEx) (const unsigned char*, unsigned int, const unsigned int, const char*, unsigned char*, unsigned int, unsigned int*);
-typedef void(*UDS_SEND_FRAME)(unsigned short, unsigned char*, unsigned short);
+typedef int(*UDS_SEND_FRAME)(unsigned short, unsigned char*, unsigned short);
 
 
-//uint16_t REQUEST_ID = 0x724;			// 请求 ID
-//uint16_t FUNCTION_ID = 0x7DF;			// 功能 ID
-//uint16_t RESPONSE_ID = 0x7A4;			// 应答 ID
+//uint16_t REQUEST_ID;			// 请求 ID
+//uint16_t FUNCTION_ID;			// 功能 ID
+//uint16_t RESPONSE_ID;			// 应答 ID
 
 // // 填充值，如果发送的有效数据不满一帧，则用该值填充
 // #define PADDING_VAL                 (0x55)
@@ -86,9 +86,9 @@ typedef void(*UDS_SEND_FRAME)(unsigned short, unsigned char*, unsigned short);
 
 
 
-#define REQUEST_ID      0x123           // 请求 ID
-#define FUNCTION_ID     0x7DF           // 功能 ID
-#define RESPONSE_ID     0x456           // 应答 ID
+//#define REQUEST_ID      0x123           // 请求 ID
+//#define FUNCTION_ID     0x7DF           // 功能 ID
+//#define RESPONSE_ID     0x456           // 应答 ID
 
 #define UDS_RX_MAX      1024            // 接收缓冲区长度 --UDS TP 层协议规定最大支持 4095 字节，但是可以根据实际需要改动，以免资源浪费
 #define UDS_TX_MAX      128             // 发送缓冲区长度 --UDS TP 层协议规定最大支持 4095 字节，但是可以根据实际需要改动，以免资源浪费
@@ -140,7 +140,7 @@ int recv_singleframe(uint8_t* frame_buf, uint8_t frame_dlc);
 * 函数返回: 0: OK; other: -ERR
 * 其它说明: 无
 ******************************************************************************/
-int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t frame_dlc);
+int recv_firstframe(UDS_SEND_FRAME sendframefun, uint16_t REQUEST_ID, uint8_t* frame_buf, uint8_t frame_dlc);
 
 
 
@@ -152,7 +152,7 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 * 函数返回: 0: 所有连续帧接收完成; 1: 继续接收; other: -ERR
 * 其它说明: 无
 ******************************************************************************/
-void send_flowcontrol(UDS_SEND_FRAME sendframefun, network_flow_status_t flow_st);
+void send_flowcontrol(UDS_SEND_FRAME sendframefun, uint16_t REQUEST_ID, network_flow_status_t flow_st);
 
 
 /******************************************************************************
@@ -164,7 +164,7 @@ void send_flowcontrol(UDS_SEND_FRAME sendframefun, network_flow_status_t flow_st
 * 函数返回: 0: OK; -1: ERR
 * 其它说明: 无
 ******************************************************************************/
-int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_dlc);
+int send_singleframe(UDS_SEND_FRAME sendframefun, uint16_t REQUEST_ID, uint8_t* msg_buf, uint8_t msg_dlc);
 
 
 

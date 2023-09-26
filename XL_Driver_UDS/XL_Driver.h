@@ -49,6 +49,7 @@ XLaccess        g_xlPermissionMask;                          //!< Global permiss
 XLaccess        g_xlChannelCANMask;								//所有支持can的通道掩码，包括CAN,CANFD ISO,CAN FD NO ISO(CANFD BOSCH)
 XLaccess        g_xlChannelCANFDMask;							//支持CANFD的通道掩码
 XLaccess        g_xlChannelCANFDNOISOMask;						//支持CANFD NO ISO(CANFD BOSCH)的通道掩码
+XLaccess        g_xlChannelChooseMask;							//选择发送报文的通道
 unsigned int    g_canFdModeNoIso;  //CANFD NO ISO 标志位
 
 
@@ -124,10 +125,32 @@ DWORD WINAPI RxCanFdThread(LPVOID par);
 
 
 
+/******************************************************************************
+* 函数名称: XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *MsgBuffer, unsigned char Msglen, XLaccess xlChanMaskTx)
+* 功能说明: 调用Vector XL发送CAN/CANFD报文
+* 输入参数:  unsigned int txID					发送报文ID
+			unsigned int canType				发送报文类型CAN/CANFD(需硬件支持CANFD)
+			unsigned char *MsgBuffer			发送报文数据
+			unsigned char Msglen				发送报文数据长度
+			XLaccess xlChanMaskTx				发送报文硬件通道
+* 输出参数: 无
+* 函数返回: XL_SUCCESS,XL_ERROR
+* 其它说明:
+******************************************************************************/
+XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *MsgBuffer, unsigned char Msglen, XLaccess xlChanMaskTx);
 
 
-
-
+/******************************************************************************
+* 函数名称: uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen)
+* 功能说明: 传给TP层的接口函数
+* 输入参数:  unsigned short canId					发送id
+			unsigned char* farmeData,				发送数据
+			unsigned short farmelen					发送数据长度
+* 输出参数: 无
+* 函数返回: 1:发送成功；-1：发送失败
+* 其它说明:默认发送can报文(no canfd)
+******************************************************************************/
+int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen);
 
 
 

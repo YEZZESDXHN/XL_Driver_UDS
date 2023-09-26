@@ -264,7 +264,7 @@ int recv_singleframe(uint8_t* frame_buf, uint8_t frame_dlc)
 * 函数返回: 0: OK; other: -ERR
 * 其它说明: 无
 ******************************************************************************/
-int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t frame_dlc)
+int recv_firstframe(UDS_SEND_FRAME sendframefun, uint16_t REQUEST_ID, uint8_t* frame_buf, uint8_t frame_dlc)
 {
 	uint16_t i;
 	uint16_t uds_dlc;
@@ -280,7 +280,7 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 	// 如果有效数据长度大于 UDS_RX_MAX， 则返回流控帧(溢出)
 	if (uds_dlc > UDS_RX_MAX)
 	{
-		send_flowcontrol(sendframefun, FS_OVFLW);
+		send_flowcontrol(sendframefun, REQUEST_ID,FS_OVFLW);
 		return -2;
 	}
 
@@ -295,7 +295,7 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 	recv_len = frame_dlc - 2;
 
 	// 返回流控帧(允许继续无限制发送)，发送最小间隔为 NT_XMIT_FC_STMIN
-	send_flowcontrol(sendframefun, FS_CTS);
+	send_flowcontrol(sendframefun, REQUEST_ID,FS_CTS);
 
 	// 清接收流控帧计数标志
 	g_rcf_bc = 0;
@@ -324,7 +324,7 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 * 函数返回: 0: 所有连续帧接收完成; 1: 继续接收; other: -ERR
 * 其它说明: 无
 ******************************************************************************/
-void send_flowcontrol(UDS_SEND_FRAME sendframefun, network_flow_status_t flow_st)
+void send_flowcontrol(UDS_SEND_FRAME sendframefun, uint16_t REQUEST_ID,network_flow_status_t flow_st)
 {
 	uint16_t i;
 	uint8_t send_buf[FRAME_SIZE] = { 0 };
@@ -344,7 +344,7 @@ void send_flowcontrol(UDS_SEND_FRAME sendframefun, network_flow_status_t flow_st
 	send_buf[2] = NT_XMIT_FC_STMIN;
 
 	// 发送
-	sendframefun(RESPONSE_ID, send_buf, FRAME_SIZE);
+	sendframefun(REQUEST_ID, send_buf, FRAME_SIZE);
 }
 
 /******************************************************************************
@@ -356,11 +356,11 @@ void send_flowcontrol(UDS_SEND_FRAME sendframefun, network_flow_status_t flow_st
 * 函数返回: 0: OK; -1: ERR
 * 其它说明: 无
 ******************************************************************************/
-int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_dlc)
+int send_singleframe(UDS_SEND_FRAME sendframefun, uint16_t REQUEST_ID,uint8_t* msg_buf, uint8_t msg_dlc)
 {
 	uint16_t i;
 	uint8_t send_buf[FRAME_SIZE] = { 0 };
-
+	
 	// 填充默认值
 	for (i = 0; i < FRAME_SIZE; i++)
 		send_buf[i] = PADDING_VAL;
@@ -376,7 +376,7 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 		send_buf[1 + i] = msg_buf[i];
 
 	// 发送
-	sendframefun(RESPONSE_ID, send_buf, FRAME_SIZE);
+	sendframefun(REQUEST_ID, send_buf, FRAME_SIZE);
 
 	return 0;
 

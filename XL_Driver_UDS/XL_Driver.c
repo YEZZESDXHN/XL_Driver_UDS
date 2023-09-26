@@ -22,7 +22,6 @@
  //#include "vxlapi.h"
 #include "XL_Driver.h"
 
-
 //#ifdef __GNUC__
 //static void strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t count)
 //{
@@ -379,68 +378,137 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 } // RxCanFdThread
 
 
-
-XLstatus XLTransmitMsg(unsigned int txID, unsigned char MsgBuffer, XLaccess xlChanMaskTx)
+/******************************************************************************
+* 函数名称: XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *MsgBuffer, unsigned char Msglen, XLaccess xlChanMaskTx)
+* 功能说明: 调用Vector XL发送CAN/CANFD报文
+* 输入参数:  unsigned int txID					发送报文ID
+			unsigned int canType				发送报文类型CAN/CANFD(需硬件支持CANFD)
+			unsigned char *MsgBuffer			发送报文数据
+			unsigned char Msglen				发送报文数据长度
+			XLaccess xlChanMaskTx				发送报文硬件通道
+* 输出参数: 无
+* 函数返回: XL_SUCCESS,XL_ERROR
+* 其它说明:
+******************************************************************************/
+XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *MsgBuffer, unsigned char Msglen, XLaccess xlChanMaskTx)
 {
 	XLstatus             xlStatus;
 	unsigned int         messageCount = 1;
 	static int           cnt = 0;
 
 	if (g_canFdSupport) {
-		unsigned int  fl[3] = {
-
-		  0 , // CAN (no FD)
-		  XL_CAN_TXMSG_FLAG_EDL,
-		  XL_CAN_TXMSG_FLAG_EDL | XL_CAN_TXMSG_FLAG_BRS,
-		};
+		
 
 		XLcanTxEvent canTxEvt;
 		unsigned int cntSent;
 		unsigned int i;
 
 		memset(&canTxEvt, 0, sizeof(canTxEvt));
-		canTxEvt.tag = XL_CAN_EV_TAG_TX_MSG;
+		canTxEvt.tag = XL_CAN_EV_TAG_TX_MSG;//Event type. Set to XL_CAN_EV_TAG_TX_MSG.
 
-		canTxEvt.tagData.canMsg.canId = txID;
-		canTxEvt.tagData.canMsg.msgFlags = fl[cnt % (sizeof(fl) / sizeof(fl[0]))];
-		canTxEvt.tagData.canMsg.dlc = 8;
+		canTxEvt.tagData.canMsg.canId = txID; //CAN ID(11 or 29 bits).For extended IDs : canID = (XL_CAN_EXT_MSG_ID | id)
 
-		// if EDL is set, demonstrate transmit with DLC=15 (64 bytes)
-		if (canTxEvt.tagData.canMsg.msgFlags & XL_CAN_TXMSG_FLAG_EDL) {
-			canTxEvt.tagData.canMsg.dlc = 15;
+
+		/*
+		Set to 0 to transmit a CAN 2.0 frame.
+		XL_CAN_TXMSG_FLAG_BRS
+		Baudrate switch.
+		XL_CAN_TXMSG_FLAG_HIGHPRIO
+		High priority message. Clears all send buffers then transmits.
+		XL_CAN_TXMSG_FLAG_WAKEUP
+		Generates a wake up message.
+		XL_CAN_TXMSG_FLAG_EDL
+		This flag is used to indicate an extended CAN FD data length according
+		to the table below.
+		XL_CAN_TXMSG_FLAG_RTR
+		This flag is used for Remote-Transmission-Request.
+		Only useable for Standard CAN messages.		*/
+		//unsigned int  fl[3] = {
+
+		//  0 , // CAN (no FD)
+		//  XL_CAN_TXMSG_FLAG_EDL,
+		//  XL_CAN_TXMSG_FLAG_EDL | XL_CAN_TXMSG_FLAG_BRS,
+		//};
+		if (canType == 1)
+		{
+			canTxEvt.tagData.canMsg.msgFlags = 1;
+		}
+		else
+		{
+			canTxEvt.tagData.canMsg.msgFlags = 0;//Set to 0 to transmit a CAN 2.0 frame.
+		}
+		
+		canTxEvt.tagData.canMsg.dlc = Msglen;
+		for (i = 0; i < Msglen; i++)
+		{
+			canTxEvt.tagData.canMsg.data[i] = MsgBuffer[i];
 		}
 
-		++cnt;
+		//// if EDL is set, demonstrate transmit with DLC=15 (64 bytes)
+		//if (canTxEvt.tagData.canMsg.msgFlags & XL_CAN_TXMSG_FLAG_EDL) {
+		//	canTxEvt.tagData.canMsg.dlc = 15;
+		//}
 
-		for (i = 1; i < XL_CAN_MAX_DATA_LEN; ++i) {
-			canTxEvt.tagData.canMsg.data[i] = (unsigned char)i - 1;
-		}
-		canTxEvt.tagData.canMsg.data[0] = (unsigned char)cnt;
+		//++cnt;
+
+		//for (i = 1; i < XL_CAN_MAX_DATA_LEN; ++i) {
+		//	canTxEvt.tagData.canMsg.data[i] = (unsigned char)i - 1;
+		//}
+		//canTxEvt.tagData.canMsg.data[0] = (unsigned char)cnt;
 		xlStatus = xlCanTransmitEx(g_xlPortHandle, xlChanMaskTx, messageCount, &cntSent, &canTxEvt);
 	}
 	else {
 		static XLevent       xlEvent;
+		unsigned int i;
 
 		memset(&xlEvent, 0, sizeof(xlEvent));
 
 		xlEvent.tag = XL_TRANSMIT_MSG;
 		xlEvent.tagData.msg.id = txID;
-		xlEvent.tagData.msg.dlc = 8;
+		xlEvent.tagData.msg.dlc = Msglen;
 		xlEvent.tagData.msg.flags = 0;
-		++xlEvent.tagData.msg.data[0];
-		xlEvent.tagData.msg.data[1] = 2;
-		xlEvent.tagData.msg.data[2] = 3;
-		xlEvent.tagData.msg.data[3] = 4;
-		xlEvent.tagData.msg.data[4] = 5;
-		xlEvent.tagData.msg.data[5] = 6;
-		xlEvent.tagData.msg.data[6] = 7;
-		xlEvent.tagData.msg.data[7] = 8;
+
+		for (i = 0; i < Msglen; i++)
+		{
+			xlEvent.tagData.msg.data[i] = MsgBuffer[i];
+		}
 
 		xlStatus = xlCanTransmit(g_xlPortHandle, xlChanMaskTx, &messageCount, &xlEvent);
 
 	}
 
-	printf("- Transmit         : CM(0x%I64x), %s\n", xlChanMaskTx, xlGetErrorString(xlStatus));
-
 	return xlStatus;
+}
+
+
+
+
+
+
+
+
+
+
+/******************************************************************************
+* 函数名称: uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen)
+* 功能说明: 传给TP层的接口函数
+* 输入参数:  unsigned short canId					发送id
+			unsigned char* farmeData,				发送数据
+			unsigned short farmelen					发送数据长度
+* 输出参数: 无
+* 函数返回: 1:发送成功；-1：发送失败
+* 其它说明:默认发送can报文(no canfd)，发送通道由全局变量g_xlChannelChooseMask设置
+******************************************************************************/
+int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen)
+{
+	XLstatus             xlStatus;
+	xlStatus=XLTransmitMsg(canId, 0, farmeData, farmelen, g_xlChannelChooseMask);
+	if (XL_SUCCESS == xlStatus)
+	{
+		return 1;
+	}
+	else
+	{
+		return -1;
+	}
 }

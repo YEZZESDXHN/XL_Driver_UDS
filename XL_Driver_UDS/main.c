@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include "XL_Driver.h"
-
+#include"uds_tp.h"
 int main()
 {
+
+	g_xlChannelChooseMask = 1;
+
+
 	XLstatus          xlStatus;
 	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
 	g_canFdParams.arbitrationBitRate = 500000;
@@ -49,8 +53,15 @@ int main()
 				switch (c)
 				{
 				case 'v':
-					printf("switch v");
+				{
+					//printf("switch v");
+					unsigned char msgdata[8] = { 1,8,7,6,4,8,2,9 };
+					//XLTransmitMsg(0x724, 0, msgdata, 8, 1);
+					send_singleframe(uds_send_can_farme, 0x724,msgdata, 3);
+					//printf("%x", g_xlChannelCANFDMask);
 					break;
+				}
+					
 
 				default:
 					break;
