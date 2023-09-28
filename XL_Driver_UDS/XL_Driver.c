@@ -222,48 +222,17 @@ XLstatus InitCANDriver(
 
 			if (g_canFdSupport)
 			{
-				//memset(&g_canFdParams, 0, sizeof(g_canFdParams));
-				//g_canFdParams.arbitrationBitRate = 500000;
-				//g_canFdParams.tseg1Abr = 63;
-				//g_canFdParams.tseg2Abr = 16;
-				//g_canFdParams.sjwAbr = 2;
-
-				//// data bitrate
-				//g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
-				//g_canFdParams.tseg1Dbr = 15;
-				//g_canFdParams.tseg2Dbr = 4;
-				//g_canFdParams.sjwDbr = 2;
-
-				//if (g_canFdModeNoIso) {
-				//	canParams.options = CANFD_CONFOPT_NO_ISO;
-				//}
-				//else
-				//{
-				//	canParams.options = 0;
-				//}
-
-				XLcanFdConf fdParams;
-
-				memset(&fdParams, 0, sizeof(fdParams));
-
-				// arbitration bitrate
-				fdParams.arbitrationBitRate = 500000;
-				fdParams.tseg1Abr = 63;
-				fdParams.tseg2Abr = 16;
-				fdParams.sjwAbr = 2;
-
-				// data bitrate
-				fdParams.dataBitRate = fdParams.arbitrationBitRate * 4;
-				fdParams.tseg1Dbr = 15;
-				fdParams.tseg2Dbr = 4;
-				fdParams.sjwDbr = 2;
 
 				if (g_canFdModeNoIso) {
-					fdParams.options = CANFD_CONFOPT_NO_ISO;
+					canParams.options = CANFD_CONFOPT_NO_ISO;
+				}
+				else
+				{
+					canParams.options = 0;
 				}
 
 
-				xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlChannelCANFDMask, &fdParams);
+				xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlChannelCANFDMask, &canParams);
 				printf("%d,%I64x,%I64x\n", xlStatus,g_xlChannelCANFDMask);
 			}
 			else {

@@ -25,17 +25,17 @@ int main()
 
 
 	XLstatus          xlStatus;
-	//memset(&g_canFdParams, 0, sizeof(g_canFdParams));
-	//g_canFdParams.arbitrationBitRate = 500000;
-	//g_canFdParams.tseg1Abr = 63;
-	//g_canFdParams.tseg2Abr = 16;
-	//g_canFdParams.sjwAbr = 2;
+	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
+	g_canFdParams.arbitrationBitRate = 500000;
+	g_canFdParams.tseg1Abr = 63;
+	g_canFdParams.tseg2Abr = 16;
+	g_canFdParams.sjwAbr = 2;
 
-	//// data bitrate
-	//g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
-	//g_canFdParams.tseg1Dbr = 15;
-	//g_canFdParams.tseg2Dbr = 4;
-	//g_canFdParams.sjwDbr = 2;
+	// data bitrate
+	g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
+	g_canFdParams.tseg1Dbr = 15;
+	g_canFdParams.tseg2Dbr = 4;
+	g_canFdParams.sjwDbr = 2;
 
 
 	xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
