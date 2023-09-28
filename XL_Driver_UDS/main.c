@@ -61,7 +61,7 @@ int main()
 
 	}
 
-	//getHWinfo(g_channel_info);
+	getHWinfo(&g_channel_info);
 
 
 
@@ -87,9 +87,12 @@ int main()
 					send_singleframe(uds_send_can_farme, msgdata, 3);
 					break;
 				}
-				case 't':
+				case 'i':
 				{
-					//printf("count=%d\n", g_channel_info.channelcount);
+					for (int i = 0; i < g_channel_info.channelcount; i++)
+					{
+						printf("channel:%d  channel name:%s  type:%s\n", g_channel_info.ch[i].channelindex, g_channel_info.ch[i].channelname, g_channel_info.ch[i].channeltype);
+					}
 					break;
 				}
 

@@ -374,30 +374,40 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 
 
 
-//void getHWinfo(channelInfo *channel_info)
-//{
-//	XLaccess cm = 1;
-//	uint8_t channelcount=0;//所有can通道个数
-//	uint8_t i = 0;
-//	for (i = 0; i < 3; i++)
-//	{
-//		//printf("i=%d g_xlChannelCANFDMask=%I64x\n", i, g_xlChannelCANFDMask);
-//
-//		if (cm & g_xlChannelCANFDMask)
-//		{
-//			printf("i=%d g_xlChannelCANFDMask=%I64x\n", i, g_xlChannelCANFDMask);
-//			channelcount++;
-//			(*channel_info).ch[i].channelindex = i + 1;
-//			(*channel_info).channelcount = channelcount;
-//			//snprintf((*channel_info).ch[i].channeltype, 128, "CANFD");
-//			//(*channel_info).ch[i].channeltype[6] = "\0";
-//			snprintf((*channel_info).ch[i].channelname, strlen(g_xlDrvConfig.channel[i].name)+1, g_xlDrvConfig.channel[i].name);
-//			g_xlDrvConfig.channel[i].name[strlen(g_xlDrvConfig.channel[i].name) + 1] = '\0';
-//			
-//		}
-//		cm = cm << 1;
-//	}
-//}
+void getHWinfo(channelInfo *channel_info)
+{
+	XLaccess cm = 1;
+	uint8_t channelcount=1;//所有can通道个数
+	uint8_t index = 0;
+	uint8_t i = 0;
+	for (i = 0; i < 64; i++)
+	{
+		//printf("i=%d g_xlChannelCANFDMask=%I64x\n", i, g_xlChannelCANFDMask);
+
+		if (cm & g_xlChannelCANFDMask)
+		{
+			
+			//channelcount++;
+			
+			(*channel_info).ch[index].channelindex = i + 1;
+			(*channel_info).channelcount = channelcount;
+
+
+			snprintf((*channel_info).ch[index].channeltype, 6, "CANFD");
+			(*channel_info).ch[index].channeltype[6] = "\0";
+
+
+			snprintf((*channel_info).ch[index].channelname, strlen(g_xlDrvConfig.channel[i].name)+1, g_xlDrvConfig.channel[i].name);
+			g_xlDrvConfig.channel[index].name[strlen(g_xlDrvConfig.channel[i].name) + 1] = '\0';
+			
+			printf("i=%d,(*channel_info).ch[%d].channelindex=%d,channelcount=%d,name:%s\n", i, index, (*channel_info).ch[index].channelindex, channelcount,g_xlDrvConfig.channel[i].name);
+			channelcount++;
+			index++;
+			
+		}
+		cm = cm << 1;
+	}
+}
 
 
 
