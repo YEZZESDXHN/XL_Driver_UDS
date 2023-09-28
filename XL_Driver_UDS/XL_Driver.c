@@ -388,7 +388,7 @@ void getHWinfo(channelInfo *channel_info)
 		{
 			
 			//channelcount++;
-			
+			(*channel_info).ch[index].channelMask = cm;
 			(*channel_info).ch[index].channelindex = i + 1;
 			(*channel_info).channelcount = channelcount;
 
@@ -400,7 +400,7 @@ void getHWinfo(channelInfo *channel_info)
 			snprintf((*channel_info).ch[index].channelname, strlen(g_xlDrvConfig.channel[i].name)+1, g_xlDrvConfig.channel[i].name);
 			g_xlDrvConfig.channel[index].name[strlen(g_xlDrvConfig.channel[i].name) + 1] = '\0';
 			
-			printf("i=%d,(*channel_info).ch[%d].channelindex=%d,channelcount=%d,name:%s\n", i, index, (*channel_info).ch[index].channelindex, channelcount,g_xlDrvConfig.channel[i].name);
+			//printf("i=%d,(*channel_info).ch[%d].channelindex=%d,channelcount=%d,name:%s\n", i, index, (*channel_info).ch[index].channelindex, channelcount,g_xlDrvConfig.channel[i].name);
 			channelcount++;
 			index++;
 			

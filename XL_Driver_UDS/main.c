@@ -28,8 +28,8 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 
 int main()
 {
-	g_xlChannelChooseMask = 1;
-
+	int choose=0;
+	
 
 	XLstatus          xlStatus;
 	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
@@ -63,6 +63,8 @@ int main()
 
 	getHWinfo(&g_channel_info);
 
+	g_xlChannelChooseMask = g_channel_info.ch[choose].channelMask;
+	//printf("g_xlChannelChooseMask=%d", g_xlChannelChooseMask);
 
 
 	int           c;
@@ -93,6 +95,31 @@ int main()
 					{
 						printf("channel:%d  channel name:%s  type:%s\n", g_channel_info.ch[i].channelindex, g_channel_info.ch[i].channelname, g_channel_info.ch[i].channeltype);
 					}
+					printf("count=%d\n", g_channel_info.channelcount);
+					break;
+				}
+
+				case '+':
+				{
+					choose++;
+					if (choose >= g_channel_info.channelcount)
+					{
+						choose = g_channel_info.channelcount-1;
+						
+					}
+					printf("choose=%d\n", choose);
+					g_xlChannelChooseMask = g_channel_info.ch[choose].channelMask;
+					break;
+				}
+				case '-':
+				{
+					choose--;
+					if (choose <0)
+					{
+						choose = 0;
+					}
+					g_xlChannelChooseMask = g_channel_info.ch[choose].channelMask;
+					printf("choose=%d\n", choose);
 					break;
 				}
 
