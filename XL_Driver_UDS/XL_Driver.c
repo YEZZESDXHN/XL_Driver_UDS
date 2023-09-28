@@ -21,7 +21,7 @@
 
  //#include "vxlapi.h"
 #include "XL_Driver.h"
-
+#include"uds_tp.h"
 //#ifdef __GNUC__
 //static void strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t count)
 //{
@@ -38,19 +38,22 @@
 //#endif
 
 char            g_AppName[XL_MAX_APPNAME + 1] = "xlCANdemo";               //!< Application name which is displayed in VHWconf
-g_xlPortHandle = XL_INVALID_PORTHANDLE;      //!< Global porthandle (we use only one!)
-//g_xlPermissionMask = (XLaccess)0;                          //!< Global permissionmask (includes all founded channels)
-//g_BaudRate = (unsigned int)500000;                     //!< Default baudrate
+XLportHandle g_xlPortHandle = XL_INVALID_PORTHANDLE;      //!< Global porthandle (we use only one!)
+XLaccess        g_xlPermissionMask=0;                          //!< Global permissionmask (includes all founded channels)
+XLaccess        g_xlChannelCANMask=0;								//所有支持can的通道掩码，包括CAN,CANFD ISO,CAN FD NO ISO(CANFD BOSCH)
+XLaccess        g_xlChannelCANFDMask=0;							//支持CANFD的通道掩码
+XLaccess        g_xlChannelCANFDNOISOMask=0;						//支持CANFD NO ISO(CANFD BOSCH)的通道掩码
+XLaccess        g_xlChannelChooseMask=0;							//选择发送报文的通道
+unsigned int    g_BaudRate = 500000;
+
+unsigned int    g_canFdModeNoIso = ENABLE_CAN_FD_MODE_NO_ISO;  //!< Global CAN FD ISO (default) / no ISO mode flag
 
 
-g_canFdModeNoIso = ENABLE_CAN_FD_MODE_NO_ISO;  //!< Global CAN FD ISO (default) / no ISO mode flag
 
 
 
-
-
-g_canFdSupport = 0;                          //硬件是否支持CANFD
-g_canBusMode = 1;                          //选择CANFD模式
+unsigned int    g_canFdSupport=0;                          //硬件是否支持CANFD
+unsigned int    g_canBusMode=1;                          //选择CANFD模式
 
 
 
@@ -122,7 +125,7 @@ XLstatus InitCANDriver(
 		g_xlChannelCANMask = 0;
 		g_xlChannelCANFDMask = 0;
 		g_xlChannelCANFDNOISOMask = 0;
-		g_xlPermissionMask = 0;
+		g_xlPermissionMask = 3;
 		//g_BaudRate = 500000;
 
 
@@ -180,14 +183,16 @@ XLstatus InitCANDriver(
 	// 打开全部端口,默认给所有权限
 	// ------------------------------------
 	if (XL_SUCCESS == xlStatus) {
-
+		
 		// check if we can use CAN FD
 		if (g_canFdSupport)
 		{
 			if (g_canBusMode == 1)
 			{
 				g_xlPermissionMask = g_xlChannelCANFDMask;//默认给所有权限
+				printf("%I64x,%I64x\n", g_xlChannelCANFDMask, g_xlPermissionMask);
 				xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, g_xlChannelCANFDMask, &g_xlPermissionMask, RX_QUEUE_SIZE_FD, XL_INTERFACE_VERSION_V4, XL_BUS_TYPE_CAN);
+				printf("%I64x,%I64x\n", g_xlChannelCANFDMask, g_xlPermissionMask);
 			}
 			else
 			{
@@ -205,7 +210,7 @@ XLstatus InitCANDriver(
 		}
 
 	}
-
+	
 	if ((XL_SUCCESS == xlStatus) && (XL_INVALID_PORTHANDLE != g_xlPortHandle)) {
 
 		// ------------------------------------
@@ -217,15 +222,49 @@ XLstatus InitCANDriver(
 
 			if (g_canFdSupport)
 			{
-				if (g_canFdModeNoIso) {
-					canParams.options = CANFD_CONFOPT_NO_ISO;
-				}
-				else
-				{
-					canParams.options = 0;
-				}
-				xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlChannelCANFDMask, &g_canFdParams);
+				//memset(&g_canFdParams, 0, sizeof(g_canFdParams));
+				//g_canFdParams.arbitrationBitRate = 500000;
+				//g_canFdParams.tseg1Abr = 63;
+				//g_canFdParams.tseg2Abr = 16;
+				//g_canFdParams.sjwAbr = 2;
 
+				//// data bitrate
+				//g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
+				//g_canFdParams.tseg1Dbr = 15;
+				//g_canFdParams.tseg2Dbr = 4;
+				//g_canFdParams.sjwDbr = 2;
+
+				//if (g_canFdModeNoIso) {
+				//	canParams.options = CANFD_CONFOPT_NO_ISO;
+				//}
+				//else
+				//{
+				//	canParams.options = 0;
+				//}
+
+				XLcanFdConf fdParams;
+
+				memset(&fdParams, 0, sizeof(fdParams));
+
+				// arbitration bitrate
+				fdParams.arbitrationBitRate = 500000;
+				fdParams.tseg1Abr = 63;
+				fdParams.tseg2Abr = 16;
+				fdParams.sjwAbr = 2;
+
+				// data bitrate
+				fdParams.dataBitRate = fdParams.arbitrationBitRate * 4;
+				fdParams.tseg1Dbr = 15;
+				fdParams.tseg2Dbr = 4;
+				fdParams.sjwDbr = 2;
+
+				if (g_canFdModeNoIso) {
+					fdParams.options = CANFD_CONFOPT_NO_ISO;
+				}
+
+
+				xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlChannelCANFDMask, &fdParams);
+				printf("%d,%I64x,%I64x\n", xlStatus,g_xlChannelCANFDMask);
 			}
 			else {
 				xlStatus = xlCanSetChannelBitrate(g_xlPortHandle, g_xlChannelCANMask, g_BaudRate);
@@ -243,7 +282,6 @@ XLstatus InitCANDriver(
 		g_xlPortHandle = XL_INVALID_PORTHANDLE;
 		xlStatus = XL_ERROR;
 	}
-
 	return xlStatus;
 
 }
@@ -357,6 +395,7 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 
 			if (xlCanRxEvt.channelIndex == 0)
 			{
+				uds_tp_recv_frame(uds_send_can_farme, g_tatype, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
 				printf("t=%I64u\tID:%4X\tData:%02X %02X %02X %02X %02X %02X %02X %02X\n",
 					xlCanRxEvt.timeStampSync,
 					xlCanRxEvt.tagData.canRxOkMsg.canId,
@@ -422,7 +461,8 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 		to the table below.
 		XL_CAN_TXMSG_FLAG_RTR
 		This flag is used for Remote-Transmission-Request.
-		Only useable for Standard CAN messages.		*/
+		Only useable for Standard CAN messages.
+		*/
 		//unsigned int  fl[3] = {
 
 		//  0 , // CAN (no FD)
@@ -512,3 +552,6 @@ int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned 
 		return -1;
 	}
 }
+
+
+

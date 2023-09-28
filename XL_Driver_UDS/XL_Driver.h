@@ -17,7 +17,7 @@
 #define ENABLE_CAN_FD_MODE_NO_ISO  0        // switch to activate no iso mode on a CAN FD channel
 
 #include "vxlapi.h"
-
+//#include"uds_tp.h"
 
 #ifdef __GNUC__
 static void strncpy_s(char *strDest, size_t numberOfElements, const char *strSource, size_t count)
@@ -37,25 +37,25 @@ static void sscanf_s(const char *buffer, const char *format, ...)
 /////////////////////////////////////////////////////////////////////////////
 // globals
 
-
-XLportHandle    g_xlPortHandle;      //!< Global porthandle (we use only one!)
+extern char g_AppName[XL_MAX_APPNAME + 1]; //!< Application name which is displayed in VHWconf
+extern XLportHandle    g_xlPortHandle;      //!< Global porthandle (we use only one!)
 XLdriverConfig  g_xlDrvConfig;                                            //!< Contains the actual hardware configuration
 
-unsigned int    g_BaudRate;                     //!< Default baudrate
+extern unsigned int    g_BaudRate;                     //!< Default baudrate
 
 
 
-XLaccess        g_xlPermissionMask;                          //!< Global permissionmask (includes all founded channels)
-XLaccess        g_xlChannelCANMask;								//所有支持can的通道掩码，包括CAN,CANFD ISO,CAN FD NO ISO(CANFD BOSCH)
-XLaccess        g_xlChannelCANFDMask;							//支持CANFD的通道掩码
-XLaccess        g_xlChannelCANFDNOISOMask;						//支持CANFD NO ISO(CANFD BOSCH)的通道掩码
-XLaccess        g_xlChannelChooseMask;							//选择发送报文的通道
-unsigned int    g_canFdModeNoIso;  //CANFD NO ISO 标志位
+extern XLaccess        g_xlPermissionMask;                          //!< Global permissionmask (includes all founded channels)
+extern XLaccess        g_xlChannelCANMask;								//所有支持can的通道掩码，包括CAN,CANFD ISO,CAN FD NO ISO(CANFD BOSCH)
+extern XLaccess        g_xlChannelCANFDMask;							//支持CANFD的通道掩码
+extern XLaccess        g_xlChannelCANFDNOISOMask;						//支持CANFD NO ISO(CANFD BOSCH)的通道掩码
+extern XLaccess        g_xlChannelChooseMask;							//选择发送报文的通道
+extern unsigned int    g_canFdModeNoIso;  //CANFD NO ISO 标志位
 
 
 
-unsigned int    g_canFdSupport;                          //硬件是否支持CANFD
-unsigned int    g_canBusMode;                          //选择CANFD模式
+extern unsigned int    g_canFdSupport;                          //硬件是否支持CANFD
+extern unsigned int    g_canBusMode;                          //选择CANFD模式
 XLcanFdConf		g_canFdParams;							//CANFD参数
 
 
@@ -142,7 +142,7 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 
 /******************************************************************************
 * 函数名称: uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen)
-* 功能说明: 传给TP层的接口函数
+* 功能说明: 传给TP层的接口函数 typedef int(*UDS_SEND_FRAME)(unsigned short, unsigned char*, unsigned short);
 * 输入参数:  unsigned short canId					发送id
 			unsigned char* farmeData,				发送数据
 			unsigned short farmelen					发送数据长度
@@ -151,6 +151,10 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 * 其它说明:默认发送can报文(no canfd)
 ******************************************************************************/
 int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen);
+
+
+
+
 
 
 

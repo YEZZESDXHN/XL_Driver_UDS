@@ -1,6 +1,23 @@
 #include <stdio.h>
 #include "XL_Driver.h"
 #include"uds_tp.h"
+
+//void tp_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
+//{
+//	printf("tp_indication");
+//}
+//
+//void tp_ffindication_func(n_result_t n_result)
+//{
+//
+//}
+//
+//
+//void tp_confirm_func(n_result_t n_result)
+//{
+//
+//}
+
 int main()
 {
 
@@ -8,23 +25,23 @@ int main()
 
 
 	XLstatus          xlStatus;
-	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
-	g_canFdParams.arbitrationBitRate = 500000;
-	g_canFdParams.tseg1Abr = 63;
-	g_canFdParams.tseg2Abr = 16;
-	g_canFdParams.sjwAbr = 2;
+	//memset(&g_canFdParams, 0, sizeof(g_canFdParams));
+	//g_canFdParams.arbitrationBitRate = 500000;
+	//g_canFdParams.tseg1Abr = 63;
+	//g_canFdParams.tseg2Abr = 16;
+	//g_canFdParams.sjwAbr = 2;
 
-	// data bitrate
-	g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
-	g_canFdParams.tseg1Dbr = 15;
-	g_canFdParams.tseg2Dbr = 4;
-	g_canFdParams.sjwDbr = 2;
-
+	//// data bitrate
+	//g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
+	//g_canFdParams.tseg1Dbr = 15;
+	//g_canFdParams.tseg2Dbr = 4;
+	//g_canFdParams.sjwDbr = 2;
 
 
 	xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
 	if (xlStatus == XL_SUCCESS)
 	{
+		printf("XL_SUCCESS");
 		xlStatus = CreateRxThread();
 	}
 
@@ -54,11 +71,10 @@ int main()
 				{
 				case 'v':
 				{
-					//printf("switch v");
+					printf("switch v");
 					unsigned char msgdata[8] = { 1,8,7,6,4,8,2,9 };
-					//XLTransmitMsg(0x724, 0, msgdata, 8, 1);
-					send_singleframe(uds_send_can_farme, 0x724,msgdata, 3);
-					//printf("%x", g_xlChannelCANFDMask);
+					XLTransmitMsg(0x724, 0, msgdata, 8, 1);
+					//send_singleframe(uds_send_can_farme, 0x724,msgdata, 3);
 					break;
 				}
 					
