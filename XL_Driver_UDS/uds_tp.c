@@ -61,7 +61,9 @@ uint8_t g_tatype=0;
 // 上层向 TP 层注册的一些接口函数将会记录在 N_USData 中，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
 static nt_usdata_t N_USData = { NULL, NULL, NULL };
 
-
+extern uint16_t REQUEST_ID = 0x724;			// 请求 ID
+extern uint16_t FUNCTION_ID = 0x7df;			// 功能 ID
+extern uint16_t RESPONSE_ID = 0x7A4;			// 应答 ID
 
 
 /******************************************************************************

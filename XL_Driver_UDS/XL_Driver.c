@@ -190,9 +190,7 @@ XLstatus InitCANDriver(
 			if (g_canBusMode == 1)
 			{
 				g_xlPermissionMask = g_xlChannelCANFDMask;//默认给所有权限
-				printf("%I64x,%I64x\n", g_xlChannelCANFDMask, g_xlPermissionMask);
 				xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, g_xlChannelCANFDMask, &g_xlPermissionMask, RX_QUEUE_SIZE_FD, XL_INTERFACE_VERSION_V4, XL_BUS_TYPE_CAN);
-				printf("%I64x,%I64x\n", g_xlChannelCANFDMask, g_xlPermissionMask);
 			}
 			else
 			{
@@ -233,7 +231,6 @@ XLstatus InitCANDriver(
 
 
 				xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlChannelCANFDMask, &canParams);
-				printf("%d,%I64x,%I64x\n", xlStatus,g_xlChannelCANFDMask);
 			}
 			else {
 				xlStatus = xlCanSetChannelBitrate(g_xlPortHandle, g_xlChannelCANMask, g_BaudRate);
@@ -364,7 +361,7 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 
 			if (xlCanRxEvt.channelIndex == 0)
 			{
-				uds_tp_recv_frame(uds_send_can_farme, g_tatype, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
+				//uds_tp_recv_frame(uds_send_can_farme, g_tatype, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
 				printf("t=%I64u\tID:%4X\tData:%02X %02X %02X %02X %02X %02X %02X %02X\n",
 					xlCanRxEvt.timeStampSync,
 					xlCanRxEvt.tagData.canRxOkMsg.canId,

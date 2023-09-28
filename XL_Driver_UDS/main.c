@@ -41,7 +41,6 @@ int main()
 	xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
 	if (xlStatus == XL_SUCCESS)
 	{
-		printf("XL_SUCCESS");
 		xlStatus = CreateRxThread();
 	}
 
@@ -71,10 +70,9 @@ int main()
 				{
 				case 'v':
 				{
-					printf("switch v");
 					unsigned char msgdata[8] = { 1,8,7,6,4,8,2,9 };
-					XLTransmitMsg(0x724, 0, msgdata, 8, 1);
-					//send_singleframe(uds_send_can_farme, 0x724,msgdata, 3);
+					//XLTransmitMsg(0x724, 0, msgdata, 8, 1);
+					send_singleframe(uds_send_can_farme, msgdata, 3);
 					break;
 				}
 					

@@ -76,9 +76,9 @@ extern uint8_t g_tatype;
 
 
 
-uint16_t REQUEST_ID;			// 请求 ID
-uint16_t FUNCTION_ID;			// 功能 ID
-uint16_t RESPONSE_ID;			// 应答 ID
+extern uint16_t REQUEST_ID;			// 请求 ID
+extern uint16_t FUNCTION_ID;			// 功能 ID
+extern uint16_t RESPONSE_ID;			// 应答 ID
 
 // // 填充值，如果发送的有效数据不满一帧，则用该值填充
 // #define PADDING_VAL                 (0x55)
@@ -131,7 +131,7 @@ uint16_t RESPONSE_ID;			// 应答 ID
 #define UDS_RX_MAX      1024            // 接收缓冲区长度 --UDS TP 层协议规定最大支持 4095 字节，但是可以根据实际需要改动，以免资源浪费
 #define UDS_TX_MAX      128             // 发送缓冲区长度 --UDS TP 层协议规定最大支持 4095 字节，但是可以根据实际需要改动，以免资源浪费
 
-#define PADDING_VAL     0xAA            // 填充值，如果发送的有效数据不满一帧，则用该值填充
+#define PADDING_VAL     0x55            // 填充值，如果发送的有效数据不满一帧，则用该值填充
 
 #ifndef TRUE
 #define	TRUE	(1)
