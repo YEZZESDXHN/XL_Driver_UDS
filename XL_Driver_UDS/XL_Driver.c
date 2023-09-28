@@ -361,18 +361,8 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 
 			if (xlCanRxEvt.channelIndex == 0)
 			{
-				//uds_tp_recv_frame(uds_send_can_farme, g_tatype, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
-				printf("t=%I64u\tID:%4X\tData:%02X %02X %02X %02X %02X %02X %02X %02X\n",
-					xlCanRxEvt.timeStampSync,
-					xlCanRxEvt.tagData.canRxOkMsg.canId,
-					xlCanRxEvt.tagData.canRxOkMsg.data[0],
-					xlCanRxEvt.tagData.canRxOkMsg.data[1],
-					xlCanRxEvt.tagData.canRxOkMsg.data[2],
-					xlCanRxEvt.tagData.canRxOkMsg.data[3],
-					xlCanRxEvt.tagData.canRxOkMsg.data[4],
-					xlCanRxEvt.tagData.canRxOkMsg.data[5],
-					xlCanRxEvt.tagData.canRxOkMsg.data[6],
-					xlCanRxEvt.tagData.canRxOkMsg.data[7]);
+				uds_tp_recv_frame(uds_send_can_farme, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
+				
 			}
 
 
@@ -381,6 +371,34 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 
 	return(NO_ERROR);
 } // RxCanFdThread
+
+
+
+//void getHWinfo(channelInfo *channel_info)
+//{
+//	XLaccess cm = 1;
+//	uint8_t channelcount=0;//所有can通道个数
+//	uint8_t i = 0;
+//	for (i = 0; i < 3; i++)
+//	{
+//		//printf("i=%d g_xlChannelCANFDMask=%I64x\n", i, g_xlChannelCANFDMask);
+//
+//		if (cm & g_xlChannelCANFDMask)
+//		{
+//			printf("i=%d g_xlChannelCANFDMask=%I64x\n", i, g_xlChannelCANFDMask);
+//			channelcount++;
+//			(*channel_info).ch[i].channelindex = i + 1;
+//			(*channel_info).channelcount = channelcount;
+//			//snprintf((*channel_info).ch[i].channeltype, 128, "CANFD");
+//			//(*channel_info).ch[i].channeltype[6] = "\0";
+//			snprintf((*channel_info).ch[i].channelname, strlen(g_xlDrvConfig.channel[i].name)+1, g_xlDrvConfig.channel[i].name);
+//			g_xlDrvConfig.channel[i].name[strlen(g_xlDrvConfig.channel[i].name) + 1] = '\0';
+//			
+//		}
+//		cm = cm << 1;
+//	}
+//}
+
 
 
 /******************************************************************************
@@ -508,7 +526,7 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen)
 {
 	XLstatus             xlStatus;
-	xlStatus=XLTransmitMsg(canId, 0, farmeData, farmelen, g_xlChannelChooseMask);
+	xlStatus=XLTransmitMsg(canId, g_canBusMode, farmeData, farmelen, g_xlChannelChooseMask);
 	if (XL_SUCCESS == xlStatus)
 	{
 		return 1;

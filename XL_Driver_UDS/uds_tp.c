@@ -59,7 +59,7 @@ static uint16_t recv_len = 0;
 uint8_t g_tatype=0;
 
 // 上层向 TP 层注册的一些接口函数将会记录在 N_USData 中，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
-static nt_usdata_t N_USData = { NULL, NULL, NULL };
+//static nt_usdata_t N_USData = { NULL, NULL, NULL };
 
 extern uint16_t REQUEST_ID = 0x724;			// 请求 ID
 extern uint16_t FUNCTION_ID = 0x7df;			// 功能 ID
@@ -251,8 +251,9 @@ int recv_singleframe(uint8_t* frame_buf, uint8_t frame_dlc)
 		recv_buf_sf[i] = frame_buf[1 + i];
 
 	// TP 层单帧数据处理完成，将数据交由上层继续处理
-	N_USData.indication(recv_buf_sf, uds_dlc, N_OK);
-
+	////N_USData.indication(recv_buf_sf, uds_dlc, N_OK);
+	uds_data_indication(frame_buf, frame_dlc, N_OK);
+	
 	return 0;
 }
 
@@ -314,8 +315,9 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 	g_rcf_sn = 0;
 
 	// TP 层首帧数据处理完成，通知上层
-	N_USData.ffindication(N_OK);
-
+	//N_USData.ffindication(N_OK);
+	uds_data_indication(frame_buf, frame_dlc, N_FF_MSG);
+	//uds_data_indication(frame_buf, frame_dlc, N_OK);
 	return 0;
 }
 
@@ -348,7 +350,8 @@ static int recv_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf
 	// 收到的连续帧帧序号应该每次 +1，如果不是，则抛弃这一帧，并通知上层做异常处理
 	if (g_rcf_sn != cf_sn)
 	{
-		N_USData.indication(recv_buf, recv_len, N_WRONG_SN);
+		//N_USData.indication(recv_buf, recv_len, N_WRONG_SN);
+		uds_data_indication(frame_buf, frame_dlc, N_WRONG_SN);
 		return -2;
 	}
 
@@ -367,7 +370,8 @@ static int recv_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf
 	if (recv_len >= recv_fdl)
 	{
 		g_wait_cf = FALSE;              // 清连续帧接收标志
-		N_USData.indication(recv_buf, recv_fdl, N_OK);  // 将数据交由上层继续处理
+		//N_USData.indication(recv_buf, recv_fdl, N_OK);  // 将数据交由上层继续处理
+		uds_data_indication(frame_buf, frame_dlc, N_OK);
 		return 0;
 	}
 	else
@@ -428,14 +432,16 @@ static int recv_flowcontrolframe(uint8_t* frame_buf, uint8_t frame_dlc)
 	// 流状态非法，通知上层并退出
 	if (fc_fs >= FS_RESERVED)
 	{
-		N_USData.confirm(N_INVALID_FS);
+		//N_USData.confirm(N_INVALID_FS);
+		uds_data_indication(frame_buf, frame_dlc, N_INVALID_FS);
 		return -2;
 	}
 
 	// 流状态为溢出状态，通知上层并退出
 	if (fc_fs == FS_OVFLW)
 	{
-		N_USData.confirm(N_BUFFER_OVFLW);
+		//N_USData.confirm(N_BUFFER_OVFLW);
+		uds_data_indication(frame_buf, frame_dlc, N_BUFFER_OVFLW);
 		return -3;
 	}
 
@@ -714,14 +720,16 @@ void network_task(UDS_SEND_FRAME sendframefun)
 	if (nt_timer_run(TIMER_N_CR) < 0)
 	{
 		clear_network();
-		N_USData.indication(recv_buf, recv_len, N_TIMEOUT_Cr);
+		//N_USData.indication(recv_buf, recv_len, N_TIMEOUT_Cr);
+		uds_data_indication(NULL, NULL, N_TIMEOUT_Cr);
 	}
 
 	// 如果 N_BS 定时器超时，复位网络层状态，并通知上层做异常处理
 	if (nt_timer_run(TIMER_N_BS) < 0)
 	{
 		clear_network();
-		N_USData.confirm(N_TIMEOUT_Bs);
+		//N_USData.confirm(N_TIMEOUT_Bs);
+		uds_data_indication(NULL, NULL, N_TIMEOUT_Bs);
 	}
 
 	// 如果 STmin 定时器超时，表示可以继续发送连续帧
@@ -787,7 +795,7 @@ void network_task(UDS_SEND_FRAME sendframefun)
 * 函数返回: 无
 * 其它说明: frame_dlc 长度必须等于 FRAME_SIZE，否则判断为无效帧
 ******************************************************************************/
-void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t func_addr, uint8_t* frame_buf, uint8_t frame_dlc)
+void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t frame_dlc)
 {
 	uint8_t pci_type;
 	int ret = -1;
@@ -796,10 +804,7 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t func_addr, uint8_t* 
 	if (NULL == frame_buf || FRAME_SIZE != frame_dlc)
 		return;
 
-	if (0 == func_addr)
-		g_tatype = N_TATYPE_PHYSICAL;           // 物理寻址
-	else
-		g_tatype = N_TATYPE_FUNCTIONAL;         // 功能寻址
+	
 
 	// 每帧报文第一个字节的高 4 位表示帧类型，共 4 种：单帧(SF)、首帧(SF)、连续帧(CF)、流控帧(FC)
 	pci_type = NT_GET_PCI_TYPE(frame_buf[0]);
@@ -822,7 +827,8 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t func_addr, uint8_t* 
 			// 如果在接收连续帧时插入一条首帧，这是不正常的，通知上层做异常处理
 			// 接下来在 recv_firstframe 函数中将收到的连续帧数据破坏，重新处理首帧数据
 			if (NWL_RECV == nwl_st)
-				N_USData.indication(recv_buf, recv_len, N_UNEXP_PDU);
+				//N_USData.indication(recv_buf, recv_len, N_UNEXP_PDU);
+				uds_data_indication(frame_buf, frame_dlc, N_UNEXP_PDU);
 
 			// 处理首帧
 			ret = recv_firstframe(sendframefun,frame_buf, frame_dlc);
@@ -874,26 +880,3 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t func_addr, uint8_t* 
 
 
 
-///******************************************************************************
-//* 函数名称: int network_reg(nt_usdata_t* usdata)
-//* 功能说明: 上层向 TP 层注册一些接口函数，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
-//* 输入参数: nt_usdata_t* usdata      --上层接口函数
-//* 输出参数: 无
-//* 函数返回: 0: OK; -1: ERR
-//* 其它说明: 指示服务（Indication）：用于向更上层或应用层传递状态信息及接收到的数据
-//	　　　　确认服务（Confirm）：用于向更上层或应用层传递状态信息
-//	　　　　请求服务（Request）：用于上层向网络层传递控制报文信息及要发送的数据
-//******************************************************************************/
-//int network_reg(nt_usdata_t* usdata)
-//{
-//	// 检查参数合法性
-//	if (NULL == usdata || NULL == usdata->ffindication || NULL == usdata->indication || NULL == usdata->confirm)
-//		return -1;
-//
-//	// 上层向 TP 层注册的一些接口函数将会记录在 N_USData 中，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
-//	N_USData.confirm = usdata->confirm;
-//	N_USData.ffindication = usdata->ffindication;
-//	N_USData.indication = usdata->indication;
-//
-//	return 0;
-//}

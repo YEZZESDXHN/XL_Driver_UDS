@@ -2,25 +2,32 @@
 #include "XL_Driver.h"
 #include"uds_tp.h"
 
-//void tp_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
-//{
-//	printf("tp_indication");
-//}
-//
-//void tp_ffindication_func(n_result_t n_result)
-//{
-//
-//}
-//
-//
-//void tp_confirm_func(n_result_t n_result)
-//{
-//
-//}
+void indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
+{
+	printf("tp_indication");
+}
+
+
+void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
+{
+	if (n_result == N_OK)
+	{
+		printf("RX:ID:%4X\tData:%02X %02X %02X %02X %02X %02X %02X %02X\n",
+			RESPONSE_ID,
+			msg_buf[0],
+			msg_buf[1],
+			msg_buf[2],
+			msg_buf[3],
+			msg_buf[4],
+			msg_buf[5],
+			msg_buf[6],
+			msg_buf[7]);
+	}
+	
+}
 
 int main()
 {
-
 	g_xlChannelChooseMask = 1;
 
 
@@ -39,6 +46,7 @@ int main()
 
 
 	xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
+
 	if (xlStatus == XL_SUCCESS)
 	{
 		xlStatus = CreateRxThread();
@@ -52,6 +60,10 @@ int main()
 
 
 	}
+
+	//getHWinfo(g_channel_info);
+
+
 
 	int           c;
 	while (1) {
@@ -75,7 +87,11 @@ int main()
 					send_singleframe(uds_send_can_farme, msgdata, 3);
 					break;
 				}
-					
+				case 't':
+				{
+					//printf("count=%d\n", g_channel_info.channelcount);
+					break;
+				}
 
 				default:
 					break;

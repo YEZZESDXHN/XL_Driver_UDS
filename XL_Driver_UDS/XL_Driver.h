@@ -70,7 +70,25 @@ unsigned int    g_TXThreadCanId;                                     //!< CAN-ID
 XLaccess        g_TXThreadTxMask;                                     //!< channel mask the TX thread uses for transmitting
 
 
+#define HW_CAN   (char)CAN
+#define HW_CANFD   (char)CANFD
+#define HW_LIN   (char)LIN
+#define HW_ETH   (char)ETH
 
+typedef struct _channel_
+{
+	unsigned char channelindex;//通道编号，从1开始
+	char channeltype[128];
+	char channelname[128];
+}channel;
+
+typedef struct _HW_
+{
+	unsigned char channelcount;
+	channel ch[64];
+	
+}channelInfo;
+channelInfo g_channel_info;
 
 
 
