@@ -185,7 +185,10 @@ static int nt_timer_run(nt_timer_t num)
 static int nt_timer_chk(nt_timer_t num)
 {
 	// 检查参数合法性
-	if (num >= TIMER_CNT) return 0;
+	if (num >= TIMER_CNT)
+	{
+		return 0;
+	}
 
 	// 如果定时器计数值 > 0,表示定时器正在工作
 	if (nt_timer[num] > 0)
@@ -310,7 +313,7 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 	g_wait_cf = TRUE;
 
 	// 开启 N_CR 定时器，接收方收到连续帧间隔时间不应大于 TIMEOUT_N_CR
-	//nt_timer_start(TIMER_N_CR);
+	nt_timer_start(TIMER_N_CR);
 
 	// 清连续帧帧序号 
 	g_rcf_sn = 0;
@@ -341,7 +344,11 @@ static int recv_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf
 	cf_sn = NT_GET_CF_SN(frame_buf[0]);
 
 	// 检查并停止 N_CR 定时器，接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，如果超时，将不再处理该连续帧
-	if (nt_timer_chk(TIMER_N_CR) <= 0) return -1;
+	if (nt_timer_chk(TIMER_N_CR) <= 0)
+	{
+		//printf("return -1;");
+		return -1;
+	}
 
 	// 帧序号 +1，超过 0xF 后从 0 开始重新计数
 	g_rcf_sn++;
@@ -372,7 +379,7 @@ static int recv_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf
 	{
 		g_wait_cf = FALSE;              // 清连续帧接收标志
 		//N_USData.indication(recv_buf, recv_fdl, N_OK);  // 将数据交由上层继续处理
-		uds_data_indication(frame_buf, frame_dlc, N_OK);
+		uds_data_indication(recv_buf, recv_fdl, N_OK);
 		return 0;
 	}
 	else
@@ -881,3 +888,20 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 
 
 
+
+
+
+
+
+/******************************************************************************
+* 函数名称: void uds_1ms_task(void)
+* 功能说明: UDS 周期任务
+* 输入参数: 无
+* 输出参数: 无
+* 函数返回: 无
+* 其它说明: 该函数需要被 1ms 周期调用
+******************************************************************************/
+void uds_1ms_task(UDS_SEND_FRAME sendframefun)
+{
+	network_task(sendframefun);
+}
