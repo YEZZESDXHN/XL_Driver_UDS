@@ -55,7 +55,8 @@ extern unsigned int    g_canFdModeNoIso;  //CANFD NO ISO 标志位
 
 
 extern unsigned int    g_canFdSupport;                          //硬件是否支持CANFD
-extern unsigned int    g_canBusMode;                          //选择CANFD模式
+extern unsigned int    g_canBusMode;                          //选择CAN总线类型,0：CAN;1CANFD
+extern unsigned int    g_canMsgType;                          //选择发送can消息类型,0：CAN;1CANFD，总线类型为CANFD可用
 XLcanFdConf		g_canFdParams;							//CANFD参数
 
 

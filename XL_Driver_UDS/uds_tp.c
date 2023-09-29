@@ -1,5 +1,6 @@
 #include "uds_tp.h"
 #include <stdint.h>
+#include <stdio.h>
 // 网络层状态, 共有 3 种 空闲状态(NWL_IDLE)、发送状态(NWL_XMIT)、接收状态(NWL_RECV)
 // 当接收到首帧时，状态被置为 NWL_RECV，直到连续帧接收完成才置为 NWL_IDLE
 // 当发送多帧时，该状态被置为 NWL_XMIT，直到发送完成后才置为 NWL_IDLE
@@ -273,7 +274,7 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 {
 	uint16_t i;
 	uint16_t uds_dlc;
-
+	
 	// 首帧 byte0 的低 4 位以及 byte1 共拼成 12 位的有效数据长度，数据长度最大为 4095
 	uds_dlc = ((uint16_t)(frame_buf[0] & 0x0f)) << 8;
 	uds_dlc |= frame_buf[1];

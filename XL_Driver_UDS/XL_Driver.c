@@ -53,8 +53,8 @@ unsigned int    g_canFdModeNoIso = ENABLE_CAN_FD_MODE_NO_ISO;  //!< Global CAN F
 
 
 unsigned int    g_canFdSupport=0;                          //硬件是否支持CANFD
-unsigned int    g_canBusMode=1;                          //选择CANFD模式
-
+unsigned int    g_canBusMode=1;                          //选择CANFD模式，0：CAN;1CANFD
+unsigned int    g_canMsgType=0;                          //选择发送can消息类型,0：CAN;1CANFD，总线类型为CANFD可用
 
 
 
@@ -194,6 +194,7 @@ XLstatus InitCANDriver(
 			}
 			else
 			{
+				
 				g_xlPermissionMask = g_xlChannelCANMask; //默认给所有权限
 				xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, g_xlChannelCANMask, &g_xlPermissionMask, RX_QUEUE_SIZE, XL_INTERFACE_VERSION, XL_BUS_TYPE_CAN);
 			}
@@ -202,15 +203,17 @@ XLstatus InitCANDriver(
 		// if not, we make 'normal' CAN
 		else
 		{
+			g_canBusMode = 0;//硬件不支持CANFD,总线类型只能用CAN
+
 			g_xlPermissionMask = g_xlChannelCANMask;//默认给所有权限
-			xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, g_xlChannelCANMask, &g_xlPermissionMask, RX_QUEUE_SIZE, XL_INTERFACE_VERSION, XL_BUS_TYPE_CAN);
+			xlStatus = (&g_xlPortHandle, g_AppName, g_xlChannelCANMask, &g_xlPermissionMask, RX_QUEUE_SIZE, XL_INTERFACE_VERSION, XL_BUS_TYPE_CAN);
 
 		}
 
 	}
 	
 	if ((XL_SUCCESS == xlStatus) && (XL_INVALID_PORTHANDLE != g_xlPortHandle)) {
-
+		
 		// ------------------------------------
 		// if we have permission we set the
 		// bus parameters (baudrate)
@@ -218,7 +221,7 @@ XLstatus InitCANDriver(
 		if (1) //默认给所有权限
 		{
 
-			if (g_canFdSupport)
+			if (g_canBusMode)
 			{
 
 				if (g_canFdModeNoIso) {
@@ -235,6 +238,7 @@ XLstatus InitCANDriver(
 			else {
 				xlStatus = xlCanSetChannelBitrate(g_xlPortHandle, g_xlChannelCANMask, g_BaudRate);
 			}
+			
 		}
 		else
 		{
@@ -248,6 +252,7 @@ XLstatus InitCANDriver(
 		g_xlPortHandle = XL_INVALID_PORTHANDLE;
 		xlStatus = XL_ERROR;
 	}
+	
 	return xlStatus;
 
 }
@@ -536,7 +541,7 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen)
 {
 	XLstatus             xlStatus;
-	xlStatus=XLTransmitMsg(canId, g_canBusMode, farmeData, farmelen, g_xlChannelChooseMask);
+	xlStatus=XLTransmitMsg(canId, g_canMsgType, farmeData, farmelen, g_xlChannelChooseMask);
 	if (XL_SUCCESS == xlStatus)
 	{
 		return 1;

@@ -10,9 +10,22 @@ void indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
 
 void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
 {
-	if (n_result == N_OK)
+	if (n_result == N_OK)//消息接收完成，包括成功接收完成多帧
 	{
-		printf("RX:ID:%4X\tData:%02X %02X %02X %02X %02X %02X %02X %02X\n",
+		printf("RX SUCCEED:ID:%4X\tData:%02X %02X %02X %02X %02X %02X %02X %02X\n",
+			RESPONSE_ID,
+			msg_buf[0],
+			msg_buf[1],
+			msg_buf[2],
+			msg_buf[3],
+			msg_buf[4],
+			msg_buf[5],
+			msg_buf[6],
+			msg_buf[7]);
+	}
+	else if(n_result == N_FF_MSG)//接收到首帧
+	{
+		printf("RX FF:ID:%4X\tData:%02X %02X %02X %02X %02X %02X %02X %02X\n",
 			RESPONSE_ID,
 			msg_buf[0],
 			msg_buf[1],
