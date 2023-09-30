@@ -70,7 +70,6 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 }
 
 
-print_t = 1000;
 
 void timer_tu_doing()//时钟周期循环内容
 
@@ -208,7 +207,6 @@ int main()
 					{
 						printf("channel:%d  channel name:%s  type:%s\n", g_channel_info.ch[i].channelindex, g_channel_info.ch[i].channelname, g_channel_info.ch[i].channeltype);
 					}
-					printf("count=%d\n", g_channel_info.channelcount);
 					break;
 				}
 
