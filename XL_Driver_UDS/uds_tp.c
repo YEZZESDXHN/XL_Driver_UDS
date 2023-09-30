@@ -623,7 +623,6 @@ static int send_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, 
 
 	// 发送
 	sendframefun(RESPONSE_ID, send_buf, FRAME_SIZE);
-
 	// 如果 msg_dlc > FRAME_SIZE - 1，说明这不是最后一个连续帧，实际发送的有效数据长度为 FRAME_SIZE - 1
 	// 否则说明这是连续帧的最后一帧，返回实际发送最后剩余的有效数据长度
 	if (msg_dlc > (FRAME_SIZE - 1))

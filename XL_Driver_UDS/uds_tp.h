@@ -505,5 +505,4 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 
 
 
-
 #endif

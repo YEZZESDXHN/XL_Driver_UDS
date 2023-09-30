@@ -61,7 +61,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 }
 
 
-
+print_t = 1000;
 
 void timer_tu_doing()//时钟周期循环内容
 
@@ -78,7 +78,6 @@ void timer_tu_start(int n)
 	while (1)
 
 	{
-
 		timer_tu_doing();
 
 		Sleep(t);
@@ -186,11 +185,12 @@ int main()
 				c = ir.Event.KeyEvent.uChar.AsciiChar;
 				switch (c)
 				{
-				case 'v':
+				case 't':
 				{
-					unsigned char msgdata[8] = { 1,8,7,6,4,8,2,9 };
+					unsigned char msgdata[128] = { 0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9, 0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9 };
 					//XLTransmitMsg(0x724, 0, msgdata, 8, 1);
-					send_singleframe(uds_send_can_farme, msgdata, 3);
+					//send_singleframe(uds_send_can_farme, msgdata, 3);
+					network_send_udsmsg(uds_send_can_farme, msgdata, 25);
 					break;
 				}
 				case 'i':
