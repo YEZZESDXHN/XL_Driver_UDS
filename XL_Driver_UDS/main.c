@@ -156,6 +156,7 @@ int main()
 
 	if (xlStatus == XL_SUCCESS)
 	{
+
 		xlStatus = CreateRxThread();
 	}
 
@@ -164,7 +165,6 @@ int main()
 		// go with all selected channels on bus
 		// ------------------------------------
 		xlStatus = xlActivateChannel(g_xlPortHandle, g_xlChannelCANFDMask, XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
-
 
 	}
 

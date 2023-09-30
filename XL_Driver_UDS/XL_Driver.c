@@ -274,7 +274,7 @@ XLstatus CreateRxThread(void)
 		// Send a event for each Msg!!!
 		xlStatus = xlSetNotification(g_xlPortHandle, &g_hMsgEvent, 1);
 
-		if (g_canFdSupport) {
+		if (g_canBusMode) {
 			g_hRXThread = CreateThread(0, 0x1000, RxCanFdThread, (LPVOID)0, 0, &ThreadId);
 		}
 		else {
@@ -324,7 +324,12 @@ DWORD WINAPI RxThread(LPVOID par)
 			xlStatus = xlReceive(g_xlPortHandle, &msgsrx, &xlEvent);
 			if (xlStatus != XL_ERR_QUEUE_IS_EMPTY)
 			{
-				printf("%s\n", xlGetEventString(&xlEvent));
+				//printf("%s\n", xlGetEventString(&xlEvent));
+				if (xlEvent.chanIndex == 0)
+				{
+					uds_tp_recv_frame(uds_send_can_farme, xlEvent.tagData.msg.data, xlEvent.tagData.msg.dlc);
+
+				}
 
 			}
 		}
@@ -434,7 +439,9 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 	unsigned int         messageCount = 1;
 	static int           cnt = 0;
 
-	if (g_canFdSupport) {
+	//
+	if (g_canBusMode == 1)
+	{
 		
 
 		XLcanTxEvent canTxEvt;
@@ -499,7 +506,6 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 	else {
 		static XLevent       xlEvent;
 		unsigned int i;
-
 		memset(&xlEvent, 0, sizeof(xlEvent));
 
 		xlEvent.tag = XL_TRANSMIT_MSG;
