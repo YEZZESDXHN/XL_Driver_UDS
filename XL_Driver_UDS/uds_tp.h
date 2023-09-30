@@ -43,8 +43,9 @@ typedef enum _N_TATYPE_T_
 	N_TATYPE_FUNCTIONAL                 // 功能寻址
 }n_tatype_t;
 
-typedef enum _N_RESULT_
+typedef enum _N_RX_RESULT_
 {
+	
 	N_OK = 0,
 	N_TIMEOUT_Bs,                       // TIMER_N_BS 定时器超时
 	N_TIMEOUT_Cr,                       // TIMER_N_CR 定时器超时
@@ -53,7 +54,10 @@ typedef enum _N_RESULT_
 	N_UNEXP_PDU,                        // 不是期待的帧类型，比如在接收连续帧中莫名收到首帧
 	N_BUFFER_OVFLW,                     // 接收到的流控帧中流状态为溢出
 	N_FF_MSG,							//接收到首帧
+	/*TX*/
+	N_TX_OK,
 }n_result_t;
+
 
 
 //上层向 TP 层注册的发送报文接口函数

@@ -56,6 +56,15 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	{
 		printf("接收到的流控帧中流状态为溢出\n");
 	}
+	else if (n_result == N_TX_OK)
+	{
+		printf("TX SUCCEED:ID:%4X\tDatalen:%d\tData:", REQUEST_ID, msg_dlc);
+		for (int i = 0; i < msg_dlc; i++)
+		{
+			printf("%02X ", msg_buf[i]);
+		}
+		printf("\n");
+	}
 	
 	
 }
@@ -162,7 +171,7 @@ int main()
 
 
 	timer_tu(1);
-
+	
 
 
 	getHWinfo(&g_channel_info);
@@ -190,7 +199,7 @@ int main()
 					unsigned char msgdata[128] = { 0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9, 0,1,2,3,4,5,6,7,8,9,0,1,2,3,4,5,6,7,8,9 };
 					//XLTransmitMsg(0x724, 0, msgdata, 8, 1);
 					//send_singleframe(uds_send_can_farme, msgdata, 3);
-					network_send_udsmsg(uds_send_can_farme, msgdata, 25);
+					network_send_udsmsg(uds_send_can_farme, msgdata, 5);
 					break;
 				}
 				case 'i':

@@ -38,6 +38,9 @@ static uint8_t g_rcf_sn = 0;
 // 发送数据缓冲区
 static uint8_t remain_buf[UDS_TX_MAX];
 
+// 需要发送有效数据总长度，由首帧获取
+static uint8_t remain_buf_len = 0;
+
 // 剩余需要发送的有效数据长度，每向外发送一帧报文，remain_len 都需要减去其中有效数据的长度
 static uint16_t remain_len = 0;
 
@@ -256,7 +259,7 @@ int recv_singleframe(uint8_t* frame_buf, uint8_t frame_dlc)
 
 	// TP 层单帧数据处理完成，将数据交由上层继续处理
 	////N_USData.indication(recv_buf_sf, uds_dlc, N_OK);
-	uds_data_indication(frame_buf, frame_dlc, N_OK);
+	uds_data_indication(recv_buf_sf, uds_dlc, N_OK);
 	
 	return 0;
 }
@@ -378,7 +381,6 @@ static int recv_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf
 	if (recv_len >= recv_fdl)
 	{
 		g_wait_cf = FALSE;              // 清连续帧接收标志
-		//N_USData.indication(recv_buf, recv_fdl, N_OK);  // 将数据交由上层继续处理
 		uds_data_indication(recv_buf, recv_fdl, N_OK);
 		return 0;
 	}
@@ -532,7 +534,7 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 {
 	uint16_t i;
 	uint8_t send_buf[FRAME_SIZE] = { 0 };
-	
+
 	// 填充默认值
 	for (i = 0; i < FRAME_SIZE; i++)
 		send_buf[i] = PADDING_VAL;
@@ -548,7 +550,11 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 		send_buf[1 + i] = msg_buf[i];
 
 	// 发送
-	sendframefun(REQUEST_ID, send_buf, FRAME_SIZE);
+	if (sendframefun(REQUEST_ID, send_buf, FRAME_SIZE) == 1)
+	{
+		
+		uds_data_indication(msg_buf, msg_dlc, N_TX_OK);
+	}
 
 	return 0;
 
@@ -576,6 +582,7 @@ static int send_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16
 	// 首帧的第一个字节高 4 位表示帧类型；低 4 位和第二个字节共组成 12 位，表示帧有效数据长度 
 	send_buf[0] = NT_SET_PCI_TYPE_FF((uint8_t)(msg_dlc >> 8));
 	send_buf[1] = (uint8_t)(msg_dlc & 0x00ff);
+
 
 	// 拷贝有效数据到 send_buf 中
 	for (i = 0; i < FRAME_SIZE - 2; i++)
@@ -655,13 +662,16 @@ static int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uin
 	// 将要发送的数据拷贝到 remain_buf 数组中
 	for (i = 0; i < msg_dlc; i++)
 		remain_buf[i] = msg_buf[i];
+	
+	//将多帧数据长度赋给全局变量
+	remain_buf_len = msg_dlc;
 
 	// 连续帧帧序号清 0，多帧发送时候使用，每发送一帧连续帧时其应该 +1，超过 0xf 复位为 0
 	g_xcf_sn = 0;
 
 	// 多帧发送时先将首帧发送出去，接下来在 network_task 任务函数中将剩下的数据拆分成连续帧继续发送
 	send_len = send_firstframe(sendframefun,msg_buf, msg_dlc);
-
+	
 	// 已经发送出去一帧了，所以剩余需要发送的有效数据在 remain_buf 数组中的起始位置需要向后移动 send_len
 	remain_pos = send_len;
 
@@ -784,6 +794,7 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		}
 		else
 		{
+			uds_data_indication(remain_buf, remain_buf_len, N_TX_OK);
 			clear_network();                    // 复位网络层状态
 		}
 	}

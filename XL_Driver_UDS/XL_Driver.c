@@ -293,7 +293,7 @@ XLstatus CreateRxThread(void)
 
 
 /******************************************************************************
-* 函数名称: CreateRxThread(void)
+* 函数名称: RxThread(void)
 * 功能说明: 接收CAN消息线程
 * 输入参数: 无
 * 输出参数: 无
@@ -332,6 +332,7 @@ DWORD WINAPI RxThread(LPVOID par)
 	}
 	return NO_ERROR;
 }
+
 
 
 
