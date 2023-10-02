@@ -60,8 +60,8 @@ unsigned int    g_canMsgType=0;                          //选择发送can消息类型,0
 
 
 
-
-
+unsigned int    g_Run = 0;                          //运行标志位
+unsigned int    g_ChannelChooes = 0xff;                          //通道选择
 
 
 
@@ -324,12 +324,15 @@ DWORD WINAPI RxThread(LPVOID par)
 			xlStatus = xlReceive(g_xlPortHandle, &msgsrx, &xlEvent);
 			if (xlStatus != XL_ERR_QUEUE_IS_EMPTY)
 			{
-				//printf("%s\n", xlGetEventString(&xlEvent));
-				if (xlEvent.chanIndex == 0)
+				if (g_Run == 1)
 				{
-					uds_tp_recv_frame(uds_send_can_farme, xlEvent.tagData.msg.data, xlEvent.tagData.msg.dlc);
+					if (xlEvent.chanIndex == g_ChannelChooes && g_ChannelChooes!=0xff)
+					{
+						uds_tp_recv_frame(uds_send_can_farme, xlEvent.tagData.msg.data, xlEvent.tagData.msg.dlc);
 
+					}
 				}
+				
 
 			}
 		}
@@ -368,12 +371,16 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 			if (xlStatus == XL_ERR_QUEUE_IS_EMPTY) {
 				break;
 			}
-
-			if (xlCanRxEvt.channelIndex == 0)
+			if (g_Run == 1)
 			{
-				uds_tp_recv_frame(uds_send_can_farme, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
-				
+				if (xlCanRxEvt.channelIndex == g_ChannelChooes && g_ChannelChooes != 0xff)
+				{
+					
+					uds_tp_recv_frame(uds_send_can_farme, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
+
+				}
 			}
+			
 
 
 		} while (XL_SUCCESS == xlStatus);

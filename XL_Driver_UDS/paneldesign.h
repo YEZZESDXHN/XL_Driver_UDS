@@ -52,6 +52,9 @@ HWND BT_3;
 HWND BT_4;
 #define BT1		1006
 
+HWND BT_Send;
+#define BTSend		1007
+
 HWND Edit_in;
 #define Editin		2001
 
@@ -59,3 +62,25 @@ HWND Edit_out;
 #define Editout		2001
 
 
+HWND Groupbox_1;
+#define Groupbox1		3001
+
+
+HWND Channel_List;
+#define ChannelList		4001
+
+HWND ECU_List;
+#define ECUList		4002
+
+HWND Diag_List;
+#define DiagList		4003
+
+
+
+int Wchar2Char(char* charStr, const wchar_t* wcharStr);
+int Char2Wchar(wchar_t* wcharStr, const char* charStr);
+void settexttocontrol(HWND hwnd, char text[], int type);
+void setHEXtocontrol(HWND hwnd, unsigned short hex, int type);
+void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type);
+void gettextwithoutspace(HWND hwnd, char *text);
+void char_to_hex(char src[], int len, unsigned char des[]);

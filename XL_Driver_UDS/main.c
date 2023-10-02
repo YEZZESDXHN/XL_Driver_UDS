@@ -5,7 +5,6 @@
 #include"paneldesign.h"
 
 
-
 /******************************************************************************
 * 函数名称: void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
 * 功能说明: 接收UDS报文数据
@@ -18,43 +17,51 @@
 ******************************************************************************/
 void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
 {
+	
 	if (n_result == N_OK)//消息接收完成，包括成功接收完成多帧
 	{
-		printf("RX SUCCEED:ID:%4X\tDatalen:%d\tData:", RESPONSE_ID, msg_dlc);
-		for (int i = 0; i < msg_dlc; i++)
-		{
-			printf("%02X ", msg_buf[i]);
-		}
-		printf("\n");
-		
+		//printf("RX SUCCEED:ID:%4X\tDatalen:%d\tData:", RESPONSE_ID, msg_dlc);
+		//for (int i = 0; i < msg_dlc; i++)
+		//{
+		//	printf("%02X ", msg_buf[i]);
+		//}
+		//printf("\n");
+		settexttocontrol(Edit_out, "RX:", 1);
+		setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc,0);
 	}
 	else if(n_result == N_FF_MSG)//接收到首帧
 	{
-		printf("接收首帧\n");
+		//printf("接收首帧\n");
 	}
 	else if (n_result == N_TIMEOUT_Bs)                       // TIMER_N_BS 定时器超时
 	{
-		printf("TIMER_N_BS 定时器超时\n");
+		//printf("TIMER_N_BS 定时器超时\n");
+		settexttocontrol(Edit_out, "TIMER_N_BS 定时器超时", 1);
 	}
 	else if (n_result == N_TIMEOUT_Cr)                       // TIMER_N_CR 定时器超时
 	{
-		printf("TIMER_N_CR 定时器超时\n");
+		//printf("TIMER_N_CR 定时器超时\n");
+		settexttocontrol(Edit_out, "TIMER_N_CR 定时器超时", 1);
 	}
 	else if (n_result == N_WRONG_SN)                         // 接收到的连续帧帧序号错误
 	{
-		printf("接收到的连续帧帧序号错误\n");
+		//printf("接收到的连续帧帧序号错误\n");
+		settexttocontrol(Edit_out, "接收到的连续帧帧序号错误", 1);
 	}
 	else if (n_result == N_INVALID_FS)                       // 接收到的流控帧中流状态非法
 	{
-		printf("接收到的流控帧中流状态非法\n");
+		//printf("接收到的流控帧中流状态非法\n");
+		settexttocontrol(Edit_out, "接收到的流控帧中流状态非法", 1);
 	}
 	else if (n_result == N_UNEXP_PDU)                        // 不是期待的帧类型，比如在接收连续帧中莫名收到首帧
 	{
-		printf("不是期待的帧类型，比如在接收连续帧中莫名收到首帧\n");
+		//printf("不是期待的帧类型，比如在接收连续帧中莫名收到首帧\n");
+		settexttocontrol(Edit_out, "不是期待的帧类型", 1);
 	}
 	else if (n_result == N_BUFFER_OVFLW)                     // 接收到的流控帧中流状态为溢出
 	{
-		printf("接收到的流控帧中流状态为溢出\n");
+		//printf("接收到的流控帧中流状态为溢出\n");
+		settexttocontrol(Edit_out, "接收到的流控帧中流状态为溢出", 1);
 	}
 	else if (n_result == N_TX_OK)
 	{
@@ -69,63 +76,73 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	
 }
 
-clock_t t1 = 0, t2 = 0;
-void timer_tu_doing()//时钟周期循环内容
+//clock_t t1 = 0, t2 = 0;
+//void timer_tu_doing()//时钟周期循环内容
+//
+//{
+//	network_task(uds_send_can_farme);
+//
+//}
+//
+//void timer_tu_start(int n)
+//
+//{
+//	//float t;
+//	//t = n;
+//	//while (1)
+//
+//	//{
+//	//	timer_tu_doing();
+//
+//	//	Sleep(t);
+//
+//	//}
+//
+//	while (1)
+//	{
+//		if (t2 - t1 >= n)
+//		{
+//			t1 = t2;
+//			timer_tu_doing();
+//		}
+//		else
+//		{
+//			t2 = clock();
+//		}
+//	}
+//
+//}
+//
+//int timer_tu(int mtime)
+//{
+//
+//	int pd;
+//
+//	if (mtime > 0)
+//
+//	{
+//
+//		pd = _beginthread(timer_tu_start, 0, mtime);
+//
+//		return 1;
+//
+//	}
+//
+//	else
+//
+//		return 0;
+//
+//}
 
-{
-	network_task(uds_send_can_farme);
 
-}
 
-void timer_tu_start(int n)
 
-{
-	//float t;
-	//t = n;
-	//while (1)
 
-	//{
-	//	timer_tu_doing();
 
-	//	Sleep(t);
 
-	//}
 
-	while (1)
-	{
-		if (t2 - t1 >= n)
-		{
-			t1 = t2;
-			timer_tu_doing();
-		}
-		else
-		{
-			t2 = clock();
-		}
-	}
 
-}
 
-int timer_tu(int mtime)
-{
-
-	int pd;
-
-	if (mtime > 0)
-
-	{
-
-		pd = _beginthread(timer_tu_start, 0, mtime);
-
-		return 1;
-
-	}
-
-	else
-
-		return 0;
-
-}
 
 int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	_In_opt_ HINSTANCE hPrevInstance,
@@ -157,16 +174,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	HACCEL hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_VSWIN));
 
 	LoadLibrary(L"Msftedit.dll");
+	LoadLibrary(L"Comctl32.dll");
+
 	BT_start = CreateWindowExW(
 		0, L"button", L"start", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
 		50, 30, GUI, (HMENU)BTstart, GetModuleHandle(NULL), NULL
 	);
 
+	BT_Send = CreateWindowExW(
+		0, L"button", L"Send", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 350, 100,
+		50, 30, GUI, (HMENU)BTSend, GetModuleHandle(NULL), NULL
+	);
+
+	Groupbox_1 = CreateWindowExW(
+		0, L"button", L"Groupbox1", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON|WS_GROUP|BS_GROUPBOX, 600, 10,
+		100, 100, GUI, (HMENU)Groupbox1, GetModuleHandle(NULL), NULL
+	);
 
 
 
 	hTabCtel = CreateWindowExW(
-		0, WC_TABCONTROL, NULL, WS_CHILDWINDOW | WS_VISIBLE | WS_BORDER| TCS_TABS, 10, 100,
+		0, WC_TABCONTROL, NULL, WS_CHILDWINDOW | WS_VISIBLE | WS_BORDER| TCS_BOTTOM, 10, 100,
 		500, 500, GUI, (HMENU)TabCtel, GetModuleHandle(NULL), NULL
 	);
 
@@ -183,13 +211,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	SendMessage(hTabCtel, TCM_INSERTITEM, 3, (LPARAM)&tcItem);
 
 	Tab_1 = CreateWindowW(szWindowClass, "tab1", WS_CHILDWINDOW| WS_VISIBLE| WS_BORDER,
-		0, 25, 498, 473, hTabCtel, (HMENU)Tab1, hInstance, NULL);
+		0, 0, 498, 473, hTabCtel, (HMENU)Tab1, hInstance, NULL);
 	Tab_2 = CreateWindowW(szWindowClass, "tab2", WS_CHILDWINDOW | WS_BORDER,
-		0, 25, 498, 473, hTabCtel, (HMENU)Tab2, hInstance, NULL);
+		0, 0, 498, 473, hTabCtel, (HMENU)Tab2, hInstance, NULL);
+	
 	Tab_3 = CreateWindowW(szWindowClass, "tab3", WS_CHILDWINDOW | WS_BORDER,
-		0, 25, 498, 473, hTabCtel, (HMENU)Tab3, hInstance, NULL);
+		0, 0, 498, 473, hTabCtel, (HMENU)Tab3, hInstance, NULL);
 	Tab_4 = CreateWindowW(szWindowClass, "tab4", WS_CHILDWINDOW | WS_BORDER,
-		0, 25, 498, 473, hTabCtel, (HMENU)Tab4, hInstance, NULL);
+		0, 0, 498, 473, hTabCtel, (HMENU)Tab4, hInstance, NULL);
 
 	BT_1 = CreateWindowExW(
 		0, L"button", L"bt1", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
@@ -208,21 +237,68 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		50, 30, Tab_4, (HMENU)BT1, GetModuleHandle(NULL), NULL
 	);
 
-	//Edit_in = CreateWindow(MSFTEDIT_CLASS, NULL,
-	//	WS_CHILD | WS_BORDER /*| WS_VISIBLE*/ | WS_VSCROLL | ES_MULTILINE |
-	//	ES_UPPERCASE | ES_AUTOVSCROLL, 10, 50, 200, 80, hTabCtel, (HMENU)Editin, hInstance, NULL);
-	//Edit_out = CreateWindow(MSFTEDIT_CLASS, NULL,
-	//	WS_CHILD | WS_BORDER /*| WS_VISIBLE*/ | WS_VSCROLL | ES_MULTILINE | ES_READONLY | /*WS_DISABLED|*/
-	//	ES_UPPERCASE | ES_AUTOVSCROLL, 20, 200, 200, 80, hTabCtel, (HMENU)Editout, hInstance, NULL);
+	
+
+	Channel_List = CreateWindowEx(0, TEXT("comboBOX"), NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL  | CBS_DROPDOWNLIST,
+
+		100, 10, 200, 200, GUI, (HMENU)ChannelList, GetModuleHandle(NULL), 0);
 
 
+	Edit_in = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE |
+		ES_UPPERCASE | ES_AUTOVSCROLL, 350, 10, 200, 80, GUI, (HMENU)Editin, hInstance, NULL);
 
+	Edit_out = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | /*WS_DISABLED|*/
+		ES_UPPERCASE | ES_AUTOVSCROLL, 800, 10, 400, 300, GUI, (HMENU)Editout, hInstance, NULL);
 
-
-
-
-
-
+	
+	XLstatus          xlStatus;
+	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
+	g_canFdParams.arbitrationBitRate = 500000;
+	g_canFdParams.tseg1Abr = 63;
+	g_canFdParams.tseg2Abr = 16;
+	g_canFdParams.sjwAbr = 2;
+	
+	// data bitrate
+	g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
+	g_canFdParams.tseg1Dbr = 15;
+	g_canFdParams.tseg2Dbr = 4;
+	g_canFdParams.sjwDbr = 2;
+	
+	
+	xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
+	
+	if (xlStatus == XL_SUCCESS)
+	{
+	
+		xlStatus = CreateRxThread();
+	}
+	
+	if (XL_SUCCESS == xlStatus) {
+		// ------------------------------------
+		// go with all selected channels on bus
+		// ------------------------------------
+		xlStatus = xlActivateChannel(g_xlPortHandle, g_xlChannelCANFDMask, XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
+	
+	}
+	
+	
+	timer_tu(1);
+	
+		
+	getHWinfo(&g_channel_info);
+	
+	for (int i = 0; i < g_channel_info.channelcount; i++)
+	{
+		WCHAR temp_wchar[128];
+		char temp_char[128];
+		snprintf(temp_char, 128, g_channel_info.ch[i].channelname);
+		strncat_s(temp_char, 128, " ", 3);
+		strncat_s(temp_char, 128, g_channel_info.ch[i].channeltype, 6);
+		Char2Wchar(temp_wchar, temp_char);
+		SendMessage(Channel_List, CB_ADDSTRING, 0, (LPARAM)temp_wchar);
+	}
 
 
 
