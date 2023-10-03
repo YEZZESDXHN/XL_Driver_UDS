@@ -30,15 +30,23 @@ void timer_tu_start(int n)
 
 	while (1)
 	{
-		if (t2 - t1 >= n)
+		if (g_Run == 1)
 		{
-			t1 = t2;
-			timer_tu_doing();
+			if (t2 - t1 >= n)
+			{
+				t1 = t2;
+				timer_tu_doing();
+			}
+			else
+			{
+				t2 = clock();
+			}
 		}
 		else
 		{
-			t2 = clock();
+			break;
 		}
+		
 	}
 
 }
@@ -341,29 +349,74 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 		case BTstart:
 		{
-			//g_xlChannelChooseMask = g_channel_info.ch[g_ChannelChooes].channelMask;
-			if (g_ChannelChooes == 0xff)
+			if (g_Run == 0)
 			{
-				MessageBox(hWnd, L"请选择通道", L"提示", MB_OK);
+				if (isFirststart == 1)
+				{
+					if (g_ChannelChooes == 0xff)
+					{
+						MessageBox(hWnd, L"请选择通道", L"提示", MB_OK);
+					}
+					else
+					{
+						XLstatus xlStatus;
+						xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
+						if (xlStatus == XL_SUCCESS)
+						{
+
+							xlStatus = CreateRxThread();
+						}
+
+						if (XL_SUCCESS == xlStatus) {
+							// ------------------------------------
+							// go with all selected channels on bus
+							// ------------------------------------
+							xlStatus = xlActivateChannel(g_xlPortHandle, g_xlChannelCANFDMask, XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
+
+						}
+
+						g_Run = 1;
+						timer_tu(1);
+						SetWindowText(BT_start, TEXT("Stop"));
+						isFirststart = 0;
+					}
+				}
+				else
+				{
+					g_Run = 1;
+					timer_tu(1);
+					SetWindowText(BT_start, TEXT("Stop"));
+				}
+				
 			}
 			else
 			{
-				
-				timer_tu(1);
-				g_Run = 1;
-				
 
-				
+				g_Run = 0;
+
+
+				SetWindowText(BT_start, TEXT("Start"));
 			}
 			
 			break;
+		}
+		case BTMSGType:
+		{
+			if (SendMessage(BT_MSG_Type, BM_GETCHECK, 0, 0) == BST_CHECKED)//选中
+			{
+				g_canMsgType = 1;
+
+			}
+			else if (SendMessage(BT_MSG_Type, BM_GETCHECK, 0, 0) == BST_UNCHECKED)//未选择
+			{
+				g_canMsgType = 0;
+			}
 		}
 		case BTSend:
 		{
 			if (g_Run = 1)
 			{
 				char temp[128];
-				//MessageBox(hWnd, L"列表---", L"提示", MB_OK);
 				gettextwithoutspace(Edit_in, temp);
 				int len = strlen(temp);
 				if ((len % 2) == 0)
@@ -397,7 +450,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				g_xlChannelChooseMask = g_channel_info.ch[temp].channelMask;
 				//xlChanMaskTx = g_xlDrvConfig.channel[channel_choose].channelMask;
 				//setHEXtocontrol(debug_info, channel_choose, 1);
-
 				break;
 
 
@@ -406,6 +458,44 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			
+			break;
+		}
+		case CANBudModeList:
+		{
+			switch (HIWORD(wParam))
+			{
+			case CBN_SELCHANGE:
+			{
+				int temp;
+				temp = SendMessage(CAN_Bud_Mode_List, CB_GETCURSEL, 0, 0);
+				if (temp == 0)//CAN
+				{
+					g_canBusMode = 0;
+					ShowWindow(BT_MSG_Type, SW_HIDE);    // 隐藏发送CANFD选项
+
+				}
+				else if (temp == 1)//CANFD ISO
+				{
+					g_canBusMode = 1;
+					g_canFdModeNoIso = 0;
+					ShowWindow(BT_MSG_Type, SW_SHOW);    // 显示发送CANFD选项
+				}
+				else if (temp == 2)//CANFD ISO
+				{
+					g_canBusMode = 1;
+					g_canFdModeNoIso = 1;
+					ShowWindow(BT_MSG_Type, SW_SHOW);    // 显示发送CANFD选项
+				}
+
+
+				break;
+
+
+			}
+			default:
+				break;
+			}
+
 			break;
 		}
 

@@ -182,26 +182,42 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	LoadLibrary(L"Msftedit.dll");
 	LoadLibrary(L"Comctl32.dll");
 
+	//CAN_Config = CreateWindowExW(
+	//	0, szWindowClass, L"CAN_Config", WS_CHILD | WS_VISIBLE| WS_BORDER, 350, 10,
+	//	300, 100, GUI, (HMENU)CANConfig, hInstance, 0
+	//);
+
 	BT_start = CreateWindowExW(
-		0, L"button", L"start", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
+		0, L"button", L"Start", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
 		50, 30, GUI, (HMENU)BTstart, GetModuleHandle(NULL), NULL
 	);
 
-	BT_Send = CreateWindowExW(
-		0, L"button", L"Send", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 350, 100,
-		50, 30, GUI, (HMENU)BTSend, GetModuleHandle(NULL), NULL
-	);
+	//BT_stop= CreateWindowExW(
+	//	0, L"button", L"stop", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 50,
+	//	50, 30, GUI, (HMENU)BTstop, GetModuleHandle(NULL), NULL
+	//);
 
-	Groupbox_1 = CreateWindowExW(
-		0, L"button", L"Groupbox1", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON|WS_GROUP|BS_GROUPBOX, 10, 50,
-		100, 100, GUI, (HMENU)Groupbox1, GetModuleHandle(NULL), NULL
-	);
+	//ShowWindow(BT_stop, FALSE);    // 隐藏发送CANFD选项
+
+	
+	CAN_Bud_Mode_List = CreateWindowEx(0, TEXT("comboBOX"), NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST,
+
+		140, 10, 100, 100, GUI, (HMENU)CANBudModeList, hInstance, 0);
+	CAN_Bud_Mode_List_Name = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | ES_READONLY | WS_VISIBLE | ES_MULTILINE | ES_UPPERCASE, 70, 10, 70, 30, GUI, (HMENU)CANBudModeListName, hInstance, NULL);
+	settexttocontrol(CAN_Bud_Mode_List_Name, "BusType:", 0);
+
+	SendMessage(CAN_Bud_Mode_List, CB_ADDSTRING, 0, L"CAN");
+	SendMessage(CAN_Bud_Mode_List, CB_ADDSTRING, 0, L"CANFD IOS");
+	SendMessage(CAN_Bud_Mode_List, CB_ADDSTRING, 0, L"CANFD NO IOS");
+	//SendMessage(CAN_Bud_Mode_List, CB_SETCUEBANNER, 0, "请选择");
+	SendMessage(CAN_Bud_Mode_List, CB_SETCURSEL, 1, NULL);
 
 
 
 	hTabCtel = CreateWindowExW(
-		0, WC_TABCONTROL, NULL, WS_CHILDWINDOW | WS_VISIBLE | WS_BORDER| TCS_BOTTOM, 10, 150,
-		500, 500, GUI, (HMENU)TabCtel, GetModuleHandle(NULL), NULL
+		0, WC_TABCONTROL, NULL, WS_CHILDWINDOW | WS_VISIBLE | WS_BORDER| TCS_BOTTOM, 10, 100,
+		1250, 580, GUI, (HMENU)TabCtel, GetModuleHandle(NULL), NULL
 	);
 
 	TCITEM tcItem = { 0 };
@@ -217,31 +233,42 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	SendMessage(hTabCtel, TCM_INSERTITEM, 3, (LPARAM)&tcItem);
 
 	Tab_1 = CreateWindowW(szWindowClass, "tab1", WS_CHILDWINDOW| WS_VISIBLE| WS_BORDER,
-		0, 0, 498, 473, hTabCtel, (HMENU)Tab1, hInstance, NULL);
+		0, 0, 1248, 558, hTabCtel, (HMENU)Tab1, hInstance, NULL);
 	Tab_2 = CreateWindowW(szWindowClass, "tab2", WS_CHILDWINDOW | WS_BORDER,
-		0, 0, 498, 473, hTabCtel, (HMENU)Tab2, hInstance, NULL);
+		0, 0, 1248, 558, hTabCtel, (HMENU)Tab2, hInstance, NULL);
 	
 	Tab_3 = CreateWindowW(szWindowClass, "tab3", WS_CHILDWINDOW | WS_BORDER,
-		0, 0, 498, 473, hTabCtel, (HMENU)Tab3, hInstance, NULL);
+		0, 0, 1248, 558, hTabCtel, (HMENU)Tab3, hInstance, NULL);
 	Tab_4 = CreateWindowW(szWindowClass, "tab4", WS_CHILDWINDOW | WS_BORDER,
-		0, 0, 498, 473, hTabCtel, (HMENU)Tab4, hInstance, NULL);
+		0, 0, 1248, 558, hTabCtel, (HMENU)Tab4, hInstance, NULL);
 
 	
 
 	
 
-	Channel_List = CreateWindowEx(0, TEXT("comboBOX"), NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL  | CBS_DROPDOWNLIST,
+	Channel_List = CreateWindowEx(0, TEXT("comboBOX"), L"Name", WS_CHILD | WS_VISIBLE | WS_VSCROLL  | CBS_DROPDOWNLIST,
 
-		100, 10, 200, 200, GUI, (HMENU)ChannelList, GetModuleHandle(NULL), 0);
-
+		140, 50, 200, 200, GUI, (HMENU)ChannelList, GetModuleHandle(NULL), 0);
+	Channel_List_Name = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | ES_READONLY | WS_VISIBLE | ES_MULTILINE | ES_UPPERCASE, 70, 50, 70, 30, GUI, (HMENU)ChannelListName, hInstance, NULL);
+	settexttocontrol(Channel_List_Name, "Channel:", 0);
+	
 
 	Edit_in = CreateWindow(MSFTEDIT_CLASS, NULL,
 		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE |
-		ES_UPPERCASE | ES_AUTOVSCROLL, 350, 10, 200, 80, GUI, (HMENU)Editin, hInstance, NULL);
+		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 10, 200, 80, Tab_1, (HMENU)Editin, hInstance, NULL);
+	BT_MSG_Type = CreateWindowExW(
+		0, L"button", L"SendCANFDMsg", WS_CHILDWINDOW | WS_VISIBLE | BS_AUTOCHECKBOX, 220, 10,
+		130, 20, Tab_1, (HMENU)BTMSGType, GetModuleHandle(NULL), NULL
+	);
+	BT_Send = CreateWindowExW(
+		0, L"button", L"Send", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 220, 50,
+		50, 30, Tab_1, (HMENU)BTSend, GetModuleHandle(NULL), NULL
+	);
 
 	Edit_out = CreateWindow(MSFTEDIT_CLASS, NULL,
 		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | /*WS_DISABLED|*/
-		ES_UPPERCASE | ES_AUTOVSCROLL, 800, 10, 400, 300, GUI, (HMENU)Editout, hInstance, NULL);
+		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 100, 400, 300, Tab_1, (HMENU)Editout, hInstance, NULL);
 
 	
 	XLstatus          xlStatus;
@@ -257,41 +284,45 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	g_canFdParams.tseg2Dbr = 4;
 	g_canFdParams.sjwDbr = 2;
 	
-	//xlStatus = GetDriverConfig();
-
-	
-
-	xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
+	xlStatus = GetVectorHWInfo();
+	//if()
 	
 	if (xlStatus == XL_SUCCESS)
 	{
-	
-		xlStatus = CreateRxThread();
+		initHWinfo(&g_channel_info);
+
+		for (int i = 0; i < g_channel_info.channelcount; i++)
+		{
+			WCHAR temp_wchar[128];
+			char temp_char[128];
+			snprintf(temp_char, 128, g_channel_info.ch[i].channelname);
+			strncat_s(temp_char, 128, " ", 3);
+			strncat_s(temp_char, 128, g_channel_info.ch[i].channeltype, 6);
+			Char2Wchar(temp_wchar, temp_char);
+			SendMessage(Channel_List, CB_ADDSTRING, 0, (LPARAM)temp_wchar);
+		}
 	}
 	
-	if (XL_SUCCESS == xlStatus) {
-		// ------------------------------------
-		// go with all selected channels on bus
-		// ------------------------------------
-		xlStatus = xlActivateChannel(g_xlPortHandle, g_xlChannelCANFDMask, XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
+	//if (xlStatus == XL_SUCCESS)
+	//{
+	//
+	//	xlStatus = CreateRxThread();
+	//}
+	//
+	//if (XL_SUCCESS == xlStatus) {
+	//	// ------------------------------------
+	//	// go with all selected channels on bus
+	//	// ------------------------------------
+	//	xlStatus = xlActivateChannel(g_xlPortHandle, g_xlChannelCANFDMask, XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
+	//
+	//}
 	
-	}
 	
 	
-	getHWinfo(&g_channel_info);
 		
 	
 	
-	for (int i = 0; i < g_channel_info.channelcount; i++)
-	{
-		WCHAR temp_wchar[128];
-		char temp_char[128];
-		snprintf(temp_char, 128, g_channel_info.ch[i].channelname);
-		strncat_s(temp_char, 128, " ", 3);
-		strncat_s(temp_char, 128, g_channel_info.ch[i].channeltype, 6);
-		Char2Wchar(temp_wchar, temp_char);
-		SendMessage(Channel_List, CB_ADDSTRING, 0, (LPARAM)temp_wchar);
-	}
+	
 
 
 

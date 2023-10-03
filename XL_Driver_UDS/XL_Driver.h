@@ -50,10 +50,8 @@ extern XLaccess        g_xlChannelCANMask;								//所有支持can的通道掩码，包括C
 extern XLaccess        g_xlChannelCANFDMask;							//支持CANFD的通道掩码
 extern XLaccess        g_xlChannelCANFDNOISOMask;						//支持CANFD NO ISO(CANFD BOSCH)的通道掩码
 extern XLaccess        g_xlChannelChooseMask;							//选择发送报文的通道
+
 extern unsigned int    g_canFdModeNoIso;  //CANFD NO ISO 标志位
-
-
-
 extern unsigned int    g_canFdSupport;                          //硬件是否支持CANFD
 extern unsigned int    g_canBusMode;                          //选择CAN总线类型,0：CAN;1CANFD
 extern unsigned int    g_canMsgType;                          //选择发送can消息类型,0：CAN;1CANFD，总线类型为CANFD可用
@@ -98,14 +96,14 @@ channelInfo g_channel_info;
 
 
 /******************************************************************************
-* 函数名称: XLstatus GetDriverConfig()
+* 函数名称: XLstatus GetVectorHWInfo()
 * 功能说明: 获取硬件配置
 * 输入参数:
 * 输出参数: 无
 * 函数返回: XL_SUCCESS,XL_ERROR
 * 其它说明:
 ******************************************************************************/
-XLstatus GetDriverConfig();
+XLstatus GetVectorHWInfo();
 
 /******************************************************************************
 * 函数名称: InitCANDriver()
@@ -156,7 +154,7 @@ DWORD WINAPI RxThread(LPVOID par);
 ******************************************************************************/
 DWORD WINAPI RxCanFdThread(LPVOID par);
 
-
+void initHWinfo(channelInfo *channel_info);
 
 /******************************************************************************
 * 函数名称: XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *MsgBuffer, unsigned char Msglen, XLaccess xlChanMaskTx)

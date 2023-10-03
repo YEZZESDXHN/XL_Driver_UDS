@@ -45,8 +45,9 @@ HWND BT_start;
 HWND BT_stop;
 #define BTstop		1002
 
-HWND BT_1;
-#define BT1		1003
+HWND BT_MSG_Type;
+#define BTMSGType		1003
+
 HWND BT_2;
 #define BT1		1004
 HWND BT_3;
@@ -57,6 +58,9 @@ HWND BT_4;
 HWND BT_Send;
 #define BTSend		1007
 
+
+
+
 HWND Edit_in;
 #define Editin		2001
 
@@ -64,12 +68,17 @@ HWND Edit_out;
 #define Editout		2001
 
 
-HWND Groupbox_1;
-#define Groupbox1		3001
+HWND CAN_Config;
+#define CANConfig		3001
 
 
+
+HWND Channel_List_Name;
+#define ChannelListName		40011
 HWND Channel_List;
 #define ChannelList		4001
+
+
 
 HWND ECU_List;
 #define ECUList		4002
@@ -77,7 +86,10 @@ HWND ECU_List;
 HWND Diag_List;
 #define DiagList		4003
 
-
+HWND CAN_Bud_Mode_List;
+#define CANBudModeList		4004
+HWND CAN_Bud_Mode_List_Name;
+#define CANBudModeListName		40041
 
 int Wchar2Char(char* charStr, const wchar_t* wcharStr);
 int Char2Wchar(wchar_t* wcharStr, const char* charStr);
