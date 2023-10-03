@@ -67,8 +67,30 @@ unsigned int    g_ChannelChooes = 0xff;                          //通道选择
 
 
 
+/******************************************************************************
+* 函数名称: XLstatus GetDriverConfig()
+* 功能说明: 获取硬件配置
+* 输入参数:	
+* 输出参数: 无
+* 函数返回: XL_SUCCESS,XL_ERROR
+* 其它说明: 
+******************************************************************************/
+XLstatus GetDriverConfig()
+{
+	XLstatus          xlStatus;
+	// ------------------------------------
+	// open the driver
+	// ------------------------------------
+	xlStatus = xlOpenDriver();
 
-
+	// ------------------------------------
+	// get/print the hardware configuration
+	// ------------------------------------
+	if (XL_SUCCESS == xlStatus) {
+		xlStatus = xlGetDriverConfig(&g_xlDrvConfig);
+	}
+	return xlStatus;
+}
 
 
 
@@ -81,20 +103,11 @@ unsigned int    g_ChannelChooes = 0xff;                          //通道选择
 * 功能说明: 初始化CANoe驱动
 * 输入参数:	XLcanFdConf canfdParams,
 			unsigned int  BaudRate,
-			unsigned int  canFdSupport,
-			unsigned int  arbitrationBitRate,
-			unsigned int  sjwAbr,              // CAN bus timing for nominal / arbitration bit rate
-			unsigned int  tseg1Abr,
-			unsigned int  tseg2Abr,
-			unsigned int  dataBitRate,
-			unsigned int  sjwDbr,              // CAN bus timing for data bit rate
-			unsigned int  tseg1Dbr,
-			unsigned int  tseg2Dbr,
-			unsigned char options             // CANFD_CONFOPT_
 * 输出参数: 无
 * 函数返回: XL_SUCCESS,XL_ERROR
 * 其它说明: g_canFdSupport=0,硬件不支持CANFD;g_canBusMode=0,使用CAN1.0模式；
 			默认会打开所有支持的通道
+			需要先调用GetDriverConfig()
 ******************************************************************************/
 XLstatus InitCANDriver(
 
@@ -120,16 +133,7 @@ XLstatus InitCANDriver(
 
 	if (XL_SUCCESS == xlStatus) {
 
-		//init
-		g_xlChannelCANMask = 0;
-		g_xlChannelCANFDMask = 0;
-		g_xlChannelCANFDNOISOMask = 0;
-		g_xlPermissionMask = 3;
-		//g_BaudRate = 500000;
-
-
-
-
+		
 		// ------------------------------------
 		// select the wanted channels
 		// ------------------------------------
@@ -401,7 +405,7 @@ void getHWinfo(channelInfo *channel_info)
 	{
 		//printf("i=%d g_xlChannelCANFDMask=%I64x\n", i, g_xlChannelCANFDMask);
 
-		if (cm & g_xlChannelCANFDMask)
+		if (cm & g_xlChannelCANMask)
 		{
 			
 			//channelcount++;

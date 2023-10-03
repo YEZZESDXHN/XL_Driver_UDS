@@ -97,16 +97,26 @@ channelInfo g_channel_info;
 
 
 
+/******************************************************************************
+* 函数名称: XLstatus GetDriverConfig()
+* 功能说明: 获取硬件配置
+* 输入参数:
+* 输出参数: 无
+* 函数返回: XL_SUCCESS,XL_ERROR
+* 其它说明:
+******************************************************************************/
+XLstatus GetDriverConfig();
 
 /******************************************************************************
 * 函数名称: InitCANDriver()
 * 功能说明: 初始化CANoe驱动
 * 输入参数:	XLcanFdConf canfdParams,
-			unsigned int  BaudRate
+			unsigned int  BaudRate,
 * 输出参数: 无
 * 函数返回: XL_SUCCESS,XL_ERROR
 * 其它说明: g_canFdSupport=0,硬件不支持CANFD;g_canBusMode=0,使用CAN1.0模式；
 			默认会打开所有支持的通道
+			需要先调用GetDriverConfig()
 ******************************************************************************/
 XLstatus InitCANDriver(
 

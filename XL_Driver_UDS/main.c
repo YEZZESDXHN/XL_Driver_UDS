@@ -5,6 +5,8 @@
 #include"paneldesign.h"
 
 
+
+
 /******************************************************************************
 * 函数名称: void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result)
 * 功能说明: 接收UDS报文数据
@@ -28,6 +30,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 		//printf("\n");
 		settexttocontrol(Edit_out, "RX:", 1);
 		setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc,0);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if(n_result == N_FF_MSG)//接收到首帧
 	{
@@ -37,40 +40,43 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	{
 		//printf("TIMER_N_BS 定时器超时\n");
 		settexttocontrol(Edit_out, "TIMER_N_BS 定时器超时", 1);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if (n_result == N_TIMEOUT_Cr)                       // TIMER_N_CR 定时器超时
 	{
 		//printf("TIMER_N_CR 定时器超时\n");
 		settexttocontrol(Edit_out, "TIMER_N_CR 定时器超时", 1);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if (n_result == N_WRONG_SN)                         // 接收到的连续帧帧序号错误
 	{
 		//printf("接收到的连续帧帧序号错误\n");
 		settexttocontrol(Edit_out, "接收到的连续帧帧序号错误", 1);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if (n_result == N_INVALID_FS)                       // 接收到的流控帧中流状态非法
 	{
 		//printf("接收到的流控帧中流状态非法\n");
 		settexttocontrol(Edit_out, "接收到的流控帧中流状态非法", 1);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if (n_result == N_UNEXP_PDU)                        // 不是期待的帧类型，比如在接收连续帧中莫名收到首帧
 	{
 		//printf("不是期待的帧类型，比如在接收连续帧中莫名收到首帧\n");
 		settexttocontrol(Edit_out, "不是期待的帧类型", 1);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if (n_result == N_BUFFER_OVFLW)                     // 接收到的流控帧中流状态为溢出
 	{
 		//printf("接收到的流控帧中流状态为溢出\n");
 		settexttocontrol(Edit_out, "接收到的流控帧中流状态为溢出", 1);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if (n_result == N_TX_OK)
 	{
-		printf("TX SUCCEED:ID:%4X\tDatalen:%d\tData:", REQUEST_ID, msg_dlc);
-		for (int i = 0; i < msg_dlc; i++)
-		{
-			printf("%02X ", msg_buf[i]);
-		}
-		printf("\n");
+		settexttocontrol(Edit_out, "TX:", 1);
+		setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	
 	
@@ -187,14 +193,14 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	);
 
 	Groupbox_1 = CreateWindowExW(
-		0, L"button", L"Groupbox1", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON|WS_GROUP|BS_GROUPBOX, 600, 10,
+		0, L"button", L"Groupbox1", WS_CHILD | WS_VISIBLE | BS_PUSHBUTTON|WS_GROUP|BS_GROUPBOX, 10, 50,
 		100, 100, GUI, (HMENU)Groupbox1, GetModuleHandle(NULL), NULL
 	);
 
 
 
 	hTabCtel = CreateWindowExW(
-		0, WC_TABCONTROL, NULL, WS_CHILDWINDOW | WS_VISIBLE | WS_BORDER| TCS_BOTTOM, 10, 100,
+		0, WC_TABCONTROL, NULL, WS_CHILDWINDOW | WS_VISIBLE | WS_BORDER| TCS_BOTTOM, 10, 150,
 		500, 500, GUI, (HMENU)TabCtel, GetModuleHandle(NULL), NULL
 	);
 
@@ -220,22 +226,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	Tab_4 = CreateWindowW(szWindowClass, "tab4", WS_CHILDWINDOW | WS_BORDER,
 		0, 0, 498, 473, hTabCtel, (HMENU)Tab4, hInstance, NULL);
 
-	BT_1 = CreateWindowExW(
-		0, L"button", L"bt1", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
-		50, 30, Tab_1, (HMENU)BT1, GetModuleHandle(NULL), NULL
-	);
-	BT_2 = CreateWindowExW(
-		0, L"button", L"bt2", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
-		50, 30, Tab_2, (HMENU)BT1, GetModuleHandle(NULL), NULL
-	);
-	BT_3 = CreateWindowExW(
-		0, L"button", L"bt3", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
-		50, 30, Tab_3, (HMENU)BT1, GetModuleHandle(NULL), NULL
-	);
-	BT_4 = CreateWindowExW(
-		0, L"button", L"bt4", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 10,
-		50, 30, Tab_4, (HMENU)BT1, GetModuleHandle(NULL), NULL
-	);
+	
 
 	
 
@@ -266,7 +257,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	g_canFdParams.tseg2Dbr = 4;
 	g_canFdParams.sjwDbr = 2;
 	
+	//xlStatus = GetDriverConfig();
+
 	
+
 	xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
 	
 	if (xlStatus == XL_SUCCESS)
@@ -284,10 +278,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	}
 	
 	
-	timer_tu(1);
-	
-		
 	getHWinfo(&g_channel_info);
+		
+	
 	
 	for (int i = 0; i < g_channel_info.channelcount; i++)
 	{

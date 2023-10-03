@@ -3,6 +3,9 @@
 #include<stdint.h>
 #include<time.h>
 #include"uds_tp.h"
+
+int isFirststart = 1;
+
 clock_t t1 = 0, t2 = 0;
 void timer_tu_doing()//时钟周期循环内容
 
@@ -297,7 +300,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // 将实例句柄存储在全局变量中
 
-	GUI = CreateWindowW(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+	GUI = CreateWindowW(szWindowClass, L"XL_UDS", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
 	if (!GUI)
@@ -345,8 +348,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
+				
 				timer_tu(1);
 				g_Run = 1;
+				
+
+				
 			}
 			
 			break;
