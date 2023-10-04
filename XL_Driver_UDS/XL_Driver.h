@@ -50,13 +50,14 @@ extern XLaccess        g_xlChannelCANMask;								//所有支持can的通道掩码，包括C
 extern XLaccess        g_xlChannelCANFDMask;							//支持CANFD的通道掩码
 extern XLaccess        g_xlChannelCANFDNOISOMask;						//支持CANFD NO ISO(CANFD BOSCH)的通道掩码
 extern XLaccess        g_xlChannelChooseMask;							//选择发送报文的通道
+
 extern unsigned int    g_canFdModeNoIso;  //CANFD NO ISO 标志位
-
-
-
 extern unsigned int    g_canFdSupport;                          //硬件是否支持CANFD
 extern unsigned int    g_canBusMode;                          //选择CAN总线类型,0：CAN;1CANFD
 extern unsigned int    g_canMsgType;                          //选择发送can消息类型,0：CAN;1CANFD，总线类型为CANFD可用
+
+extern unsigned int    g_Run;
+extern unsigned int    g_ChannelChooes;
 XLcanFdConf		g_canFdParams;							//CANFD参数
 
 
@@ -94,16 +95,26 @@ channelInfo g_channel_info;
 
 
 
+/******************************************************************************
+* 函数名称: XLstatus GetVectorHWInfo()
+* 功能说明: 获取硬件配置
+* 输入参数:
+* 输出参数: 无
+* 函数返回: XL_SUCCESS,XL_ERROR
+* 其它说明:
+******************************************************************************/
+XLstatus GetVectorHWInfo();
 
 /******************************************************************************
 * 函数名称: InitCANDriver()
 * 功能说明: 初始化CANoe驱动
 * 输入参数:	XLcanFdConf canfdParams,
-			unsigned int  BaudRate
+			unsigned int  BaudRate,
 * 输出参数: 无
 * 函数返回: XL_SUCCESS,XL_ERROR
 * 其它说明: g_canFdSupport=0,硬件不支持CANFD;g_canBusMode=0,使用CAN1.0模式；
 			默认会打开所有支持的通道
+			需要先调用GetDriverConfig()
 ******************************************************************************/
 XLstatus InitCANDriver(
 
@@ -143,7 +154,7 @@ DWORD WINAPI RxThread(LPVOID par);
 ******************************************************************************/
 DWORD WINAPI RxCanFdThread(LPVOID par);
 
-
+void initHWinfo(channelInfo *channel_info);
 
 /******************************************************************************
 * 函数名称: XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *MsgBuffer, unsigned char Msglen, XLaccess xlChanMaskTx)

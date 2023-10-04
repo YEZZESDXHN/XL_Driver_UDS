@@ -45,12 +45,8 @@ XLaccess        g_xlChannelCANFDNOISOMask=0;						//支持CANFD NO ISO(CANFD BOSCH
 XLaccess        g_xlChannelChooseMask=0;							//选择发送报文的通道
 unsigned int    g_BaudRate = 500000;
 
+
 unsigned int    g_canFdModeNoIso = ENABLE_CAN_FD_MODE_NO_ISO;  //!< Global CAN FD ISO (default) / no ISO mode flag
-
-
-
-
-
 unsigned int    g_canFdSupport=0;                          //硬件是否支持CANFD
 unsigned int    g_canBusMode=1;                          //选择CANFD模式，0：CAN;1CANFD
 unsigned int    g_canMsgType=0;                          //选择发送can消息类型,0：CAN;1CANFD，总线类型为CANFD可用
@@ -60,16 +56,8 @@ unsigned int    g_canMsgType=0;                          //选择发送can消息类型,0
 
 
 
-
-
-
-
-
-
-
-
-
-
+unsigned int    g_Run = 0;                          //运行标志位
+unsigned int    g_ChannelChooes = 0xff;                          //通道选择
 
 
 
@@ -77,32 +65,15 @@ unsigned int    g_canMsgType=0;                          //选择发送can消息类型,0
 
 
 /******************************************************************************
-* 函数名称: InitCANDriver()
-* 功能说明: 初始化CANoe驱动
-* 输入参数:	XLcanFdConf canfdParams,
-			unsigned int  BaudRate,
-			unsigned int  canFdSupport,
-			unsigned int  arbitrationBitRate,
-			unsigned int  sjwAbr,              // CAN bus timing for nominal / arbitration bit rate
-			unsigned int  tseg1Abr,
-			unsigned int  tseg2Abr,
-			unsigned int  dataBitRate,
-			unsigned int  sjwDbr,              // CAN bus timing for data bit rate
-			unsigned int  tseg1Dbr,
-			unsigned int  tseg2Dbr,
-			unsigned char options             // CANFD_CONFOPT_
+* 函数名称: XLstatus GetVectorHWInfo()
+* 功能说明: 获取硬件配置
+* 输入参数:
 * 输出参数: 无
 * 函数返回: XL_SUCCESS,XL_ERROR
-* 其它说明: g_canFdSupport=0,硬件不支持CANFD;g_canBusMode=0,使用CAN1.0模式；
-			默认会打开所有支持的通道
+* 其它说明:
 ******************************************************************************/
-XLstatus InitCANDriver(
-
-	XLcanFdConf canParams,
-	unsigned int  *BaudRate
-)
+XLstatus GetVectorHWInfo()
 {
-
 	XLstatus          xlStatus;
 	unsigned int      i;
 
@@ -119,15 +90,6 @@ XLstatus InitCANDriver(
 	}
 
 	if (XL_SUCCESS == xlStatus) {
-
-		//init
-		g_xlChannelCANMask = 0;
-		g_xlChannelCANFDMask = 0;
-		g_xlChannelCANFDNOISOMask = 0;
-		g_xlPermissionMask = 3;
-		//g_BaudRate = 500000;
-
-
 
 
 		// ------------------------------------
@@ -175,13 +137,101 @@ XLstatus InitCANDriver(
 			xlStatus = XL_ERROR;
 		}
 	}
+	return xlStatus;
+}
+
+
+
+
+
+/******************************************************************************
+* 函数名称: InitCANDriver()
+* 功能说明: 初始化CANoe驱动
+* 输入参数:	XLcanFdConf canfdParams,
+			unsigned int  BaudRate,
+* 输出参数: 无
+* 函数返回: XL_SUCCESS,XL_ERROR
+* 其它说明: g_canFdSupport=0,硬件不支持CANFD;g_canBusMode=0,使用CAN1.0模式；
+			默认会打开所有支持的通道
+			需要先调用GetDriverConfig()
+******************************************************************************/
+XLstatus InitCANDriver(
+
+	XLcanFdConf canParams,
+	unsigned int  *BaudRate
+)
+{
+
+	XLstatus          xlStatus;
+	//unsigned int      i;
+
+	//// ------------------------------------
+	//// open the driver
+	//// ------------------------------------
+	//xlStatus = xlOpenDriver();
+
+	//// ------------------------------------
+	//// get/print the hardware configuration
+	//// ------------------------------------
+	//if (XL_SUCCESS == xlStatus) {
+	//	xlStatus = xlGetDriverConfig(&g_xlDrvConfig);
+	//}
+
+	//if (XL_SUCCESS == xlStatus) {
+
+	//	
+	//	// ------------------------------------
+	//	// select the wanted channels
+	//	// ------------------------------------
+
+	//	for (i = 0; i < g_xlDrvConfig.channelCount; i++) {
+
+	//		// we take all hardware we found and supports CAN
+	//		if (g_xlDrvConfig.channel[i].channelBusCapabilities & XL_BUS_ACTIVE_CAP_CAN) {
+
+	//			// check if we can use CAN FD - the virtual CAN driver supports CAN-FD, but we don't use it
+	//			if ((g_xlDrvConfig.channel[i].channelCapabilities & XL_CHANNEL_FLAG_CANFD_ISO_SUPPORT)
+	//				/*&& (g_xlDrvConfig.channel[i].hwType != XL_HWTYPE_VIRTUAL)*/) {
+	//				g_xlChannelCANFDMask |= g_xlDrvConfig.channel[i].channelMask;//支持CANFD IOS
+
+	//				// check CAN FD NO ISO support
+	//				if (g_xlDrvConfig.channel[i].channelCapabilities & XL_CHANNEL_FLAG_CANFD_BOSCH_SUPPORT) {
+	//					g_xlChannelCANFDNOISOMask |= g_xlDrvConfig.channel[i].channelMask;//支持CANFD NO IOS
+	//				}
+	//			}
+	//			else {
+	//				g_xlChannelCANMask |= g_xlDrvConfig.channel[i].channelMask;
+	//			}
+
+	//		}
+	//	}
+
+	//	//如果检测支持CANFD,那么也支持CAN,设置g_xlChannelMask
+	//	if (g_xlChannelCANFDMask && g_canFdModeNoIso == 0) //支持CANFD,CAN IOS模式
+	//	{
+	//		g_xlChannelCANMask |= g_xlChannelCANFDMask;
+	//		g_canFdSupport = 1;//支持CANFD
+
+	//	}
+
+	//	if (g_xlChannelCANFDNOISOMask && g_canFdModeNoIso) //支持CANFD,CAN NO IOS模式
+	//	{
+	//		g_xlChannelCANMask |= g_xlChannelCANFDNOISOMask;
+	//		g_canFdSupport = 1;//支持CANFD
+	//	}
+
+	//	if (!g_xlChannelCANMask) //无CAN通道
+	//	{
+	//		xlStatus = XL_ERROR;
+	//	}
+	//}
 
 	//g_xlPermissionMask = g_xlChannelMask;//给权限
 
 	// ------------------------------------
 	// 打开全部端口,默认给所有权限
 	// ------------------------------------
-	if (XL_SUCCESS == xlStatus) {
+	if (/*XL_SUCCESS == xlStatus*/1) {
 		
 		// check if we can use CAN FD
 		if (g_canFdSupport)
@@ -324,12 +374,15 @@ DWORD WINAPI RxThread(LPVOID par)
 			xlStatus = xlReceive(g_xlPortHandle, &msgsrx, &xlEvent);
 			if (xlStatus != XL_ERR_QUEUE_IS_EMPTY)
 			{
-				//printf("%s\n", xlGetEventString(&xlEvent));
-				if (xlEvent.chanIndex == 0)
+				if (g_Run == 1)
 				{
-					uds_tp_recv_frame(uds_send_can_farme, xlEvent.tagData.msg.data, xlEvent.tagData.msg.dlc);
+					if (xlEvent.chanIndex == g_ChannelChooes && g_ChannelChooes!=0xff)
+					{
+						uds_tp_recv_frame(uds_send_can_farme, xlEvent.tagData.msg.data, xlEvent.tagData.msg.dlc);
 
+					}
 				}
+				
 
 			}
 		}
@@ -368,12 +421,16 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 			if (xlStatus == XL_ERR_QUEUE_IS_EMPTY) {
 				break;
 			}
-
-			if (xlCanRxEvt.channelIndex == 0)
+			if (g_Run == 1)
 			{
-				uds_tp_recv_frame(uds_send_can_farme, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
-				
+				if (xlCanRxEvt.channelIndex == g_ChannelChooes && g_ChannelChooes != 0xff)
+				{
+					
+					uds_tp_recv_frame(uds_send_can_farme, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
+
+				}
 			}
+			
 
 
 		} while (XL_SUCCESS == xlStatus);
@@ -384,7 +441,7 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 
 
 
-void getHWinfo(channelInfo *channel_info)
+void initHWinfo(channelInfo *channel_info)
 {
 	XLaccess cm = 1;
 	uint8_t channelcount=1;//所有can通道个数
@@ -394,7 +451,7 @@ void getHWinfo(channelInfo *channel_info)
 	{
 		//printf("i=%d g_xlChannelCANFDMask=%I64x\n", i, g_xlChannelCANFDMask);
 
-		if (cm & g_xlChannelCANFDMask)
+		if (cm & g_xlChannelCANMask)
 		{
 			
 			//channelcount++;

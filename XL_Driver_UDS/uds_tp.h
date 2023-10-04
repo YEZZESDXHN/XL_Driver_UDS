@@ -507,6 +507,23 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 //int network_reg(nt_usdata_t* usdata);
 
 
+/******************************************************************************
+* 函数名称: int SecurityAccessWithDLL(char *iFilename, const unsigned char iSeed[], unsigned int iSeedSize, const unsigned int iSecurityLevel, unsigned char *oKeyArray, unsigned int iKeyArrayMaxSize,unsigned int *oSize)
+* 功能说明: 调用Vector Dll解锁
+* 输入参数:  char *iFilename						Dll路径,文件名
+			const unsigned char iSeed[]			输入种子
+			unsigned int iSeedSize				输入种子长度
+			const unsigned int iSecurityLevel	解锁等级
 
+			unsigned int iKeyArrayMaxSize		key数组最大长度
+
+* 输出参数:	unsigned char *oKeyArray			输出key
+			unsigned int *oSize					输出key长度
+* 函数返回:	0：调用GenerateKeyEx成功解锁
+			1：调用GenerateKeyExOpt成功解锁
+			-1:调用失败
+* 其它说明:
+******************************************************************************/
+int SecurityAccessWithDLL(char *iFilename, const unsigned char iSeed[], unsigned int iSeedSize, const unsigned int iSecurityLevel, unsigned char *oKeyArray, unsigned int iKeyArrayMaxSize, unsigned int *oSize);
 
 #endif

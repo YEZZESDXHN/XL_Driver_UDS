@@ -1,6 +1,6 @@
 #include "uds_tp.h"
 #include <stdint.h>
-#include <stdio.h>
+#include<Windows.h>
 // 网络层状态, 共有 3 种 空闲状态(NWL_IDLE)、发送状态(NWL_XMIT)、接收状态(NWL_RECV)
 // 当接收到首帧时，状态被置为 NWL_RECV，直到连续帧接收完成才置为 NWL_IDLE
 // 当发送多帧时，该状态被置为 NWL_XMIT，直到发送完成后才置为 NWL_IDLE
@@ -914,4 +914,85 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 void uds_1ms_task(UDS_SEND_FRAME sendframefun)
 {
 	network_task(sendframefun);
+}
+
+
+
+
+
+/******************************************************************************
+* 函数名称: int SecurityAccessWithDLL(char *iFilename, const unsigned char iSeed[], unsigned int iSeedSize, const unsigned int iSecurityLevel, unsigned char *oKeyArray, unsigned int iKeyArrayMaxSize,unsigned int *oSize)
+* 功能说明: 调用Vector Dll解锁
+* 输入参数:  char *iFilename						Dll路径,文件名
+			const unsigned char iSeed[]			输入种子
+			unsigned int iSeedSize				输入种子长度
+			const unsigned int iSecurityLevel	解锁等级
+			
+			unsigned int iKeyArrayMaxSize		key数组最大长度
+			
+* 输出参数:	unsigned char *oKeyArray			输出key
+			unsigned int *oSize					输出key长度
+* 函数返回:	0：调用GenerateKeyEx成功解锁
+			1：调用GenerateKeyExOpt成功解锁
+			-1:调用失败
+* 其它说明: 
+******************************************************************************/
+typedef int(*DLL_FUNCTION_GenerateKeyEx) (const unsigned char*, unsigned int, const unsigned int, const char*, unsigned char*, unsigned int, unsigned int*); //typedef定义一下函数指针，你不懂的话就记住末尾两个是你需要函数的形参。
+typedef int(*DLL_FUNCTION_GenerateKeyExOpt) (const unsigned char*, unsigned int, const unsigned int, const char*, const char*, unsigned char*, unsigned int, unsigned int*); //typedef定义一下函数指针，你不懂的话就记住末尾两个是你需要函数的形参。
+int SecurityAccessWithDLL(char *iFilename, const unsigned char iSeed[], unsigned int iSeedSize, const unsigned int iSecurityLevel, unsigned char *oKeyArray, unsigned int iKeyArrayMaxSize,unsigned int *oSize)
+{
+	
+	HINSTANCE handle = LoadLibrary(iFilename);//LoadLibrary填入ddl文件名赋值给句柄
+	DLL_FUNCTION_GenerateKeyEx dll_GenerateKeyEx = (DLL_FUNCTION_GenerateKeyEx)GetProcAddress(handle, "GenerateKeyEx"); //使用GetProcAddress得到函数，参数是句柄名和函数名
+	if (dll_GenerateKeyEx) //还是判断一下函数指针是否有效
+	{
+
+		//const unsigned char ipSeedArray[4];
+		//unsigned int          iSeedArraySize = 4; /* Length of the array for the seed [in] */
+		//const unsigned int    iSecurityLevel = 1;  /* Security level [in] */
+		const char iVariant = 1;   /* Name of the active variant [in] */
+	//const char ipOptions = 1;
+		//unsigned char ioKeyArray[4];     /* Array for the key [in, out] */
+		//unsigned int          iKeyArraySize = 4;  /* Maximum length of the array for the key [in] */
+		//unsigned int oSize = 0;
+
+		//SecurityInfo[ECU_Choose].SeedLen = 4;
+		//SecurityInfo[ECU_Choose].Seed[0] = 1;
+		//SecurityInfo[ECU_Choose].Seed[0] = 2;
+		//SecurityInfo[ECU_Choose].Seed[0] = 3;
+		//SecurityInfo[ECU_Choose].Seed[0] = 4;
+		dll_GenerateKeyEx(iSeed, iSeedSize, iSecurityLevel, &iVariant, oKeyArray, iKeyArrayMaxSize, &oSize);
+		
+		FreeLibrary(handle); //卸载句柄，，
+		return 0;
+		
+	}
+	else
+	{
+		//HINSTANCE handle1 = LoadLibrary(_T("SeednKeyEx.dll"));//LoadLibrary填入ddl文件名赋值给句柄
+		//typedef int(*DLL_FUNCTION_GenerateKeyExOpt) (const unsigned char*, unsigned int, const unsigned int, const char*, const char*, unsigned char*, unsigned int, unsigned int*); //typedef定义一下函数指针，你不懂的话就记住末尾两个是你需要函数的形参。
+
+		DLL_FUNCTION_GenerateKeyExOpt dll_GenerateKeyExOpt = (DLL_FUNCTION_GenerateKeyExOpt)GetProcAddress(handle, "GenerateKeyExOpt"); //使用GetProcAddress得到函数，参数是句柄名和函数名
+
+		if (dll_GenerateKeyExOpt) //还是判断一下函数指针是否有效
+		{
+			//const unsigned char  ipSeedArray[4] = { 0x1,0x2,0x3,0x4 };
+			//unsigned int          iSeedArraySize = 4; /* Length of the array for the seed [in] */
+			//const unsigned int    iSecurityLevel = 1;  /* Security level [in] */
+			const char           iVariant = 1;   /* Name of the active variant [in] */
+			const char ipOptions = 1;
+			//unsigned char        ioKeyArray[4];     /* Array for the key [in, out] */
+			//unsigned int          iKeyArraySize = 4;  /* Maximum length of the array for the key [in] */
+			//unsigned int         oSize = 0;
+
+			//printf("SeednKeyExOpt\n");
+			dll_GenerateKeyExOpt(iSeed, iSeedSize, iSecurityLevel, &iVariant, &ipOptions, oKeyArray, iKeyArrayMaxSize, &oSize);
+			FreeLibrary(handle); //卸载句柄，，
+			return 1;
+		}
+		else
+		{
+			return -1;
+		}
+	}
 }
