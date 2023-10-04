@@ -411,6 +411,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				g_canMsgType = 0;
 			}
+			break;
 		}
 		case BTSend:
 		{
