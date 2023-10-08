@@ -65,9 +65,9 @@ uint8_t g_tatype=0;
 // 上层向 TP 层注册的一些接口函数将会记录在 N_USData 中，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
 //static nt_usdata_t N_USData = { NULL, NULL, NULL };
 
-extern uint16_t REQUEST_ID = 0x724;			// 请求 ID
+extern uint16_t REQUEST_ID = 0x726;			// 请求 ID
 extern uint16_t FUNCTION_ID = 0x7df;			// 功能 ID
-extern uint16_t RESPONSE_ID = 0x7A4;			// 应答 ID
+extern uint16_t RESPONSE_ID = 0x7A6;			// 应答 ID
 
 
 /******************************************************************************
@@ -941,8 +941,13 @@ typedef int(*DLL_FUNCTION_GenerateKeyEx) (const unsigned char*, unsigned int, co
 typedef int(*DLL_FUNCTION_GenerateKeyExOpt) (const unsigned char*, unsigned int, const unsigned int, const char*, const char*, unsigned char*, unsigned int, unsigned int*); //typedef定义一下函数指针，你不懂的话就记住末尾两个是你需要函数的形参。
 int SecurityAccessWithDLL(char *iFilename, const unsigned char iSeed[], unsigned int iSeedSize, const unsigned int iSecurityLevel, unsigned char *oKeyArray, unsigned int iKeyArrayMaxSize,unsigned int *oSize)
 {
-	
+	//unsigned int keylen=0;
+
 	HINSTANCE handle = LoadLibrary(iFilename);//LoadLibrary填入ddl文件名赋值给句柄
+	if (handle == NULL)
+	{
+		return -2;
+	}
 	DLL_FUNCTION_GenerateKeyEx dll_GenerateKeyEx = (DLL_FUNCTION_GenerateKeyEx)GetProcAddress(handle, "GenerateKeyEx"); //使用GetProcAddress得到函数，参数是句柄名和函数名
 	if (dll_GenerateKeyEx) //还是判断一下函数指针是否有效
 	{

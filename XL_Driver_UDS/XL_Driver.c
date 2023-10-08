@@ -423,7 +423,7 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 			}
 			if (g_Run == 1)
 			{
-				if (xlCanRxEvt.channelIndex == g_ChannelChooes && g_ChannelChooes != 0xff)
+				if (xlCanRxEvt.channelIndex == g_ChannelChooes && g_ChannelChooes != 0xff && xlCanRxEvt.tagData.canRxOkMsg.canId== RESPONSE_ID)
 				{
 					
 					uds_tp_recv_frame(uds_send_can_farme, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
@@ -616,4 +616,22 @@ int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned 
 }
 
 
+int service_3e_TesterPresent()
+{
+	unsigned char senddata[FRAME_SIZE];
+	senddata[0] = 0x3e;
+	senddata[1] = 0x80;
+	send_singleframe(uds_send_can_farme, senddata, 2);
+}
 
+DWORD WINAPI TxThread_3E(LPVOID par)
+{
+	
+	while (1) {
+
+		Sleep(3300);
+		service_3e_TesterPresent();
+		
+
+	}
+}

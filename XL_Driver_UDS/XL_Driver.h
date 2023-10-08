@@ -185,7 +185,7 @@ int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned 
 
 
 
-
+DWORD     WINAPI TxThread_3E(LPVOID par);
 
 
 
