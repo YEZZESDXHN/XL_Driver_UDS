@@ -61,7 +61,7 @@ typedef enum _N_RX_RESULT_
 
 
 //上层向 TP 层注册的发送报文接口函数
-typedef int(*UDS_SEND_FRAME)(unsigned short, unsigned char*, unsigned short);
+typedef int(*UDS_SEND_FRAME)(unsigned int, unsigned char*, unsigned char);
 
 // 上层向 TP 层注册的一些接口函数，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
 //typedef void(*indication_func) (uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result);
@@ -82,11 +82,12 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 extern uint8_t g_tatype;
 
 
-
-
-extern uint16_t REQUEST_ID;			// 请求 ID
-extern uint16_t FUNCTION_ID;			// 功能 ID
-extern uint16_t RESPONSE_ID;			// 应答 ID
+//#define REQUEST_ID 0x724
+//#define FUNCTION_ID 0x7df
+//#define RESPONSE_ID 0x7a4
+extern unsigned int REQUEST_ID;			// 请求 ID
+extern unsigned int FUNCTION_ID;			// 功能 ID
+extern unsigned int RESPONSE_ID;			// 应答 ID
 
 // // 填充值，如果发送的有效数据不满一帧，则用该值填充
 // #define PADDING_VAL                 (0x55)
@@ -137,7 +138,7 @@ extern uint16_t RESPONSE_ID;			// 应答 ID
 //#define RESPONSE_ID     0x456           // 应答 ID
 
 #define UDS_RX_MAX      1024            // 接收缓冲区长度 --UDS TP 层协议规定最大支持 4095 字节，但是可以根据实际需要改动，以免资源浪费
-#define UDS_TX_MAX      128             // 发送缓冲区长度 --UDS TP 层协议规定最大支持 4095 字节，但是可以根据实际需要改动，以免资源浪费
+#define UDS_TX_MAX      0x802             // 发送缓冲区长度 --UDS TP 层协议规定最大支持 4095 字节，但是可以根据实际需要改动，以免资源浪费
 
 #define PADDING_VAL     0x55            // 填充值，如果发送的有效数据不满一帧，则用该值填充
 
@@ -424,7 +425,7 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 * 函数返回: 成功发送的有效数据长度
 * 其它说明: 无
 ******************************************************************************/
-static int send_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc);
+int send_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc);
 
 /******************************************************************************
 * 函数名称: static int send_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc, uint8_t frame_sn)
@@ -451,7 +452,7 @@ static int send_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, 
 * 函数返回: 0: OK; -1: ERR
 * 其它说明: 无
 ******************************************************************************/
-static int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc);
+int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc);
 
 
 /******************************************************************************

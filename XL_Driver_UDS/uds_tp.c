@@ -1,5 +1,6 @@
 #include "uds_tp.h"
 #include <stdint.h>
+#include<stdio.h>
 #include<Windows.h>
 // 网络层状态, 共有 3 种 空闲状态(NWL_IDLE)、发送状态(NWL_XMIT)、接收状态(NWL_RECV)
 // 当接收到首帧时，状态被置为 NWL_RECV，直到连续帧接收完成才置为 NWL_IDLE
@@ -65,10 +66,9 @@ uint8_t g_tatype=0;
 // 上层向 TP 层注册的一些接口函数将会记录在 N_USData 中，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
 //static nt_usdata_t N_USData = { NULL, NULL, NULL };
 
-extern uint16_t REQUEST_ID = 0x726;			// 请求 ID
-extern uint16_t FUNCTION_ID = 0x7df;			// 功能 ID
-extern uint16_t RESPONSE_ID = 0x7A6;			// 应答 ID
-
+unsigned int REQUEST_ID = 0x724;			// 请求 ID
+unsigned int FUNCTION_ID = 0x7df;			// 功能 ID
+unsigned int RESPONSE_ID = 0x7A4;			// 应答 ID
 
 /******************************************************************************
 * 函数名称: static void nt_timer_start(nt_timer_t num)
@@ -172,6 +172,12 @@ static int nt_timer_run(nt_timer_t num)
 	else
 	{
 		nt_timer[num]--;            // 计数值 -1
+		//if (nt_timer[num] <= 17)
+		//{
+		//	nt_timer[num] = 18;
+		//}
+		//nt_timer[num]= nt_timer[num]-17;            // 计数值 -1
+		//if(nt_timer[num])
 		return 1;                   // 返回 1，定时器正在计时运行
 	}
 }
@@ -473,6 +479,7 @@ static int recv_flowcontrolframe(uint8_t* frame_buf, uint8_t frame_dlc)
 	// 因为定时器计数值为 1 的时候表示超时，所以这里设置的计定时计数值都是 +1 的
 	if (frame_buf[2] <= 0x7F)
 		g_rfc_stmin = frame_buf[2] + 1;
+		//g_rfc_stmin = 10;
 	else if (frame_buf[2] >= 0xF0 && frame_buf[2] <= 0xF9)
 		g_rfc_stmin = 1 + 1;
 	else
@@ -501,7 +508,8 @@ void send_flowcontrol(UDS_SEND_FRAME sendframefun, network_flow_status_t flow_st
 {
 	uint16_t i;
 	uint8_t send_buf[FRAME_SIZE] = { 0 };
-
+	unsigned int request_id = 0;
+	request_id = REQUEST_ID;
 	// 填充默认值
 	for (i = 0; i < FRAME_SIZE; i++)
 		send_buf[i] = PADDING_VAL;
@@ -517,7 +525,7 @@ void send_flowcontrol(UDS_SEND_FRAME sendframefun, network_flow_status_t flow_st
 	send_buf[2] = NT_XMIT_FC_STMIN;
 
 	// 发送
-	sendframefun(REQUEST_ID, send_buf, FRAME_SIZE);
+	sendframefun(request_id, send_buf, FRAME_SIZE);
 }
 
 /******************************************************************************
@@ -534,7 +542,8 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 {
 	uint16_t i;
 	uint8_t send_buf[FRAME_SIZE] = { 0 };
-
+	unsigned int request_id = 0;
+	request_id = REQUEST_ID;
 	// 填充默认值
 	for (i = 0; i < FRAME_SIZE; i++)
 		send_buf[i] = PADDING_VAL;
@@ -550,7 +559,7 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 		send_buf[1 + i] = msg_buf[i];
 
 	// 发送
-	if (sendframefun(REQUEST_ID, send_buf, FRAME_SIZE) == 1)
+	if (sendframefun(request_id, send_buf, FRAME_SIZE) == 1)
 	{
 		
 		uds_data_indication(msg_buf, msg_dlc, N_TX_OK);
@@ -571,11 +580,12 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 * 函数返回: 成功发送的有效数据长度
 * 其它说明: 无
 ******************************************************************************/
-static int send_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc)
+int send_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc)
 {
 	uint16_t i;
 	uint8_t send_buf[FRAME_SIZE] = { 0 };
-
+	unsigned int request_id = 0;
+	request_id = REQUEST_ID;
 	// 检查参数合法性
 	if (msg_dlc < FRAME_SIZE || msg_dlc > UDS_TX_MAX) return 0;
 
@@ -589,7 +599,11 @@ static int send_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16
 		send_buf[2 + i] = msg_buf[i];
 
 	// 发送
-	sendframefun(RESPONSE_ID, send_buf, FRAME_SIZE);
+	sendframefun(request_id, send_buf, FRAME_SIZE);
+	//uds_send_can_farme(0x724, send_buf, FRAME_SIZE);
+	//uint8_t data[8] = { 0x10,0xd,0x2e,0xf1,0x8c,0x00,0x11,0x22 };
+	//XLTransmitMsg(0x726, 0, data, 8, 1);
+	
 
 	// 发送完首帧后，流控帧等待标志需置 1，接下来等待接收流控帧
 	g_wait_fc = TRUE;
@@ -616,7 +630,8 @@ static int send_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, 
 {
 	uint16_t i;
 	uint8_t send_buf[FRAME_SIZE] = { 0 };
-
+	unsigned int request_id = 0;
+	request_id = REQUEST_ID;
 	// 连续帧的第一个字节的高 4 位表示帧类型，低 4 位表示帧序号，每发送一帧连续帧时其应该 +1，超过 0xf 复位为 0
 	send_buf[0] = NT_SET_PCI_TYPE_CF(frame_sn);
 
@@ -627,9 +642,9 @@ static int send_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, 
 	// 连续帧的最后一帧可能是不满的，需填充默认值 PADDING_VAL
 	for (; i < (FRAME_SIZE - 1); i++)
 		send_buf[1 + i] = PADDING_VAL;
-
 	// 发送
-	sendframefun(RESPONSE_ID, send_buf, FRAME_SIZE);
+	sendframefun(request_id, send_buf, FRAME_SIZE);
+	//uds_send_can_farme(0x724, send_buf, FRAME_SIZE);
 	// 如果 msg_dlc > FRAME_SIZE - 1，说明这不是最后一个连续帧，实际发送的有效数据长度为 FRAME_SIZE - 1
 	// 否则说明这是连续帧的最后一帧，返回实际发送最后剩余的有效数据长度
 	if (msg_dlc > (FRAME_SIZE - 1))
@@ -650,7 +665,7 @@ static int send_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, 
 * 函数返回: 0: OK; -1: ERR
 * 其它说明: 无
 ******************************************************************************/
-static int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc)
+int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_dlc)
 {
 	uint16_t i;
 	uint8_t send_len;
@@ -663,6 +678,48 @@ static int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uin
 	for (i = 0; i < msg_dlc; i++)
 		remain_buf[i] = msg_buf[i];
 	
+
+	int count = 0;
+	while (1)
+	{
+		printf("%04X: ", count);
+		for (int i = 0; i < 4; i++)
+		{
+			printf("%02X ", remain_buf[count+2]);
+			count++;
+		}
+		printf(" ");
+
+		for (int i = 0; i < 4; i++)
+		{
+			printf("%02X ", remain_buf[count + 2]);
+			count++;
+		}
+		printf(" ");
+
+		for (int i = 0; i < 4; i++)
+		{
+			printf("%02X ", remain_buf[count + 2]);
+			count++;
+		}
+		printf(" ");
+
+		for (int i = 0; i < 4; i++)
+		{
+			printf("%02X ", remain_buf[count + 2]);
+			count++;
+		}
+		printf("\n");
+
+		if (count >= msg_dlc-2)
+		{
+			break;
+		}
+	}
+
+
+
+
 	//将多帧数据长度赋给全局变量
 	remain_buf_len = msg_dlc;
 
@@ -759,7 +816,6 @@ void network_task(UDS_SEND_FRAME sendframefun)
 
 		// 发送一帧连续帧
 		send_len = send_consecutiveframe(sendframefun,&remain_buf[remain_pos], remain_len, g_xcf_sn);
-
 		// 剩余需要发送的有效数据在 remain_buf 数组中的起始位置 remain_pos 移动 send_len
 		remain_pos += send_len;
 
@@ -817,7 +873,7 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 {
 	uint8_t pci_type;
 	int ret = -1;
-
+	
 	// 检查参数合法性
 	if (NULL == frame_buf || FRAME_SIZE != frame_dlc)
 		return;
@@ -826,6 +882,9 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 
 	// 每帧报文第一个字节的高 4 位表示帧类型，共 4 种：单帧(SF)、首帧(SF)、连续帧(CF)、流控帧(FC)
 	pci_type = NT_GET_PCI_TYPE(frame_buf[0]);
+
+	
+
 
 	// 接下来根据帧类型分别处理
 	switch (pci_type)
@@ -876,7 +935,7 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 		break;
 	case PCI_FC:                            // 流控帧
 		// 当网络层状态为发送状态并且处在等待流控帧状态时
-		if (NWL_XMIT == nwl_st && TRUE == g_wait_fc)
+		if (/*NWL_XMIT == nwl_st && */TRUE == g_wait_fc)
 		{
 			// 处理流控帧
 			ret = recv_flowcontrolframe(frame_buf, frame_dlc);
