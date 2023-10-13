@@ -181,7 +181,7 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 * 函数返回: 1:发送成功；-1：发送失败
 * 其它说明:默认发送can报文(no canfd)
 ******************************************************************************/
-int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen);
+int uds_send_can_farme(unsigned int canId, unsigned char* farmeData, unsigned char farmelen);
 
 
 

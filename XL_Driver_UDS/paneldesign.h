@@ -48,12 +48,12 @@ HWND BT_stop;
 HWND BT_MSG_Type;
 #define BTMSGType		1003
 
-HWND BT_2;
-#define BT1		1004
+HWND BT_flash;
+#define BTflash		1004
 HWND BT_3;
-#define BT1		1005
+#define BT3		1005
 HWND BT_4;
-#define BT1		1006
+#define BT4		1006
 
 HWND BT_Send;
 #define BTSend		1007

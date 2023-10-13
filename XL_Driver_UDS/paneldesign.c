@@ -3,7 +3,7 @@
 #include<stdint.h>
 #include<time.h>
 #include"uds_tp.h"
-
+#include"SID34_36_37TransferData.h"
 int isFirststart = 1;
 
 clock_t t1 = 0, t2 = 0;
@@ -17,16 +17,14 @@ void timer_tu_doing()//时钟周期循环内容
 void timer_tu_start(int n)
 
 {
-	//float t;
-	//t = n;
-	//while (1)
+	/*while (1)
 
-	//{
-	//	timer_tu_doing();
+	{
+		timer_tu_doing();
 
-	//	Sleep(t);
+		Sleep(n);
 
-	//}
+	}*/
 
 	while (1)
 	{
@@ -116,8 +114,8 @@ int Char2Wchar(wchar_t* wcharStr, const char* charStr) {
 
 void settexttocontrol(HWND hwnd, char text[], int type)
 {
-	int textlen = GetWindowTextLengthA(hwnd);
-	SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
+	//int textlen = GetWindowTextLengthA(hwnd);
+	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
 	if (type == 1)//换行
 	{
 		int len = GetWindowTextLengthA(hwnd);
@@ -138,8 +136,8 @@ void settexttocontrol(HWND hwnd, char text[], int type)
 }
 void setHEXtocontrol(HWND hwnd, unsigned short data, int type)
 {
-	int textlen = GetWindowTextLengthA(hwnd);
-	SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
+	//int textlen = GetWindowTextLengthA(hwnd);
+	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
 
 	char text[128];
 	snprintf(text, 5, "%3.2X", data);
@@ -161,8 +159,8 @@ void setHEXtocontrol(HWND hwnd, unsigned short data, int type)
 }
 void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type)
 {
-	int textlen = GetWindowTextLengthA(hwnd);
-	SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
+	//int textlen = GetWindowTextLengthA(hwnd);
+	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
 
 	char text[128];
 	int i;
@@ -425,6 +423,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					unsigned char data[128];
 					char_to_hex(temp, len, data);
 					network_send_udsmsg(uds_send_can_farme, data, len / 2);
+					//if (len / 2 > 7)
+					//{
+					//	send_multipleframe(uds_send_can_farme, data, len / 2);
+					//}
+					//else
+					//{
+
+					//	network_send_udsmsg(uds_send_can_farme, data, len / 2);
+					//}
 				}
 				else
 				{
@@ -437,6 +444,34 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				MessageBox(hWnd, L"请先运行工程", L"提示", MB_OK);
 			}
 			
+			break;
+		}
+		case BTflash:
+		{
+			if (g_Run = 1)
+			{
+				flash_test();
+				//flash("VIU_37MR_R520_RS1_177_20231011_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+				//uint8_t data[20] = { 0xf1,0x8c,0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88 };
+				
+				//XLTransmitMsg(REQUEST_ID, 0, data, 8, g_xlChannelChooseMask);
+				//uds_send_can_farme(0x724, data, 8);
+				//Sleep(1);
+				//uint8_t data1[8] = { 0x21,0x33,0x44,0x55,0x66,0x77,0x88,0x00 };
+
+				//XLTransmitMsg(REQUEST_ID, 0, data1, 8, g_xlChannelChooseMask);
+				//uds_send_can_farme(0x724, data1, 8);
+				//uds_send_can_farme(0x724, data, 8);
+				//uds_send_can_farme(REQUEST_ID, data, FRAME_SIZE);
+				//send_firstframe(uds_send_can_farme, data, 0xd);
+				//network_send_udsmsg(uds_send_can_farme, data, 0xc);
+				//send_multipleframe(uds_send_can_farme, data, 0xd);
+			}
+			else
+			{
+				MessageBox(hWnd, L"请先运行工程", L"提示", MB_OK);
+			}
+
 			break;
 		}
 		case ChannelList:

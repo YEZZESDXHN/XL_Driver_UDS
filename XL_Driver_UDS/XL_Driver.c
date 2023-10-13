@@ -427,7 +427,12 @@ DWORD WINAPI RxCanFdThread(LPVOID par)
 				{
 					
 					uds_tp_recv_frame(uds_send_can_farme, xlCanRxEvt.tagData.canRxOkMsg.data, xlCanRxEvt.tagData.canRxOkMsg.dlc);
-
+					//printf("xl RX:");
+					//for (int i = 0; i < 8; i++)
+					//{
+					//	printf("%02X ", xlCanRxEvt.tagData.canRxOkMsg.data[i]);
+					//}
+					//printf("\n");
 				}
 			}
 			
@@ -490,6 +495,7 @@ void initHWinfo(channelInfo *channel_info)
 * 函数返回: XL_SUCCESS,XL_ERROR
 * 其它说明:
 ******************************************************************************/
+
 XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *MsgBuffer, unsigned char Msglen, XLaccess xlChanMaskTx)
 {
 	XLstatus             xlStatus;
@@ -601,7 +607,7 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 * 函数返回: 1:发送成功；-1：发送失败
 * 其它说明:默认发送can报文(no canfd)，发送通道由全局变量g_xlChannelChooseMask设置
 ******************************************************************************/
-int uds_send_can_farme(unsigned short canId, unsigned char* farmeData, unsigned short farmelen)
+int uds_send_can_farme(unsigned int canId, unsigned char* farmeData, unsigned char farmelen)
 {
 	XLstatus             xlStatus;
 	xlStatus=XLTransmitMsg(canId, g_canMsgType, farmeData, farmelen, g_xlChannelChooseMask);

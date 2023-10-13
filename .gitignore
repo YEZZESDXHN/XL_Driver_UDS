@@ -2,3 +2,5 @@ Debug
 Release
 *.dll
 .vs
+*.hex
+*.bin

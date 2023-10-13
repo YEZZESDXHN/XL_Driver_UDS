@@ -3,6 +3,7 @@
 #include"uds_tp.h"
 #include<time.h>
 #include"paneldesign.h"
+#include"SID34_36_37TransferData.h"
 
 int service_27_SecurityAccess(char *iFilename, uint8_t* msg_buf, uint16_t msg_dlc)
 {
@@ -94,32 +95,40 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	
 	if (n_result == N_OK)//消息接收完成，包括成功接收完成多帧
 	{
-		
-		//printf("RX SUCCEED:ID:%4X\tDatalen:%d\tData:", RESPONSE_ID, msg_dlc);
-		//for (int i = 0; i < msg_dlc; i++)
+		//settexttocontrol(Edit_out, "RX:", 1);
+		//setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc,0);
+		//SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+
+		//printf("main RX:");
+		//for (int i = 0; i < 8; i++)
 		//{
 		//	printf("%02X ", msg_buf[i]);
 		//}
 		//printf("\n");
-		settexttocontrol(Edit_out, "RX:", 1);
-		setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc,0);
-		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+
 		if (msg_buf[0] == 0x67 && msg_buf[1]%2 == 1)
 		{
-			
-			service_27_SecurityAccess("SeednKeyMR", msg_buf, msg_dlc);
+			//printf("================jiesuo=============\n");
+			service_27_SecurityAccess("SeednKeyF", msg_buf, msg_dlc);
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 03)
 		{
-			demoTransmitBurst_3E();
+			//demoTransmitBurst_3E();
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 02)
 		{
-			demoTransmitBurst_3E();
+			//demoTransmitBurst_3E();
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 01)
 		{
-			demoStopTransmitBurst_3E();
+			//demoStopTransmitBurst_3E();
+		}
+		else if (service_36_start_flag == 1 && service_36_finsh_flag == 1)
+		{
+			unsigned char data[8] = { 0x37 };
+			network_send_udsmsg(uds_send_can_farme, data, 1);
+			service_36_finsh_flag = 0;
+			service_36_finsh_flag = 0;
 		}
 	}
 	else if(n_result == N_FF_MSG)//接收到首帧
@@ -164,9 +173,9 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	}
 	else if (n_result == N_TX_OK)
 	{
-		settexttocontrol(Edit_out, "TX:", 1);
-		setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
-		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+		//settexttocontrol(Edit_out, "TX:", 1);
+		//setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
+		//SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	
 	
@@ -250,16 +259,27 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	setlocale(LC_ALL, "");
 
+	//打开控制台
+	AllocConsole();
+	FILE* stream;
+	//freopen_s(&stream, "CON", "r", stdin);//重定向输入流
+	freopen_s(&stream, "CON", "w", stdout);//重定向输入流
+
+
+
+
 
 	// 初始化全局字符串
 	LoadStringW(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
 	LoadStringW(hInstance, IDC_VSWIN, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
-
-
-
-
+	//IHexRecord record_t;
+	//ConvertContext ctx_t;
+	//ReadHex("VIU_37FF_R500_RX1_158_20230720_BANK_1.hex", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin", &record_t, &ctx_t);
+	////Hex2Bin("VIU_37FF_R500_RX1_158_20230720_BANK_1.hex", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+	//sid36_download("VIU_37FF_R500_RX1_158_20230720_BANK_1.hex", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+	//flash("H37A3631809BD_VIU_37ML_R510_RC4_520_20230925_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
 
 	// 执行应用程序初始化:
 	if (!InitInstance(hInstance, nCmdShow))
@@ -351,6 +371,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		0, L"button", L"SendCANFDMsg", WS_CHILDWINDOW | WS_VISIBLE | BS_AUTOCHECKBOX, 220, 10,
 		130, 20, Tab_1, (HMENU)BTMSGType, GetModuleHandle(NULL), NULL
 	);
+
+	BT_flash = CreateWindowExW(
+		0, L"button", L"flash", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 350, 10,
+		50, 30, GUI, (HMENU)BTflash, GetModuleHandle(NULL), NULL
+	);
+
 	BT_Send = CreateWindowExW(
 		0, L"button", L"Send", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 220, 50,
 		50, 30, Tab_1, (HMENU)BTSend, GetModuleHandle(NULL), NULL

@@ -33,6 +33,18 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="SID34_36_37TransferData.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="IntelHex.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Srecord.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="readhex.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -45,6 +57,21 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="paneldesign.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="SID34_36_37TransferData.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="binstr_conv.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="IntelHex.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Srecord.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="readhex.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
