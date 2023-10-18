@@ -1,11 +1,13 @@
 #ifndef _UDS_TP_H_
 #define _UDS_TP_H_
 #include<stdint.h>
+#include"SID34_36_37TransferData.h"
 typedef enum __NT_TIMER_T__
 {
 	TIMER_N_CR = 0,                 // N_CR 定时器，接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: ms
 	TIMER_N_BS,                     // N_BS 定时器，发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: ms
 	TIMER_STmin,                    // STmin 定时器，发送连续帧时，间隔时间最小为 g_rfc_stmin,单位: ms
+	TIMER_Response,
 	TIMER_CNT                       // 定时器总个数
 }nt_timer_t;
 
@@ -14,8 +16,12 @@ typedef enum __NETWORK_LAYER_STATUS_
 	NWL_IDLE = 0,                   // 空闲状态
 	NWL_XMIT,                       // 发送状态
 	NWL_RECV,                       // 接收状态
+	//NWL_DL,							// 下载状态，刷写
 	NWL_CNT                         // 状态数量
 }network_layer_st;
+
+
+
 
 
 typedef enum __NETWORK_PCI_TYPE_
@@ -49,6 +55,7 @@ typedef enum _N_RX_RESULT_
 	N_OK = 0,
 	N_TIMEOUT_Bs,                       // TIMER_N_BS 定时器超时
 	N_TIMEOUT_Cr,                       // TIMER_N_CR 定时器超时
+	N_TIMEROUT_Respone,
 	N_WRONG_SN,                         // 接收到的连续帧帧序号错误
 	N_INVALID_FS,                       // 接收到的流控帧中流状态非法
 	N_UNEXP_PDU,                        // 不是期待的帧类型，比如在接收连续帧中莫名收到首帧
@@ -125,6 +132,9 @@ extern unsigned int RESPONSE_ID;			// 应答 ID
 
 // 接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: ms
 #define TIMEOUT_N_CR                (1000)
+
+// 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: ms
+#define TIMEOUT_Response                (1000)
 
 // 发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: ms
 #define TIMEOUT_N_BS                (1000)
@@ -351,7 +361,7 @@ static void clear_network(void);
 * 函数返回: 0: OK; -1: ERR
 * 其它说明: 无
 ******************************************************************************/
-int recv_singleframe(uint8_t* frame_buf, uint8_t frame_dlc);
+int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t frame_dlc);
 
 
 /******************************************************************************

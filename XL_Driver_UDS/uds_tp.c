@@ -7,6 +7,8 @@
 // 当发送多帧时，该状态被置为 NWL_XMIT，直到发送完成后才置为 NWL_IDLE
 static network_layer_st nwl_st = NWL_IDLE;
 
+
+
 // 连续帧接收标志，从接收到首帧时置 1，直到连续帧接收完成置 0
 static bool_t g_wait_cf = FALSE;
 
@@ -60,6 +62,10 @@ static uint16_t recv_fdl = 0;
 // 实际接收到的有效数据总长度，用于接收多帧报文时累加计数
 static uint16_t recv_len = 0;
 
+
+
+
+
 // 0:物理寻址; 1:功能寻址
 uint8_t g_tatype=0;
 
@@ -94,6 +100,10 @@ static void nt_timer_start(nt_timer_t num)
 	// 启动 STmin 定时器
 	if (num == TIMER_STmin)
 		nt_timer[TIMER_STmin] = g_rfc_stmin;
+
+	// 启动 TIMEOUT_N_Response 定时器
+	if (num == TIMER_Response)
+		nt_timer[TIMER_Response] = TIMEOUT_Response+1;
 }
 
 
@@ -237,7 +247,53 @@ static void clear_network(void)
 		nt_timer_stop(num);
 }
 
+int service_27_SecurityAccess(UDS_SEND_FRAME sendframefun, char *iFilename, uint8_t* msg_buf, uint16_t msg_dlc)
+{
+	unsigned char iSeed[FRAME_SIZE - 3];
+	unsigned int iSeedSize;
+	unsigned int iSecurityLevel;
+	unsigned int iKeyArrayMaxSize = FRAME_SIZE - 3;
+	unsigned char oKey[FRAME_SIZE - 3];
+	unsigned int oKeyLen = 0;
 
+	unsigned char senddata[FRAME_SIZE];
+
+	char dllname_char[128];
+	WCHAR dllname[128];
+	int ret;
+
+	if (msg_buf[0] != 0x67)
+		return -3;
+
+	if (msg_buf[1] % 2 == 0)
+		return -4;
+	iSeedSize = msg_dlc - 2;
+	for (int i = 0; i < iSeedSize; i++)
+	{
+		iSeed[i] = msg_buf[i + 2];
+	}
+	iSecurityLevel = msg_buf[1];
+
+	snprintf(dllname_char, 128, "./SecurityAccessDLL/");
+	strncat_s(dllname_char, 128, iFilename, 128);
+	Char2Wchar(dllname, dllname_char);
+	ret = SecurityAccessWithDLL(dllname, iSeed, iSeedSize, iSecurityLevel, oKey, iKeyArrayMaxSize, &oKeyLen);
+	if (ret >= 0)
+	{
+		senddata[0] = 0x27;
+		senddata[1] = iSecurityLevel + 1;
+		//setHEXtocontrol(Edit_out, oKeyLen, 1);
+		for (int i = 0; i < 4; i++)
+		{
+			senddata[i + 2] = oKey[i];
+		}
+
+
+		send_singleframe(sendframefun, senddata, iSeedSize + 2);
+		return ret;
+	}
+
+}
 
 /******************************************************************************
 * 函数名称: static int recv_singleframe (uint8_t* frame_buf, uint8_t frame_dlc)
@@ -248,7 +304,7 @@ static void clear_network(void)
 * 函数返回: 0: OK; -1: ERR
 * 其它说明: 无
 ******************************************************************************/
-int recv_singleframe(uint8_t* frame_buf, uint8_t frame_dlc)
+int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t frame_dlc)
 {
 	uint16_t i, uds_dlc;
 
@@ -265,6 +321,26 @@ int recv_singleframe(uint8_t* frame_buf, uint8_t frame_dlc)
 
 	// TP 层单帧数据处理完成，将数据交由上层继续处理
 	////N_USData.indication(recv_buf_sf, uds_dlc, N_OK);
+
+
+	if (recv_buf_sf[0] == 0x67 && recv_buf_sf[1] % 2 == 1)//收到种子，回复密钥解锁
+	{
+		service_27_SecurityAccess(sendframefun, "SeednKeyF", recv_buf_sf, uds_dlc);
+	}
+	else if (recv_buf_sf[0] == 0x74)//下载请求正响应，Flash状态置FLASH_DOWNLOAD
+	{
+		nwf_st = FLASH_REQUEST_Postive;
+	}
+	else if (recv_buf_sf[0] == 0x77)//退出下载请求正响应，Flash状态置FLASH_IDLE
+	{
+		nwf_st = FLASH_IDLE;
+	}
+	else if (recv_buf_sf[0] == 0x76)//退出下载请求正响应，Flash状态置FLASH_IDLE
+	{
+		nwf_st = FLASH_36service_finsh;
+	}
+
+
 	uds_data_indication(recv_buf_sf, uds_dlc, N_OK);
 	
 	return 0;
@@ -481,7 +557,7 @@ static int recv_flowcontrolframe(uint8_t* frame_buf, uint8_t frame_dlc)
 		g_rfc_stmin = frame_buf[2] + 1;
 		//g_rfc_stmin = 10;
 	else if (frame_buf[2] >= 0xF0 && frame_buf[2] <= 0xF9)
-		g_rfc_stmin = 1 + 1;
+		g_rfc_stmin = 1;
 	else
 		g_rfc_stmin = 0x7F + 1;
 
@@ -561,6 +637,7 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 	// 发送
 	if (sendframefun(request_id, send_buf, FRAME_SIZE) == 1)
 	{
+		nt_timer_start(TIMER_Response);    // 启动  定时器
 		
 		uds_data_indication(msg_buf, msg_dlc, N_TX_OK);
 	}
@@ -597,7 +674,7 @@ int send_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t msg_
 	// 拷贝有效数据到 send_buf 中
 	for (i = 0; i < FRAME_SIZE - 2; i++)
 		send_buf[2 + i] = msg_buf[i];
-
+	
 	// 发送
 	sendframefun(request_id, send_buf, FRAME_SIZE);
 	//uds_send_can_farme(0x724, send_buf, FRAME_SIZE);
@@ -679,45 +756,6 @@ int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t m
 		remain_buf[i] = msg_buf[i];
 	
 
-	int count = 0;
-	while (1)
-	{
-		printf("%04X: ", count);
-		for (int i = 0; i < 4; i++)
-		{
-			printf("%02X ", remain_buf[count+2]);
-			count++;
-		}
-		printf(" ");
-
-		for (int i = 0; i < 4; i++)
-		{
-			printf("%02X ", remain_buf[count + 2]);
-			count++;
-		}
-		printf(" ");
-
-		for (int i = 0; i < 4; i++)
-		{
-			printf("%02X ", remain_buf[count + 2]);
-			count++;
-		}
-		printf(" ");
-
-		for (int i = 0; i < 4; i++)
-		{
-			printf("%02X ", remain_buf[count + 2]);
-			count++;
-		}
-		printf("\n");
-
-		if (count >= msg_dlc-2)
-		{
-			break;
-		}
-	}
-
-
 
 
 	//将多帧数据长度赋给全局变量
@@ -725,6 +763,14 @@ int send_multipleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint16_t m
 
 	// 连续帧帧序号清 0，多帧发送时候使用，每发送一帧连续帧时其应该 +1，超过 0xf 复位为 0
 	g_xcf_sn = 0;
+
+
+	//if (remain_buf[2] == 0x36 && remain_buf[3] == 0x1 && nwf_st == FLASH_IDLE)
+	//{
+	//	nwf_st = FLASH_DOWNLOADING;
+
+	//}
+
 
 	// 多帧发送时先将首帧发送出去，接下来在 network_task 任务函数中将剩下的数据拆分成连续帧继续发送
 	send_len = send_firstframe(sendframefun,msg_buf, msg_dlc);
@@ -806,6 +852,16 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		uds_data_indication(NULL, NULL, N_TIMEOUT_Bs);
 	}
 
+	// 如果 N_BS 定时器超时，复位网络层状态，并通知上层做异常处理
+	if (nt_timer_run(TIMER_Response) < 0)
+	{
+		clear_network();
+		//N_USData.confirm(N_TIMEOUT_Bs);
+		uds_data_indication(NULL, NULL, N_TIMEROUT_Respone);
+	}
+
+
+
 	// 如果 STmin 定时器超时，表示可以继续发送连续帧
 	if (nt_timer_run(TIMER_STmin) < 0)
 	{
@@ -815,7 +871,7 @@ void network_task(UDS_SEND_FRAME sendframefun)
 			g_xcf_sn = 0;
 
 		// 发送一帧连续帧
-		send_len = send_consecutiveframe(sendframefun,&remain_buf[remain_pos], remain_len, g_xcf_sn);
+		send_len = send_consecutiveframe(sendframefun, &remain_buf[remain_pos], remain_len, g_xcf_sn);
 		// 剩余需要发送的有效数据在 remain_buf 数组中的起始位置 remain_pos 移动 send_len
 		remain_pos += send_len;
 
@@ -852,9 +908,14 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		{
 			uds_data_indication(remain_buf, remain_buf_len, N_TX_OK);
 			clear_network();                    // 复位网络层状态
+			nt_timer_start(TIMER_Response);    // 启动  定时器
 		}
 	}
+	
 }
+
+
+
 
 
 
@@ -890,9 +951,17 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 	switch (pci_type)
 	{
 	case PCI_SF:                            // 单帧
-			// 处理单帧，这里不做限制，这意味着即便是在多帧收发的过程中，我们也可以处理单帧
-			// 为了不影响多帧数据的接收，我们为单帧数据单独设计一个独立的缓冲区 recv_buf_sf
-		recv_singleframe(frame_buf, frame_dlc);
+		// 处理单帧，这里不做限制，这意味着即便是在多帧收发的过程中，我们也可以处理单帧
+		// 为了不影响多帧数据的接收，我们为单帧数据单独设计一个独立的缓冲区 recv_buf_sf
+		if (NWL_IDLE == nwl_st)
+		{
+			nt_timer_t num;
+			for (num = 0; num < TIMER_CNT; num++)
+				nt_timer_stop(num);
+			recv_singleframe(sendframefun, frame_buf, frame_dlc);
+		}
+			
+		
 		break;
 	case PCI_FF:                            // 首帧
 		// 当网络层状态为接收或者空闲状态时

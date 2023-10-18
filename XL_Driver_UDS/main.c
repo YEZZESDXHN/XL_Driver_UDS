@@ -5,53 +5,7 @@
 #include"paneldesign.h"
 #include"SID34_36_37TransferData.h"
 
-int service_27_SecurityAccess(char *iFilename, uint8_t* msg_buf, uint16_t msg_dlc)
-{
-	unsigned char iSeed[FRAME_SIZE - 3];
-	unsigned int iSeedSize;
-	unsigned int iSecurityLevel;
-	unsigned int iKeyArrayMaxSize = FRAME_SIZE - 3;
-	unsigned char oKey[FRAME_SIZE - 3];
-	unsigned int oKeyLen = 0;
 
-	unsigned char senddata[FRAME_SIZE];
-
-	char dllname_char[128];
-	WCHAR dllname[128];
-	int ret;
-
-	if (msg_buf[0] != 0x67)
-		return -3;
-
-	if (msg_buf[1] % 2 == 0)
-		return -4;
-	iSeedSize = msg_dlc - 2;
-	for (int i = 0; i < iSeedSize; i++)
-	{
-		iSeed[i] = msg_buf[i + 2];
-	}
-	iSecurityLevel = msg_buf[1];
-
-	snprintf(dllname_char, 128, "./SecurityAccessDLL/");
-	strncat_s(dllname_char, 128, iFilename, 128);
-	Char2Wchar(dllname, dllname_char);
-	ret = SecurityAccessWithDLL(dllname, iSeed, iSeedSize, iSecurityLevel, oKey, iKeyArrayMaxSize, &oKeyLen);
-	if (ret >= 0)
-	{
-		senddata[0] = 0x27;
-		senddata[1] = iSecurityLevel+1;
-		//setHEXtocontrol(Edit_out, oKeyLen, 1);
-		for (int i = 0; i < 4; i++)
-		{
-			senddata[i + 2] = oKey[i];
-		}
-		
-
-		send_singleframe(uds_send_can_farme, senddata, iSeedSize + 2);
-		return ret;
-	}
-
-}
 
 
 int             g_TXThreadRun_3E;                                        //!< flag to start/stop the TX thread (for the transmission burst)
@@ -109,7 +63,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 		if (msg_buf[0] == 0x67 && msg_buf[1]%2 == 1)
 		{
 			//printf("================jiesuo=============\n");
-			service_27_SecurityAccess("SeednKeyF", msg_buf, msg_dlc);
+			//service_27_SecurityAccess("SeednKeyF", msg_buf, msg_dlc);
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 03)
 		{
@@ -123,13 +77,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 		{
 			//demoStopTransmitBurst_3E();
 		}
-		else if (service_36_start_flag == 1 && service_36_finsh_flag == 1)
-		{
-			unsigned char data[8] = { 0x37 };
-			network_send_udsmsg(uds_send_can_farme, data, 1);
-			service_36_finsh_flag = 0;
-			service_36_finsh_flag = 0;
-		}
+		
 	}
 	else if(n_result == N_FF_MSG)//接收到首帧
 	{
@@ -169,6 +117,12 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	{
 		//printf("接收到的流控帧中流状态为溢出\n");
 		settexttocontrol(Edit_out, "接收到的流控帧中流状态为溢出", 1);
+		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+	}
+	else if (n_result == N_TIMEROUT_Respone)                     // 接收到的流控帧中流状态为溢出
+	{
+		//printf("接收到的流控帧中流状态为溢出\n");
+		settexttocontrol(Edit_out, "Timeout -no receive message", 1);
 		SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 	}
 	else if (n_result == N_TX_OK)

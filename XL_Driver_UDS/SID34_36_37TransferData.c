@@ -15,8 +15,11 @@ unsigned short maxNumberOfBlockLength = 0;//目标ECU允许Tester传输最大的字节数,实
 unsigned char blockSequenceCounter = 0; //数据传输计数器，第一帧从1开始，到了0xFF后，再从0开始，循环往复，直到下载完毕
 unsigned char downloaddata[1];
 
-int service_36_start_flag=0;
-int service_36_finsh_flag=0;
+network_flash_st nwf_st=FLASH_IDLE;
+
+
+
+
 
 
 uint32_t Crc_Table32[256] = {
@@ -112,6 +115,28 @@ uint32_t Crc_CalCRC32(uint8_t Crc_DataPtr[], uint32_t Crc_Length, uint32_t Crc_S
 IHexRecord record_t;
 ConvertContext ctx_t;
 uint32_t crc = 0;
+
+
+
+unsigned int calcblocknum(unsigned short maxNumberOfBlockLength, unsigned int hexlen)
+{
+	unsigned int count = 0;
+	if (hexlen % (maxNumberOfBlockLength - 2) == 0)
+	{
+		count = hexlen / (maxNumberOfBlockLength - 2);
+	}
+	else
+	{
+		count = hexlen / (maxNumberOfBlockLength - 2)+1;
+	}
+	return count;
+
+
+	
+}
+
+
+
 void loadflashfile(const char* rpath, const char* wpath)
 {
 	//uint32_t crc=0;
@@ -339,7 +364,7 @@ void timer_count_up(int t)
 
 	printf("sid36_download();\n");
 	uint32_t hexlen = 0;
-	maxNumberOfBlockLength = 0x202;
+	maxNumberOfBlockLength = 0x402;
 	blockSequenceCounter = 1;
 
 	//int count = 0;
@@ -350,10 +375,9 @@ void timer_count_up(int t)
 	unsigned char data[0x803];
 	//data = (uint8_t*)malloc(1030);
 	//blockSequenceCounter = 1;
-	service_36_start_flag = 1;
 	while (1)
 	{
-
+		nwf_st = FLASH_36service_runing;
 		if ((hexlen - index) > maxNumberOfBlockLength - 2)
 		{
 			printf("36_1 service\n");
@@ -367,6 +391,14 @@ void timer_count_up(int t)
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
 			blockSequenceCounter++;
+			while (1)
+			{
+				Sleep(10);
+				if (nwf_st == FLASH_36service_finsh)
+				{
+					break;
+				}
+			}
 
 		}
 		else
@@ -382,10 +414,10 @@ void timer_count_up(int t)
 			}
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
-			service_36_finsh_flag = 1;
+			nwf_st = FLASH_36service_runing;
 			break;
 		}
-		Sleep(10);
+		
 	}
 	
 	if (ctx_t.binbuff) free(ctx_t.binbuff);
@@ -393,10 +425,12 @@ void timer_count_up(int t)
 	if (ctx_t.rambuff) free(ctx_t.rambuff);
 
 	Sleep(300);
+	sid37();
+	Sleep(300);
 	flash31010202(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1, crc);
 
-	loadflashfile("VIU_37FF_R520_RS1_178_20231011_BANK_1.hex", "flash_driver_1.bin");
-	
+	loadflashfile("VIU_37FF_R520_RS1_179_20231016_BANK_1.hex", "flash_driver_1.bin");
+	//loadflashfile("VIU_37FF_R510_RC4_176_20230925_BANK_1.hex", "flash_driver_1.bin");
 	Sleep(300);
 	printf("--------------------start:%x len:%x\n", record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
 	flash3101ff00(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
@@ -408,7 +442,7 @@ void timer_count_up(int t)
 
 	printf("sid36_download();\n");
 	hexlen = 0;
-	maxNumberOfBlockLength = 0x402;
+	maxNumberOfBlockLength = 0x802;
 	blockSequenceCounter = 1;
 
 	hexlen = record_t.maxAddr - record_t.minAddr + 1;
@@ -418,10 +452,9 @@ void timer_count_up(int t)
 	//unsigned char data[0x803];
 	//data = (uint8_t*)malloc(1030);
 	//blockSequenceCounter = 1;
-	service_36_start_flag = 1;
 	while (1)
 	{
-
+		nwf_st = FLASH_36service_runing;
 		if ((hexlen - index) > maxNumberOfBlockLength - 2)
 		{
 			printf("36_1 service\n");
@@ -435,7 +468,14 @@ void timer_count_up(int t)
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
 			blockSequenceCounter++;
-
+			while (1)
+			{
+				Sleep(10);
+				if (nwf_st == FLASH_36service_finsh)
+				{
+					break;
+				}
+			}
 		}
 		else
 		{
@@ -450,10 +490,9 @@ void timer_count_up(int t)
 			}
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
-			service_36_finsh_flag = 1;
 			break;
 		}
-		Sleep(10);
+		
 	}
 
 	if (ctx_t.binbuff) free(ctx_t.binbuff);
@@ -461,7 +500,8 @@ void timer_count_up(int t)
 	if (ctx_t.rambuff) free(ctx_t.rambuff);
 
 	Sleep(500);
-
+	sid37();
+	Sleep(300);
 	flash31010202(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1, crc);
 	Sleep(500);
 
@@ -590,7 +630,6 @@ void flash_test()
 	unsigned char data[0x803];
 	//data = (uint8_t*)malloc(1030);
 	//blockSequenceCounter = 1;
-	service_36_start_flag = 1;
 	while (1)
 	{
 
@@ -622,7 +661,6 @@ void flash_test()
 			}
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
-			service_36_finsh_flag = 1;
 			break;
 		}
 		Sleep(10);

@@ -450,8 +450,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (g_Run = 1)
 			{
-				flash_test();
-				//flash("VIU_37MR_R520_RS1_177_20231011_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+				//flash_test();
+				flash("VIU_37FF_R520_RS1_179_20231016_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+				//printf("%d", calcblocknum(10, 20));
 				//uint8_t data[20] = { 0xf1,0x8c,0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88 };
 				
 				//XLTransmitMsg(REQUEST_ID, 0, data, 8, g_xlChannelChooseMask);
