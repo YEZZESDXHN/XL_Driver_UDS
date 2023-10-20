@@ -219,8 +219,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	//freopen_s(&stream, "CON", "r", stdin);//重定向输入流
 	freopen_s(&stream, "CON", "w", stdout);//重定向输入流
 
-
-
+	printf("%d\n", TIMEOUT_N_CR);
 
 
 	// 初始化全局字符串

@@ -2,11 +2,15 @@
 #include <stdint.h>
 #include<stdio.h>
 #include<Windows.h>
+
+
+
 // 网络层状态, 共有 3 种 空闲状态(NWL_IDLE)、发送状态(NWL_XMIT)、接收状态(NWL_RECV)
 // 当接收到首帧时，状态被置为 NWL_RECV，直到连续帧接收完成才置为 NWL_IDLE
 // 当发送多帧时，该状态被置为 NWL_XMIT，直到发送完成后才置为 NWL_IDLE
 static network_layer_st nwl_st = NWL_IDLE;
 
+unsigned int task_cycle = 1000;//单位微秒，1000表示1ms
 
 
 // 连续帧接收标志，从接收到首帧时置 1，直到连续帧接收完成置 0
@@ -72,9 +76,9 @@ uint8_t g_tatype=0;
 // 上层向 TP 层注册的一些接口函数将会记录在 N_USData 中，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
 //static nt_usdata_t N_USData = { NULL, NULL, NULL };
 
-unsigned int REQUEST_ID = 0x724;			// 请求 ID
+unsigned int REQUEST_ID = 0x726;			// 请求 ID
 unsigned int FUNCTION_ID = 0x7df;			// 功能 ID
-unsigned int RESPONSE_ID = 0x7A4;			// 应答 ID
+unsigned int RESPONSE_ID = 0x7A6;			// 应答 ID
 
 /******************************************************************************
 * 函数名称: static void nt_timer_start(nt_timer_t num)
@@ -182,6 +186,7 @@ static int nt_timer_run(nt_timer_t num)
 	else
 	{
 		nt_timer[num]--;            // 计数值 -1
+		//nt_timer[num] = nt_timer[num] - task_cycle;
 		//if (nt_timer[num] <= 17)
 		//{
 		//	nt_timer[num] = 18;
@@ -325,7 +330,7 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 
 	if (recv_buf_sf[0] == 0x67 && recv_buf_sf[1] % 2 == 1)//收到种子，回复密钥解锁
 	{
-		service_27_SecurityAccess(sendframefun, "SeednKeyF", recv_buf_sf, uds_dlc);
+		service_27_SecurityAccess(sendframefun, "SeednKeyMR", recv_buf_sf, uds_dlc);
 	}
 	else if (recv_buf_sf[0] == 0x74)//下载请求正响应，Flash状态置FLASH_DOWNLOAD
 	{
@@ -555,11 +560,17 @@ static int recv_flowcontrolframe(uint8_t* frame_buf, uint8_t frame_dlc)
 	// 因为定时器计数值为 1 的时候表示超时，所以这里设置的计定时计数值都是 +1 的
 	if (frame_buf[2] <= 0x7F)
 		g_rfc_stmin = frame_buf[2] + 1;
-		//g_rfc_stmin = 10;
+		//g_rfc_stmin = frame_buf[2] * 1000 + 1 * 1000;
 	else if (frame_buf[2] >= 0xF0 && frame_buf[2] <= 0xF9)
+	{
+		//task_cycle = 100;//修改周期
+		//g_rfc_stmin = (frame_buf[2] - 0xF0) * 100 + 1 * 100;
 		g_rfc_stmin = 1;
+	}
+		
 	else
-		g_rfc_stmin = 0x7F + 1;
+		//g_rfc_stmin = 0x7F * 1000 + 1 * 1000;
+		g_rfc_stmin = 0x7F + 1 ;
 
 	// 清连续帧发送计数
 	g_xcf_bc = 0;

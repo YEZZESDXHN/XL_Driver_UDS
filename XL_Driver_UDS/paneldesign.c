@@ -5,13 +5,19 @@
 #include"uds_tp.h"
 #include"SID34_36_37TransferData.h"
 int isFirststart = 1;
+LARGE_INTEGER fre = { 0 };//储存本机CPU时钟频率
+LARGE_INTEGER startCount = { 0 };
+LARGE_INTEGER endCount = { 0 };
 
-clock_t t1 = 0, t2 = 0;
+double t1=0, t2=0;
+//clock_t t1 = 0, t2 = 0;
 void timer_tu_doing()//时钟周期循环内容
 
 {
-	network_task(uds_send_can_farme);
-
+	clock_t t;
+	t= clock();
+	//network_task(uds_send_can_farme);
+	printf("time=%f,t=%d,(double)fre.QuadPart=%f,task_cycle=%d\n",t1, t,(double)fre.QuadPart, task_cycle);
 }
 
 void timer_tu_start(int n)
@@ -30,15 +36,39 @@ void timer_tu_start(int n)
 	{
 		if (g_Run == 1)
 		{
-			if (t2 - t1 >= n)
+			//if (t2 - t1 >= n)
+			//{
+			//	t1 = t2;
+			//	timer_tu_doing();
+			//}
+			//else
+			//{
+			//	t2 = clock();
+			//}
+
+
+
+
+			
+			
+			
+			//double dTimeTake = 1000000*((double)endCount.QuadPart - (double)startCount.QuadPart) / (double)fre.QuadPart;//微秒，1/1000ms
+			
+			double dTimeTake = t2 - t1;
+			if (dTimeTake >= task_cycle)
 			{
 				t1 = t2;
 				timer_tu_doing();
 			}
 			else
 			{
-				t2 = clock();
+				QueryPerformanceCounter(&endCount);
+				t2= 1000000 * ((double)endCount.QuadPart) / (double)fre.QuadPart;//微秒，1/1000ms
 			}
+
+
+
+
 		}
 		else
 		{
@@ -57,7 +87,7 @@ int timer_tu(int mtime)
 	if (mtime > 0)
 
 	{
-
+		QueryPerformanceFrequency(&fre);//获取本机cpu频率
 		pd = _beginthread(timer_tu_start, 0, mtime);
 
 		return 1;

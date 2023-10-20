@@ -88,6 +88,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 // 0:物理寻址; 1:功能寻址
 extern uint8_t g_tatype;
 
+extern unsigned int task_cycle;//单位微秒(us)，1000表示1ms
 
 //#define REQUEST_ID 0x724
 //#define FUNCTION_ID 0x7df
@@ -127,16 +128,16 @@ extern unsigned int RESPONSE_ID;			// 应答 ID
 // 若不为 0，则表示当发送方发送的连续帧个数为 NT_XMIT_FC_BS 后需等待接收方回复一帧流控帧，发送方根据流控帧决定接下来的发送情况
 #define NT_XMIT_FC_BS               (0)
 
-// 通知发送方发送连续帧的帧间隔最小时间，单位: ms
+// 通知发送方发送连续帧的帧间隔最小时间，单位: us
 #define NT_XMIT_FC_STMIN            (0x0A)
 
-// 接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: ms
+// 接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: us
 #define TIMEOUT_N_CR                (1000)
 
-// 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: ms
+// 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: us
 #define TIMEOUT_Response                (1000)
 
-// 发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: ms
+// 发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: us
 #define TIMEOUT_N_BS                (1000)
 
 #define FRAME_SIZE      8               // 帧长度
