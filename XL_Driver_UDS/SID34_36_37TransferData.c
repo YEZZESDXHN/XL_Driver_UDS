@@ -3,16 +3,16 @@
 #include"XL_Driver.h"
 #include"readhex.h"
 //34 req
-unsigned char dataFormatIdentifier = 0;//ÕâÊÇµÚ¶þ¸ö×Ö½ÚµÄ²ÎÊý£¬ÆäÖÐ¸ß4¸öbit±íÊ¾Ñ¹Ëõ·½·¨£¬µÍ4¸öbit±íÊ¾¼ÓÃÜ·½·¨£¬Ò»°ãÇé¿ö¾ÍÊÇ0x00
-unsigned char addressAndLengthFormatIdentifier = 0;//ÇëÇóË¢Ð´µØÖ·ºÍ³¤¶È¸ñÊ½£¬¸ß4¸öbit±íÊ¾ÏÂÃæµÄmemorySize²ÎÊýÕ¼¼¸¸ö×Ö½Ú£¬µÍ4¸öbit±íÊ¾ÏÂÃæµÄmemoryAddress²ÎÊýÕ¼¼¸¸ö×Ö½Ú¡£³£¹æ¾ÍÊÇ0x44£¬¾ÍÊÇmemorySizeºÍmemoryAddress¸÷Õ¼4¸ö×Ö½Ú
-unsigned char memoryAddress = 0;//ÇëÇóË¢Ð´µÄÊ×µØÖ·£¬Õâ¸ö²ÎÊýÕ¼¼¸¸ö×Ö½ÚÓÉaddressAndLengthFormatIdentifier²ÎÊýµÄµÍ4¸öbit¾ö¶¨µÄ
-unsigned char memorySize = 0;//ÇëÇóË¢Ð´µÄ×Ö½Ú³¤¶È£¬Õâ¸ö²ÎÊýÕ¼¼¸¸ö×Ö½ÚÓÉaddressAndLengthFormatIdentifier²ÎÊýµÄ¸ß4¸öbit¾ö¶¨µÄ
+unsigned char dataFormatIdentifier = 0;//ï¿½ï¿½ï¿½ÇµÚ¶ï¿½ï¿½ï¿½ï¿½Ö½ÚµÄ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¸ï¿½4ï¿½ï¿½bitï¿½ï¿½Ê¾Ñ¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½4ï¿½ï¿½bitï¿½ï¿½Ê¾ï¿½ï¿½ï¿½Ü·ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0x00
+unsigned char addressAndLengthFormatIdentifier = 0;//ï¿½ï¿½ï¿½ï¿½Ë¢Ð´ï¿½ï¿½Ö·ï¿½Í³ï¿½ï¿½È¸ï¿½Ê½ï¿½ï¿½ï¿½ï¿½4ï¿½ï¿½bitï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½memorySizeï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½4ï¿½ï¿½bitï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½memoryAddressï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0x44ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½memorySizeï¿½ï¿½memoryAddressï¿½ï¿½Õ¼4ï¿½ï¿½ï¿½Ö½ï¿½
+unsigned char memoryAddress = 0;//ï¿½ï¿½ï¿½ï¿½Ë¢Ð´ï¿½ï¿½ï¿½×µï¿½Ö·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½addressAndLengthFormatIdentifierï¿½ï¿½ï¿½ï¿½ï¿½Äµï¿½4ï¿½ï¿½bitï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+unsigned char memorySize = 0;//ï¿½ï¿½ï¿½ï¿½Ë¢Ð´ï¿½ï¿½ï¿½Ö½Ú³ï¿½ï¿½È£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½addressAndLengthFormatIdentifierï¿½ï¿½ï¿½ï¿½ï¿½Ä¸ï¿½4ï¿½ï¿½bitï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 //34 postive respones
-unsigned char lengthFormatIdentifier = 0;//¸ß4¸öbit±íÊ¾ÏÂÃæµÄmaxNumberOfBlockLength²ÎÊýÕ¼¼¸¸ö×Ö½Ú£¬µÍ4¸öbitÄ¬ÈÏ0
-unsigned short maxNumberOfBlockLength = 0;//Ä¿±êECUÔÊÐíTester´«Êä×î´óµÄ×Ö½ÚÊý,Êµ¼ÊÉÏ£¬36·þÎñ´«Êä¿ÉÒÔÐ¡ÓÚmaxNumberOfBlockLength£¬µ«²»ÄÜ´óÓÚ
+unsigned char lengthFormatIdentifier = 0;//ï¿½ï¿½4ï¿½ï¿½bitï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½maxNumberOfBlockLengthï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½ï¿½ï¿½ï¿½Ö½Ú£ï¿½ï¿½ï¿½4ï¿½ï¿½bitÄ¬ï¿½ï¿½0
+unsigned short maxNumberOfBlockLength = 0;//Ä¿ï¿½ï¿½ECUï¿½ï¿½ï¿½ï¿½Testerï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö½ï¿½ï¿½ï¿½,Êµï¿½ï¿½ï¿½Ï£ï¿½36ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½maxNumberOfBlockLengthï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ü´ï¿½ï¿½ï¿½
 
 //36
-unsigned char blockSequenceCounter = 0; //Êý¾Ý´«Êä¼ÆÊýÆ÷£¬µÚÒ»Ö¡´Ó1¿ªÊ¼£¬µ½ÁË0xFFºó£¬ÔÙ´Ó0¿ªÊ¼£¬Ñ­»·Íù¸´£¬Ö±µ½ÏÂÔØÍê±Ï
+unsigned char blockSequenceCounter = 0; //ï¿½ï¿½ï¿½Ý´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»Ö¡ï¿½ï¿½1ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0xFFï¿½ï¿½ï¿½Ù´ï¿½0ï¿½ï¿½Ê¼ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 unsigned char downloaddata[1];
 
 network_flash_st nwf_st=FLASH_IDLE;
@@ -237,7 +237,7 @@ void sid36_download()
 		
 	}
 
-	//¿ªÊ¼
+	//ï¿½ï¿½Ê¼
 	unsigned char blockSequenceCounter = 1;
 
 
@@ -328,7 +328,7 @@ void sid11(unsigned char subFunction)
 void timer_count_up(int t)
 
 {
-	task_cycle = 100;//ÐÞ¸ÄÖÜÆÚ
+	//task_cycle = 100;
 	loadflashfile("flash_driver.hex", "flash_driver_1.bin");
 	//loadflashfile("VIU_37FF_R520_RS1_178_20231011_BANK_1.hex", "flash_driver_1.bin");
 	printf("--------------------start:%x len:%x\n", record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
@@ -416,6 +416,7 @@ void timer_count_up(int t)
 			}
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
+			nwf_st = FLASH_36service_runing;
 			while (1)
 			{
 				Sleep(10);
@@ -424,7 +425,7 @@ void timer_count_up(int t)
 					break;
 				}
 			}
-			//break;
+			break;
 		}
 		
 	}
@@ -433,17 +434,17 @@ void timer_count_up(int t)
 	if (ctx_t.strbuff) free(ctx_t.strbuff);
 	if (ctx_t.rambuff) free(ctx_t.rambuff);
 
-	Sleep(300);
+	Sleep(500);
 	sid37();
 	Sleep(300);
 	flash31010202(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1, crc);
 
-	loadflashfile("VIU_37MR_R520_RS1_178_20231016_BANK_1.hex", "flash_driver_1.bin");
+	loadflashfile("VIU_37MR_R520_RD1_179_20231020_BANK_1.hex", "flash_driver_1.bin");
 	//loadflashfile("VIU_37FF_R510_RC4_176_20230925_BANK_1.hex", "flash_driver_1.bin");
 	Sleep(300);
 	printf("--------------------start:%x len:%x\n", record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
 	flash3101ff00(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
-	Sleep(500);
+	Sleep(1000);
 
 	sid34();
 	Sleep(500);
@@ -506,11 +507,10 @@ void timer_count_up(int t)
 				Sleep(10);
 				if (nwf_st == FLASH_36service_finsh)
 				{
-					printf("36....\n");
 					break;
 				}
-				//break;
 			}
+			break;
 		}
 		
 	}
@@ -532,8 +532,8 @@ void timer_count_up(int t)
 
 
 
-	task_cycle = 1000;//ÐÞ¸ÄÖÜÆÚ
 
+	//task_cycle = 1000;
 	//
 
 

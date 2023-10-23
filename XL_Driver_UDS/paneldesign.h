@@ -6,6 +6,8 @@
 #include <locale.h>//编码格式
 #include<commctrl.h>
 #define MAX_LOADSTRING 100
+#include <Shlobj.h>
+#pragma comment(lib, "comctl32.lib")
 
 // 全局变量:
 HINSTANCE hInst;                                // 当前实例
