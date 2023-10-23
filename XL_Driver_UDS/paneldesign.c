@@ -5,9 +5,6 @@
 #include"uds_tp.h"
 #include"SID34_36_37TransferData.h"
 int isFirststart = 1;
-LARGE_INTEGER fre = { 0 };//���汾��CPUʱ��Ƶ��
-LARGE_INTEGER startCount = { 0 };
-LARGE_INTEGER endCount = { 0 };
 
 LARGE_INTEGER fre = { 0 };//
 LARGE_INTEGER startCount = { 0 };
