@@ -84,7 +84,7 @@ typedef int(*UDS_SEND_FRAME)(unsigned int, unsigned char*, unsigned char);
 ******************************************************************************/
 void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result);
 
-
+extern unsigned int task_cycle;
 // 0:物理寻址; 1:功能寻址
 extern uint8_t g_tatype;
 
@@ -128,16 +128,16 @@ extern unsigned int RESPONSE_ID;			// 应答 ID
 #define NT_XMIT_FC_BS               (0)
 
 // 通知发送方发送连续帧的帧间隔最小时间，单位: ms
-#define NT_XMIT_FC_STMIN            (0x0A)
+#define NT_XMIT_FC_STMIN            (0x0A*1000)
 
 // 接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: ms
-#define TIMEOUT_N_CR                (1000)
+#define TIMEOUT_N_CR                (1000*1000)
 
 // 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: ms
-#define TIMEOUT_Response                (1000)
+#define TIMEOUT_Response                (1000*1000)
 
 // 发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: ms
-#define TIMEOUT_N_BS                (1000)
+#define TIMEOUT_N_BS                (1000*1000)
 
 #define FRAME_SIZE      8               // 帧长度
 

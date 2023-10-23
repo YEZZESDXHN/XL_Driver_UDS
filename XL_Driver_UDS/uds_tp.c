@@ -19,12 +19,12 @@ static bool_t g_wait_fc = FALSE;
 static uint32_t nt_timer[TIMER_CNT] = { 0 };
 
 // 接收到流控帧中的 STmin 帧间隔时间，在向外发送连续帧时，发送间隔不能小于该值
-static uint8_t g_rfc_stmin = 0;
+static uint32_t g_rfc_stmin = 0;
 
 // 接收到流控帧中的 bolck size 块大小，
 // 如果该值不为 0，则每连续收到 g_rfc_bs 个连续帧后，需返回一帧流控帧
 // 如果该值为 0，表明发送方可以一直无限制发送连续帧，直到发送完成所有连续帧
-static uint8_t g_rfc_bs = 0;
+static uint32_t g_rfc_bs = 0;
 
 // 连续帧发送计数
 static uint8_t g_xcf_bc = 0;
@@ -63,7 +63,7 @@ static uint16_t recv_fdl = 0;
 static uint16_t recv_len = 0;
 
 
-
+unsigned int task_cycle = 100;
 
 
 // 0:物理寻址; 1:功能寻址
@@ -72,9 +72,9 @@ uint8_t g_tatype=0;
 // 上层向 TP 层注册的一些接口函数将会记录在 N_USData 中，当 TP 层对数据做完处理后再通过这些接口函数将数据交由上层继续处理
 //static nt_usdata_t N_USData = { NULL, NULL, NULL };
 
-unsigned int REQUEST_ID = 0x724;			// 请求 ID
+unsigned int REQUEST_ID = 0x726;			// 请求 ID
 unsigned int FUNCTION_ID = 0x7df;			// 功能 ID
-unsigned int RESPONSE_ID = 0x7A4;			// 应答 ID
+unsigned int RESPONSE_ID = 0x7A6;			// 应答 ID
 
 /******************************************************************************
 * 函数名称: static void nt_timer_start(nt_timer_t num)
@@ -173,7 +173,7 @@ static int nt_timer_run(nt_timer_t num)
 		return 0;                   // 返回 0，定时器已经被关闭
 	}
 	// 如果计数值为 1，表示定时器超时已发生
-	else if (nt_timer[num] == 1)
+	else if (nt_timer[num] == task_cycle )
 	{
 		nt_timer[num] = 0;          // 关闭定时器
 		return -1;                  // 返回 -1，发生超时
@@ -181,7 +181,17 @@ static int nt_timer_run(nt_timer_t num)
 	// 其余情况则表示定时器正在运行
 	else
 	{
-		nt_timer[num]--;            // 计数值 -1
+		//nt_timer[num]--;            // 计数值 -1
+		if (num == TIMER_STmin)
+		{
+			printf("==================nt_timer[num]=%d,g_rfc_stmin=%d,task_cycle=%d\n", nt_timer[num], g_rfc_stmin,task_cycle);
+		}
+		nt_timer[num]= nt_timer[num]-task_cycle;
+		//nt_timer[num]--;
+		if (num == TIMER_STmin)
+		{
+			printf("nt_timer[num]=%d,g_rfc_stmin=%d,task_cycle=%d\n", nt_timer[num], g_rfc_stmin, task_cycle);
+		}
 		//if (nt_timer[num] <= 17)
 		//{
 		//	nt_timer[num] = 18;
@@ -325,7 +335,7 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 
 	if (recv_buf_sf[0] == 0x67 && recv_buf_sf[1] % 2 == 1)//收到种子，回复密钥解锁
 	{
-		service_27_SecurityAccess(sendframefun, "SeednKeyF", recv_buf_sf, uds_dlc);
+		service_27_SecurityAccess(sendframefun, "SeednKeyMR", recv_buf_sf, uds_dlc);
 	}
 	else if (recv_buf_sf[0] == 0x74)//下载请求正响应，Flash状态置FLASH_DOWNLOAD
 	{
@@ -554,18 +564,24 @@ static int recv_flowcontrolframe(uint8_t* frame_buf, uint8_t frame_dlc)
 	// 0~7F 表示: 0~127ms, F1~F9 表示: 100~900us（这里统一按 1ms 处理），其它值均为无效值，统一处理成 127ms
 	// 因为定时器计数值为 1 的时候表示超时，所以这里设置的计定时计数值都是 +1 的
 	if (frame_buf[2] <= 0x7F)
-		g_rfc_stmin = frame_buf[2] + 1;
+		g_rfc_stmin = (frame_buf[2] + 1)*1000;
 		//g_rfc_stmin = 10;
 	else if (frame_buf[2] >= 0xF0 && frame_buf[2] <= 0xF9)
-		g_rfc_stmin = 1;
+	{
+		//g_rfc_stmin = ((frame_buf[2] - 0xF0) + 1) * 100;
+		//printf("g_rfc_stmin=%d\n", g_rfc_stmin);
+		g_rfc_stmin =100;
+	}
+		
+
 	else
-		g_rfc_stmin = 0x7F + 1;
+		g_rfc_stmin = (0x7F + 1) * 100;
 
 	// 清连续帧发送计数
 	g_xcf_bc = 0;
 
 	// 重新设置 STmin 定时器计数值为 1，表示定时器超时已发生，接下来将处理超时事件
-	nt_timer_start_wv(TIMER_STmin, 1);
+	nt_timer_start_wv(TIMER_STmin, task_cycle);
 
 	return 0;
 }

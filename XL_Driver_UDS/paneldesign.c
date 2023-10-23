@@ -6,7 +6,13 @@
 #include"SID34_36_37TransferData.h"
 int isFirststart = 1;
 
-clock_t t1 = 0, t2 = 0;
+LARGE_INTEGER fre = { 0 };//
+LARGE_INTEGER startCount = { 0 };
+LARGE_INTEGER endCount = { 0 };
+
+
+double t1 = 0, t2 = 0;
+//clock_t t1 = 0, t2 = 0;
 void timer_tu_doing()//时钟周期循环内容
 
 {
@@ -30,20 +36,39 @@ void timer_tu_start(int n)
 	{
 		if (g_Run == 1)
 		{
-			if (t2 - t1 >= n)
+			//if (t2 - t1 >= n)
+			//{
+			//	t1 = t2;
+			//	timer_tu_doing();
+			//}
+			//else
+			//{
+			//	t2 = clock();
+			//}
+
+
+
+
+			double dTimeTake = t2 - t1;
+			if (dTimeTake >= task_cycle)
 			{
 				t1 = t2;
 				timer_tu_doing();
 			}
 			else
 			{
-				t2 = clock();
+				QueryPerformanceCounter(&endCount);
+				t2 = 1000000 * ((double)endCount.QuadPart) / (double)fre.QuadPart;//1/1000ms
 			}
 		}
 		else
 		{
 			break;
 		}
+
+
+
+
 		
 	}
 
@@ -57,7 +82,7 @@ int timer_tu(int mtime)
 	if (mtime > 0)
 
 	{
-
+		QueryPerformanceFrequency(&fre);//
 		pd = _beginthread(timer_tu_start, 0, mtime);
 
 		return 1;
@@ -450,23 +475,31 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (g_Run = 1)
 			{
-				//flash_test();
-				flash("VIU_37FF_R520_RS1_179_20231016_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
-				//printf("%d", calcblocknum(10, 20));
-				//uint8_t data[20] = { 0xf1,0x8c,0x00,0x11,0x22,0x33,0x44,0x55,0x66,0x77,0x88 };
-				
-				//XLTransmitMsg(REQUEST_ID, 0, data, 8, g_xlChannelChooseMask);
-				//uds_send_can_farme(0x724, data, 8);
-				//Sleep(1);
-				//uint8_t data1[8] = { 0x21,0x33,0x44,0x55,0x66,0x77,0x88,0x00 };
 
-				//XLTransmitMsg(REQUEST_ID, 0, data1, 8, g_xlChannelChooseMask);
-				//uds_send_can_farme(0x724, data1, 8);
-				//uds_send_can_farme(0x724, data, 8);
-				//uds_send_can_farme(REQUEST_ID, data, FRAME_SIZE);
-				//send_firstframe(uds_send_can_farme, data, 0xd);
-				//network_send_udsmsg(uds_send_can_farme, data, 0xc);
-				//send_multipleframe(uds_send_can_farme, data, 0xd);
+				flash("VIU_37MR_R520_RD1_179_20231020_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+				
+
+				//LPITEMIDLIST pil = NULL;
+				//INITCOMMONCONTROLSEX InitCtrls = { 0 };
+				//TCHAR szBuf[4096] = { 0 };
+				//BROWSEINFO bi = { 0 };
+				//bi.hwndOwner = NULL;
+				//bi.iImage = 0;
+				//bi.lParam = NULL;
+				//bi.lpfn = NULL;
+				//bi.lpszTitle = _T("请选择文件路径");
+				//bi.pszDisplayName = szBuf;
+				//bi.ulFlags = BIF_BROWSEINCLUDEFILES;
+
+				//InitCommonControlsEx(&InitCtrls);//在调用函数SHBrowseForFolder之前需要调用该函数初始化相关环境
+				//pil = SHBrowseForFolder(&bi);
+				//if (NULL != pil)//若函数执行成功，并且用户选择问件路径并点击确定
+				//{
+				//	SHGetPathFromIDList(pil, szBuf);//获取用户选择的文件路径
+				//	wprintf_s(_T("%s"), szBuf);
+				//	printf("%s\n", szBuf);
+				//}
+
 			}
 			else
 			{

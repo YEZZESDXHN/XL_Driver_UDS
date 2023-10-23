@@ -328,6 +328,7 @@ void sid11(unsigned char subFunction)
 void timer_count_up(int t)
 
 {
+	//task_cycle = 100;
 	loadflashfile("flash_driver.hex", "flash_driver_1.bin");
 	//loadflashfile("VIU_37FF_R520_RS1_178_20231011_BANK_1.hex", "flash_driver_1.bin");
 	printf("--------------------start:%x len:%x\n", record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
@@ -342,10 +343,10 @@ void timer_count_up(int t)
 	Sleep(500);
 	printf("sid10(0x02);\n");
 	sid10(0x02);
-	Sleep(2000);
+	Sleep(3000);
 
 	sid3e(0x80);
-	Sleep(2000);
+	Sleep(3000);
 	printf("sid27(0x09);\n");
 	sid27(0x09);
 	Sleep(500);
@@ -415,6 +416,14 @@ void timer_count_up(int t)
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
 			nwf_st = FLASH_36service_runing;
+			while (1)
+			{
+				Sleep(10);
+				if (nwf_st == FLASH_36service_finsh)
+				{
+					break;
+				}
+			}
 			break;
 		}
 		
@@ -424,17 +433,17 @@ void timer_count_up(int t)
 	if (ctx_t.strbuff) free(ctx_t.strbuff);
 	if (ctx_t.rambuff) free(ctx_t.rambuff);
 
-	Sleep(300);
+	Sleep(500);
 	sid37();
 	Sleep(300);
 	flash31010202(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1, crc);
 
-	loadflashfile("VIU_37FF_R520_RS1_179_20231016_BANK_1.hex", "flash_driver_1.bin");
+	loadflashfile("VIU_37MR_R520_RD1_179_20231020_BANK_1.hex", "flash_driver_1.bin");
 	//loadflashfile("VIU_37FF_R510_RC4_176_20230925_BANK_1.hex", "flash_driver_1.bin");
 	Sleep(300);
 	printf("--------------------start:%x len:%x\n", record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
 	flash3101ff00(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
-	Sleep(500);
+	Sleep(1000);
 
 	sid34();
 	Sleep(500);
@@ -490,6 +499,14 @@ void timer_count_up(int t)
 			}
 			index_1 = index;
 			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
+			while (1)
+			{
+				Sleep(10);
+				if (nwf_st == FLASH_36service_finsh)
+				{
+					break;
+				}
+			}
 			break;
 		}
 		
@@ -513,7 +530,7 @@ void timer_count_up(int t)
 
 
 
-
+	task_cycle = 1000;
 	//
 
 
