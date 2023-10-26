@@ -13,7 +13,7 @@ LARGE_INTEGER endCount = { 0 };
 
 double t1 = 0, t2 = 0;
 //clock_t t1 = 0, t2 = 0;
-void timer_tu_doing()//Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+void timer_tu_doing()//Ê±ÖÓÖÜÆÚÑ­»·ÄÚÈÝ
 
 {
 	
@@ -107,13 +107,13 @@ int timer_tu(int mtime)
 
 
 /******************************************************************************
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: int Wchar2Char(char* charStr, const wchar_t* wcharStr)
-* ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½: WCHARï¿½Ö·ï¿½ï¿½ï¿½×ªCHAR
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:	char* charStr
+* º¯ÊýÃû³Æ: int Wchar2Char(char* charStr, const wchar_t* wcharStr)
+* ¹¦ÄÜËµÃ÷: WCHAR×Ö·û´®×ªCHAR
+* ÊäÈë²ÎÊý:	char* charStr
 			const wchar_t* wcharStr
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: 
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: 
-* ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½: 
+* Êä³ö²ÎÊý: 
+* º¯Êý·µ»Ø: 
+* ÆäËüËµÃ÷: 
 ******************************************************************************/
 int Wchar2Char(char* charStr, const wchar_t* wcharStr) {
 	int len = WideCharToMultiByte(CP_ACP, 0, wcharStr, wcslen(wcharStr), NULL, 0, NULL, NULL);
@@ -123,13 +123,13 @@ int Wchar2Char(char* charStr, const wchar_t* wcharStr) {
 }
 
 /******************************************************************************
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½: int Char2Wchar(wchar_t* wcharStr, const char* charStr)
-* ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½: CHARï¿½Ö·ï¿½ï¿½ï¿½×ªWCHAR
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:	char* charStr
+* º¯ÊýÃû³Æ: int Char2Wchar(wchar_t* wcharStr, const char* charStr)
+* ¹¦ÄÜËµÃ÷: CHAR×Ö·û´®×ªWCHAR
+* ÊäÈë²ÎÊý:	char* charStr
 			const wchar_t* wcharStr
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:
-* ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½:
-* ï¿½ï¿½ï¿½ï¿½Ëµï¿½ï¿½:
+* Êä³ö²ÎÊý:
+* º¯Êý·µ»Ø:
+* ÆäËüËµÃ÷:
 ******************************************************************************/
 int Char2Wchar(wchar_t* wcharStr, const char* charStr) {
 	int len = MultiByteToWideChar(CP_ACP, 0, charStr, strlen(charStr), NULL, 0);
@@ -147,7 +147,7 @@ void settexttocontrol(HWND hwnd, char text[], int type)
 {
 	//int textlen = GetWindowTextLengthA(hwnd);
 	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
-	if (type == 1)//ï¿½ï¿½ï¿½ï¿½
+	if (type == 1)//»»ÐÐ
 	{
 		int len = GetWindowTextLengthA(hwnd);
 		if (len > 0)
@@ -158,7 +158,7 @@ void settexttocontrol(HWND hwnd, char text[], int type)
 
 		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
 	}
-	else if (type == 0)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	else if (type == 0)//²»»»ÐÐ
 	{
 		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
 	}
@@ -172,7 +172,7 @@ void setHEXtocontrol(HWND hwnd, unsigned short data, int type)
 
 	char text[128];
 	snprintf(text, 5, "%3.2X", data);
-	if (type == 1)//ï¿½ï¿½ï¿½ï¿½
+	if (type == 1)//»»ÐÐ
 	{
 		//wcscat_s(text, strlen(text) + 3, "\r\n");
 		int len = GetWindowTextLengthA(hwnd);
@@ -183,7 +183,7 @@ void setHEXtocontrol(HWND hwnd, unsigned short data, int type)
 		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
 
 	}
-	else if (type == 0)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	else if (type == 0)//²»»»ÐÐ
 	{
 		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
 	}
@@ -195,7 +195,7 @@ void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type)
 
 	char text[128];
 	int i;
-	if (type == 1)//ï¿½ï¿½ï¿½ï¿½
+	if (type == 1)//»»ÐÐ
 	{
 		int len = GetWindowTextLengthA(hwnd);
 		if (len > 0)
@@ -209,7 +209,7 @@ void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type)
 
 
 	}
-	else if (type == 0)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+	else if (type == 0)//²»»»ÐÐ
 	{
 		for (i = 0; i < length; i++)
 		{
@@ -232,7 +232,7 @@ void gettextwithoutspace(HWND hwnd, char *text)
 	int len = GetWindowTextLengthA(hwnd);
 
 	//SendMessageA(Text_in, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)" ");
-	//MessageBox(hWnd, L"ï¿½Õ¸ï¿½", L"ï¿½ï¿½Ê¾", MB_OK);
+	//MessageBox(hWnd, L"¿Õ¸ñ", L"ÌáÊ¾", MB_OK);
 
 	GetWindowText(hwnd, str, len + 1);
 	Wchar2Char(text, str);
@@ -298,9 +298,9 @@ void char_to_hex(char src[], int len, unsigned char des[])
 
 
 //
-//  ï¿½ï¿½ï¿½ï¿½: MyRegisterClass()
+//  º¯Êý: MyRegisterClass()
 //
-//  Ä¿ï¿½ï¿½: ×¢ï¿½á´°ï¿½ï¿½ï¿½à¡£
+//  Ä¿±ê: ×¢²á´°¿ÚÀà¡£
 //
 ATOM MyRegisterClass(HINSTANCE hInstance)
 {
@@ -324,18 +324,18 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 }
 
 //
-//   ï¿½ï¿½ï¿½ï¿½: InitInstance(HINSTANCE, int)
+//   º¯Êý: InitInstance(HINSTANCE, int)
 //
-//   Ä¿ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//   Ä¿±ê: ±£´æÊµÀý¾ä±ú²¢´´½¨Ö÷´°¿Ú
 //
-//   ×¢ï¿½ï¿½:
+//   ×¢ÊÍ:
 //
-//        ï¿½Ú´Ëºï¿½ï¿½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½ï¿½Ð±ï¿½ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-//        ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ò´°¿Ú¡ï¿½
+//        ÔÚ´Ëº¯ÊýÖÐ£¬ÎÒÃÇÔÚÈ«¾Ö±äÁ¿ÖÐ±£´æÊµÀý¾ä±ú²¢
+//        ´´½¨ºÍÏÔÊ¾Ö÷³ÌÐò´°¿Ú¡£
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-	hInst = hInstance; // ï¿½ï¿½Êµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½æ´¢ï¿½ï¿½È«ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½
+	hInst = hInstance; // ½«ÊµÀý¾ä±ú´æ´¢ÔÚÈ«¾Ö±äÁ¿ÖÐ
 
 	GUI = CreateWindowW(szWindowClass, L"XL_UDS", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
@@ -352,13 +352,13 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 }
 
 //
-//  ï¿½ï¿½ï¿½ï¿½: WndProc(HWND, UINT, WPARAM, LPARAM)
+//  º¯Êý: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
-//  Ä¿ï¿½ï¿½: ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Úµï¿½ï¿½ï¿½Ï¢ï¿½ï¿½
+//  Ä¿±ê: ´¦ÀíÖ÷´°¿ÚµÄÏûÏ¢¡£
 //
-//  WM_COMMAND  - ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ã³ï¿½ï¿½ï¿½Ëµï¿½
-//  WM_PAINT    - ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
-//  WM_DESTROY  - ï¿½ï¿½ï¿½ï¿½ï¿½Ë³ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+//  WM_COMMAND  - ´¦ÀíÓ¦ÓÃ³ÌÐò²Ëµ¥
+//  WM_PAINT    - »æÖÆÖ÷´°¿Ú
+//  WM_DESTROY  - ·¢ËÍÍË³öÏûÏ¢²¢·µ»Ø
 //
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -384,7 +384,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if (g_ChannelChooes == 0xff)
 					{
-						MessageBox(hWnd, L"ï¿½ï¿½Ñ¡ï¿½ï¿½Í¨ï¿½ï¿½", L"ï¿½ï¿½Ê¾", MB_OK);
+						MessageBox(hWnd, L"ÇëÑ¡ÔñÍ¨µÀ", L"ÌáÊ¾", MB_OK);
 					}
 					else
 					{
@@ -431,12 +431,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		case BTMSGType:
 		{
-			if (SendMessage(BT_MSG_Type, BM_GETCHECK, 0, 0) == BST_CHECKED)//Ñ¡ï¿½ï¿½
+			if (SendMessage(BT_MSG_Type, BM_GETCHECK, 0, 0) == BST_CHECKED)//Ñ¡ÖÐ
 			{
 				g_canMsgType = 1;
 
 			}
-			else if (SendMessage(BT_MSG_Type, BM_GETCHECK, 0, 0) == BST_UNCHECKED)//Î´Ñ¡ï¿½ï¿½
+			else if (SendMessage(BT_MSG_Type, BM_GETCHECK, 0, 0) == BST_UNCHECKED)//Î´Ñ¡Ôñ
 			{
 				g_canMsgType = 0;
 			}
@@ -466,13 +466,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				}
 				else
 				{
-					MessageBox(hWnd, L"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý³ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½", L"ï¿½ï¿½Ê¾", MB_OK);
+					MessageBox(hWnd, L"ÊäÈëÊý¾Ý³¤¶ÈÓÐÎó£¬Çë¼ì²é", L"ÌáÊ¾", MB_OK);
 				}
 				
 			}
 			else
 			{
-				MessageBox(hWnd, L"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¹ï¿½ï¿½ï¿½", L"ï¿½ï¿½Ê¾", MB_OK);
+				MessageBox(hWnd, L"ÇëÏÈÔËÐÐ¹¤³Ì¿½", L"ÌáÊ¾", MB_OK);
 			}
 			
 			break;
@@ -496,15 +496,15 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				//bi.iImage = 0;
 				//bi.lParam = NULL;
 				//bi.lpfn = NULL;
-				//bi.lpszTitle = _T("ï¿½ï¿½Ñ¡ï¿½ï¿½ï¿½Ä¼ï¿½Â·ï¿½ï¿½");
+				//bi.lpszTitle = _T("ÇëÑ¡ÔñÎÄ¼þÂ·¾¶");
 				//bi.pszDisplayName = szBuf;
 				//bi.ulFlags = BIF_BROWSEINCLUDEFILES;
 
-				//InitCommonControlsEx(&InitCtrls);//ï¿½Úµï¿½ï¿½Ãºï¿½ï¿½ï¿½SHBrowseForFolderÖ®Ç°ï¿½ï¿½Òªï¿½ï¿½ï¿½Ã¸Ãºï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ø»ï¿½ï¿½ï¿½
+				//InitCommonControlsEx(&InitCtrls);//ÔÚµ÷ÓÃº¯ÊýSHBrowseForFolderÖ®Ç°ÐèÒªµ÷ÓÃ¸Ãº¯Êý³õÊ¼»¯Ïà¹Ø»·¾³
 				//pil = SHBrowseForFolder(&bi);
-				//if (NULL != pil)//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½Ð³É¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½Ñ¡ï¿½ï¿½ï¿½Ê¼ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½È·ï¿½ï¿½
+				//if (NULL != pil)//Èôº¯ÊýÖ´ÐÐ³É¹¦£¬²¢ÇÒÓÃ»§Ñ¡ÔñÎÊ¼þÂ·¾¶²¢µã»÷È·¶¨
 				//{
-				//	SHGetPathFromIDList(pil, szBuf);//ï¿½ï¿½È¡ï¿½Ã»ï¿½Ñ¡ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½Â·ï¿½ï¿½
+				//	SHGetPathFromIDList(pil, szBuf);//»ñÈ¡ÓÃ»§Ñ¡ÔñµÄÎÄ¼þÂ·¾¶
 				//	wprintf_s(_T("%s"), szBuf);
 				//	printf("%s\n", szBuf);
 				//}
@@ -512,7 +512,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			else
 			{
-				MessageBox(hWnd, L"ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð¹ï¿½ï¿½ï¿½", L"ï¿½ï¿½Ê¾", MB_OK);
+				MessageBox(hWnd, L"ÇëÏÈÔËÐÐ¹¤³Ì", L"ÌáÊ¾", MB_OK);
 			}
 
 			break;
@@ -550,20 +550,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				if (temp == 0)//CAN
 				{
 					g_canBusMode = 0;
-					ShowWindow(BT_MSG_Type, SW_HIDE);    // ï¿½ï¿½ï¿½Ø·ï¿½ï¿½ï¿½CANFDÑ¡ï¿½ï¿½
+					ShowWindow(BT_MSG_Type, SW_HIDE);    // Òþ²Ø·¢ËÍCANFDÑ¡Ïî
 
 				}
 				else if (temp == 1)//CANFD ISO
 				{
 					g_canBusMode = 1;
 					g_canFdModeNoIso = 0;
-					ShowWindow(BT_MSG_Type, SW_SHOW);    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½CANFDÑ¡ï¿½ï¿½
+					ShowWindow(BT_MSG_Type, SW_SHOW);    // ÏÔÊ¾·¢ËÍCANFDÑ¡Ïî
 				}
 				else if (temp == 2)//CANFD ISO
 				{
 					g_canBusMode = 1;
 					g_canFdModeNoIso = 1;
-					ShowWindow(BT_MSG_Type, SW_SHOW);    // ï¿½ï¿½Ê¾ï¿½ï¿½ï¿½ï¿½CANFDÑ¡ï¿½ï¿½
+					ShowWindow(BT_MSG_Type, SW_SHOW);    // ÏÔÊ¾·¢ËÍCANFDÑ¡Ïî
 				}
 
 
@@ -589,7 +589,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 		PAINTSTRUCT ps;
 		HDC hdc = BeginPaint(hWnd, &ps);
-		// TODO: ï¿½Ú´Ë´ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ hdc ï¿½ï¿½ï¿½ÎºÎ»ï¿½Í¼ï¿½ï¿½ï¿½ï¿½...
+		// TODO: ÔÚ´Ë´¦Ìí¼ÓÊ¹ÓÃ hdc µÄÈÎºÎ»æÍ¼´úÂë...
 		EndPaint(hWnd, &ps);
 	}
 	break;
@@ -623,7 +623,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			case TCN_SELCHANGE:
 			{
 				int nSel = SendMessage(hTabCtel, TCM_GETCURSEL, 0, 0);
-				//MessageBox(hWnd, L"TCN_SELCHANGE", L"ï¿½ï¿½Ê¾", MB_OK);
+				//MessageBox(hWnd, L"TCN_SELCHANGE", L"ÌáÊ¾", MB_OK);
 				switch (nSel)
 				{
 				case 0:
@@ -676,7 +676,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-// ï¿½ï¿½ï¿½ï¿½ï¿½Ú¡ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
+// ¡°¹ØÓÚ¡±¿òµÄÏûÏ¢´¦Àí³ÌÐò¡£
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
