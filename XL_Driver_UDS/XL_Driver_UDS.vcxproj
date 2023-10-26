@@ -24,6 +24,7 @@
     <ClInclude Include="paneldesign.h" />
     <ClInclude Include="readhex.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="uds_service_function.h" />
     <ClInclude Include="SID34_36_37TransferData.h" />
     <ClInclude Include="Srecord.h" />
     <ClInclude Include="targetver.h" />
@@ -36,6 +37,7 @@
     <ClCompile Include="main.c" />
     <ClCompile Include="paneldesign.c" />
     <ClCompile Include="readhex.c" />
+    <ClCompile Include="uds_service_function.c" />
     <ClCompile Include="SID34_36_37TransferData.c" />
     <ClCompile Include="Srecord.c" />
     <ClCompile Include="uds_tp.c" />

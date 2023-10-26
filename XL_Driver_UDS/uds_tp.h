@@ -7,9 +7,11 @@ typedef enum __NT_TIMER_T__
 	TIMER_N_CR = 0,                 // N_CR 定时器，接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: ms
 	TIMER_N_BS,                     // N_BS 定时器，发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: ms
 	TIMER_STmin,                    // STmin 定时器，发送连续帧时，间隔时间最小为 g_rfc_stmin,单位: ms
-	TIMER_Response,
+	//TIMER_Response,
 	TIMER_CNT                       // 定时器总个数
 }nt_timer_t;
+
+
 
 typedef enum __NETWORK_LAYER_STATUS_
 {
@@ -136,6 +138,9 @@ extern unsigned int RESPONSE_ID;			// 应答 ID
 // 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: ms
 #define TIMEOUT_Response                (1000*1000)
 
+// 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: ms
+#define TIMEOUT_SID                (1000*1000)
+
 // 发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: ms
 #define TIMEOUT_N_BS                (1000*1000)
 
@@ -240,18 +245,18 @@ typedef enum __UDS_SA_LV__
 }uds_sa_lv;
 
 
-typedef struct __UDS_SERVICE_T__
-{
-	uint8_t uds_sid;									// 服务 ID
-	void(*uds_service)  (const uint8_t *, uint16_t);	// 服务处理函数
-	bool_t(*check_len)  (const uint8_t *, uint16_t);	// 检查数据长度是否合法
-	bool_t std_spt;   									// 是否支持默认会话
-	bool_t prog_spt;  									// 是否支持编程会话
-	bool_t ext_spt;   									// 是否支持扩展会话
-	bool_t fun_spt;   									// 是否支持功能寻址
-	bool_t ssp_spt;  									// 是否支持肯定响应抑制
-	uds_sa_lv uds_sa; 									// 安全访问等级
-}uds_service_t;
+//typedef struct __UDS_SERVICE_T__
+//{
+//	uint8_t uds_sid;									// 服务 ID
+//	void(*uds_service)  (const uint8_t *, uint16_t);	// 服务处理函数
+//	bool_t(*check_len)  (const uint8_t *, uint16_t);	// 检查数据长度是否合法
+//	bool_t std_spt;   									// 是否支持默认会话
+//	bool_t prog_spt;  									// 是否支持编程会话
+//	bool_t ext_spt;   									// 是否支持扩展会话
+//	bool_t fun_spt;   									// 是否支持功能寻址
+//	bool_t ssp_spt;  									// 是否支持肯定响应抑制
+//	uds_sa_lv uds_sa; 									// 安全访问等级
+//}uds_service_t;
 /*-------------------------------------------------------------------------------------------------------*/
 
 
@@ -276,6 +281,41 @@ typedef struct __UDS_SERVICE_T__
 #define SID_37        (0x37) /* RequestTransferExit */
 
 
+
+typedef struct __UDS_SERVICE_Info__
+{
+	uint8_t uds_sid;									// 服务 ID
+	uint8_t timerflag;
+	uint32_t TIMER_SID;
+}uds_service_info_t;
+
+
+
+
+
+
+typedef enum __SID_TIMER_T__
+{
+	TIMER_SID_10 = 0,
+	TIMER_SID_11,
+	TIMER_SID_14,
+	TIMER_SID_18,
+	TIMER_SID_19,
+	TIMER_SID_22,
+	TIMER_SID_27,
+	TIMER_SID_2E,
+	TIMER_SID_2F,
+	TIMER_SID_28,
+	TIMER_SID_31,
+	TIMER_SID_3E,
+	TIMER_SID_85,
+	TIMER_SID_34,
+	TIMER_SID_36,
+	TIMER_SID_37,
+	TIMER_SID_CNT                       // 定时器总个数
+}sid_timer_t;
+
+extern uds_service_info_t uds_service_list[SID_NUM];
 
 
 

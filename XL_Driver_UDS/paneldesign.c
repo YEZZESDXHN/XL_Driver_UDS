@@ -16,10 +16,9 @@ double t1 = 0, t2 = 0;
 void timer_tu_doing()//ʱ������ѭ������
 
 {
-	clock_t t;
-	t= clock();
+	
 	//network_task(uds_send_can_farme);
-	printf("time=%f,t=%d,(double)fre.QuadPart=%f,task_cycle=%d\n",t1, t,(double)fre.QuadPart, task_cycle);
+	uds_1ms_task();
 }
 
 void timer_tu_start(int n)
@@ -483,8 +482,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (g_Run = 1)
 			{
 
-				flash("VIU_37MR_R520_RD1_179_20231020_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+				//flash("VIU_37MR_R520_RD1_179_20231020_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
 				
+
+				service_10_SessionControl(01);
+
 
 				//LPITEMIDLIST pil = NULL;
 				//INITCOMMONCONTROLSEX InitCtrls = { 0 };

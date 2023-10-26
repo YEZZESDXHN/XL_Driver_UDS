@@ -2,6 +2,7 @@
 #include <stdint.h>
 #include<stdio.h>
 #include<Windows.h>
+#include<time.h>
 // 网络层状态, 共有 3 种 空闲状态(NWL_IDLE)、发送状态(NWL_XMIT)、接收状态(NWL_RECV)
 // 当接收到首帧时，状态被置为 NWL_RECV，直到连续帧接收完成才置为 NWL_IDLE
 // 当发送多帧时，该状态被置为 NWL_XMIT，直到发送完成后才置为 NWL_IDLE
@@ -64,6 +65,27 @@ static uint16_t recv_len = 0;
 
 
 unsigned int task_cycle = 100;
+uds_service_info_t uds_service_list[SID_NUM]=
+{
+	{SID_10,			FALSE,			0},
+	{SID_11,			FALSE,			0},
+	{SID_14,			FALSE,			0},
+	{SID_18,			FALSE,			0},
+	{SID_19,			FALSE,			0},
+	{SID_22,			FALSE,			0},
+	{SID_27,			FALSE,			0},
+	{SID_2E,			FALSE,			0},
+	{SID_2F,			FALSE,			0},
+	{SID_28,			FALSE,			0},
+	{SID_31,			FALSE,			0},
+	{SID_3E,			FALSE,			0},
+	{SID_85,			FALSE,			0},
+	{SID_34,			FALSE,			0},
+	{SID_36,			FALSE,			0},
+	{SID_37,			FALSE,			0},
+
+};
+
 
 
 // 0:物理寻址; 1:功能寻址
@@ -91,20 +113,22 @@ static void nt_timer_start(nt_timer_t num)
 
 	// 启动 N_CR 定时器
 	if (num == TIMER_N_CR)
-		nt_timer[TIMER_N_CR] = TIMEOUT_N_CR + 1;
+		nt_timer[TIMER_N_CR] = TIMEOUT_N_CR + task_cycle;
 
 	// 启动 N_BS 定时器
 	if (num == TIMER_N_BS)
-		nt_timer[TIMER_N_BS] = TIMEOUT_N_BS + 1;
+		nt_timer[TIMER_N_BS] = TIMEOUT_N_BS + task_cycle;
 
 	// 启动 STmin 定时器
 	if (num == TIMER_STmin)
 		nt_timer[TIMER_STmin] = g_rfc_stmin;
 
-	// 启动 TIMEOUT_N_Response 定时器
-	if (num == TIMER_Response)
-		nt_timer[TIMER_Response] = TIMEOUT_Response+1;
+	
+
+	//for(int i=0;i<sid_timer_t)
+
 }
+
 
 
 /******************************************************************************
@@ -173,7 +197,7 @@ static int nt_timer_run(nt_timer_t num)
 		return 0;                   // 返回 0，定时器已经被关闭
 	}
 	// 如果计数值为 1，表示定时器超时已发生
-	else if (nt_timer[num] == task_cycle )
+	else if (nt_timer[num] == task_cycle)
 	{
 		nt_timer[num] = 0;          // 关闭定时器
 		return -1;                  // 返回 -1，发生超时
@@ -181,27 +205,13 @@ static int nt_timer_run(nt_timer_t num)
 	// 其余情况则表示定时器正在运行
 	else
 	{
-		//nt_timer[num]--;            // 计数值 -1
-		if (num == TIMER_STmin)
-		{
-			printf("==================nt_timer[num]=%d,g_rfc_stmin=%d,task_cycle=%d\n", nt_timer[num], g_rfc_stmin,task_cycle);
-		}
-		nt_timer[num]= nt_timer[num]-task_cycle;
+
+		nt_timer[num] = nt_timer[num] - task_cycle;
 		//nt_timer[num]--;
-		if (num == TIMER_STmin)
-		{
-			printf("nt_timer[num]=%d,g_rfc_stmin=%d,task_cycle=%d\n", nt_timer[num], g_rfc_stmin, task_cycle);
-		}
-		//if (nt_timer[num] <= 17)
-		//{
-		//	nt_timer[num] = 18;
-		//}
-		//nt_timer[num]= nt_timer[num]-17;            // 计数值 -1
-		//if(nt_timer[num])
+
 		return 1;                   // 返回 1，定时器正在计时运行
 	}
 }
-
 
 /******************************************************************************
 * 函数名称: static int nt_timer_chk(nt_timer_t num)
@@ -228,6 +238,180 @@ static int nt_timer_chk(nt_timer_t num)
 	else
 	{
 		nt_timer[num] = 0;          // 定时器已停止运行
+		return 0;                   // 返回 0，定时器已停止运行
+	}
+}
+
+/******************************************************************************
+* 函数名称: static void nt_timer_start(nt_timer_t num)
+* 功能说明: 启动 TP 层定时器
+* 输入参数: nt_timer_t num              --定时器
+* 输出参数: 无
+* 函数返回: 无
+* 其它说明: 无
+******************************************************************************/
+void sid_timer_start(unsigned char siu_num)
+{
+	int temp=0xff;
+
+	for (int i = 0; i < SID_NUM; i++)
+	{
+		if (siu_num = uds_service_list[i].uds_sid)
+		{
+			temp = i;
+			break;
+		}
+	}
+	if (temp < SID_NUM)
+	{
+
+		uds_service_list[temp].TIMER_SID = TIMEOUT_SID;
+	}
+
+
+	
+	
+
+}
+
+
+
+/******************************************************************************
+* 函数名称: static void nt_timer_start_wv(nt_timer_t num, uint32_t value)
+* 功能说明: 重新设置定时器的计数值
+* 输入参数: nt_timer_t num              --定时器
+	　　　　uint32_t value              --计数值
+* 输出参数: 无
+* 函数返回: 无
+* 其它说明: 当 value = 0，表示关闭定时器，等同于 nt_timer_stop() 函数
+	　　　　当 value = 1，表示定时器超时已发生，接下来将处理超时事件
+	　　　　当 value 为其它值时，定时器将根据 value 值重新开始计时
+******************************************************************************/
+void sid_timer_start_wv(unsigned char siu_num, uint32_t value)
+{
+	int temp = 0xff;
+
+	for (int i = 0; i < SID_NUM; i++)
+	{
+		if (siu_num = uds_service_list[i].uds_sid)
+		{
+			temp = i;
+			break;
+		}
+	}
+	if (temp < SID_NUM)
+	{
+
+		uds_service_list[temp].TIMER_SID = TIMEOUT_SID;
+
+	}
+}
+
+
+/******************************************************************************
+* 函数名称: static void nt_timer_stop (nt_timer_t num)
+* 功能说明: 关闭定时器
+* 输入参数: nt_timer_t num              --定时器
+* 输出参数: 无
+* 函数返回: 无
+* 其它说明: 无
+******************************************************************************/
+void sid_timer_stop(unsigned char siu_num)
+{
+	int temp = 0xff;
+
+	for (int i = 0; i < SID_NUM; i++)
+	{
+		if (siu_num = uds_service_list[i].uds_sid)
+		{
+			temp = i;
+			break;
+		}
+	}
+	if (temp < SID_NUM)
+	{
+
+		uds_service_list[temp].TIMER_SID = 0;
+
+	}
+}
+
+
+/******************************************************************************
+* 函数名称: static int nt_timer_run(nt_timer_t num)
+* 功能说明: 定时器计数运行
+* 输入参数: nt_timer_t num              --定时器
+* 输出参数: 无
+* 函数返回: 0: 定时器已经被关闭; -1: 超时发生; 1: 定时器正在计时运行
+* 其它说明: 该函数需要被 1ms 周期调用
+******************************************************************************/
+int sid_timer_run(unsigned char num)
+{
+	// 检查参数合法性
+	if (num >= TIMER_SID_CNT)
+	{
+		return 0;
+	}
+
+	
+
+	
+	
+
+	// 如果计数值为 0，表示定时器已经关闭，不再工作
+	if (uds_service_list[num].TIMER_SID == 0)
+	{
+		return 0;                   // 返回 0，定时器已经被关闭
+	}
+	// 如果计数值为 1，表示定时器超时已发生
+	else if (uds_service_list[num].TIMER_SID == task_cycle )
+	{
+		uds_service_list[num].TIMER_SID = 0;          // 关闭定时器
+		
+		return -1;                  // 返回 -1，发生超时
+	}
+	// 其余情况则表示定时器正在运行
+	else
+	{
+		
+		uds_service_list[num].TIMER_SID = uds_service_list[num].TIMER_SID -task_cycle;
+		//nt_timer[num]--;
+		
+		return 1;                   // 返回 1，定时器正在计时运行
+	}
+}
+
+
+/******************************************************************************
+* 函数名称: static int nt_timer_chk(nt_timer_t num)
+* 功能说明: 检查定时器状态然后关闭定时器
+* 输入参数: nt_timer_t num              --定时器
+* 输出参数: 无
+* 函数返回: 0: 定时器已停止运行;  1: 定时器正在计时运行
+* 其它说明: 该函数执行后，无论定时器是否正在运行，都将被关闭
+******************************************************************************/
+int sid_timer_chk(unsigned char siu_num)
+{
+	int temp = 0xff;
+
+	for (int i = 0; i < SID_NUM; i++)
+	{
+		if (siu_num = uds_service_list[i].uds_sid)
+		{
+			temp = i;
+			break;
+		}
+	}
+
+	// 如果定时器计数值 > 0,表示定时器正在工作
+	if (uds_service_list[temp].TIMER_SID > 0)
+	{
+		uds_service_list[temp].TIMER_SID = 0;          // 关闭定时器
+		return 1;                   // 返回 1，定时器正在计时运行
+	}
+	else
+	{
+		uds_service_list[temp].TIMER_SID = 0;          // 定时器已停止运行
 		return 0;                   // 返回 0，定时器已停止运行
 	}
 }
@@ -653,7 +837,7 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 	// 发送
 	if (sendframefun(request_id, send_buf, FRAME_SIZE) == 1)
 	{
-		nt_timer_start(TIMER_Response);    // 启动  定时器
+		//nt_timer_start(TIMER_Response);    // 启动  定时器
 		
 		uds_data_indication(msg_buf, msg_dlc, N_TX_OK);
 	}
@@ -859,7 +1043,8 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		//N_USData.indication(recv_buf, recv_len, N_TIMEOUT_Cr);
 		uds_data_indication(NULL, NULL, N_TIMEOUT_Cr);
 	}
-
+	clock_t t;
+	t = clock();
 	// 如果 N_BS 定时器超时，复位网络层状态，并通知上层做异常处理
 	if (nt_timer_run(TIMER_N_BS) < 0)
 	{
@@ -868,13 +1053,13 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		uds_data_indication(NULL, NULL, N_TIMEOUT_Bs);
 	}
 
-	// 如果 N_BS 定时器超时，复位网络层状态，并通知上层做异常处理
-	if (nt_timer_run(TIMER_Response) < 0)
-	{
-		clear_network();
-		//N_USData.confirm(N_TIMEOUT_Bs);
-		uds_data_indication(NULL, NULL, N_TIMEROUT_Respone);
-	}
+	//// 如果 N_BS 定时器超时，复位网络层状态，并通知上层做异常处理
+	//if (nt_timer_run(TIMER_Response) < 0)
+	//{
+	//	clear_network();
+	//	//N_USData.confirm(N_TIMEOUT_Bs);
+	//	uds_data_indication(NULL, NULL, N_TIMEROUT_Respone);
+	//}
 
 
 
@@ -924,7 +1109,7 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		{
 			uds_data_indication(remain_buf, remain_buf_len, N_TX_OK);
 			clear_network();                    // 复位网络层状态
-			nt_timer_start(TIMER_Response);    // 启动  定时器
+			//nt_timer_start(TIMER_Response);    // 启动  定时器
 		}
 	}
 	
@@ -1057,6 +1242,8 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 ******************************************************************************/
 void uds_1ms_task(UDS_SEND_FRAME sendframefun)
 {
+	//printf("uds_1ms_task");
+	sid_task();
 	network_task(sendframefun);
 }
 
