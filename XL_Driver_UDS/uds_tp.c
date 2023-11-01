@@ -3,6 +3,8 @@
 #include<stdio.h>
 #include<Windows.h>
 #include<time.h>
+
+
 // 网络层状态, 共有 3 种 空闲状态(NWL_IDLE)、发送状态(NWL_XMIT)、接收状态(NWL_RECV)
 // 当接收到首帧时，状态被置为 NWL_RECV，直到连续帧接收完成才置为 NWL_IDLE
 // 当发送多帧时，该状态被置为 NWL_XMIT，直到发送完成后才置为 NWL_IDLE
@@ -67,22 +69,24 @@ static uint16_t recv_len = 0;
 unsigned int task_cycle = 100;
 uds_service_info_t uds_service_list[SID_NUM]=
 {
-	{SID_10,			FALSE,			0},
-	{SID_11,			FALSE,			0},
-	{SID_14,			FALSE,			0},
-	{SID_18,			FALSE,			0},
-	{SID_19,			FALSE,			0},
-	{SID_22,			FALSE,			0},
-	{SID_27,			FALSE,			0},
-	{SID_2E,			FALSE,			0},
-	{SID_2F,			FALSE,			0},
-	{SID_28,			FALSE,			0},
-	{SID_31,			FALSE,			0},
-	{SID_3E,			FALSE,			0},
-	{SID_85,			FALSE,			0},
-	{SID_34,			FALSE,			0},
-	{SID_36,			FALSE,			0},
-	{SID_37,			FALSE,			0},
+	/* SID				是否需要响应		超时时间		NCR
+	*/
+	{SID_10,			FALSE,			0,			0},
+	{SID_11,			FALSE,			0,			0},
+	{SID_14,			FALSE,			0,			0},
+	{SID_18,			FALSE,			0,			0},
+	{SID_19,			FALSE,			0,			0},
+	{SID_22,			FALSE,			0,			0},
+	{SID_27,			FALSE,			0,			0},
+	{SID_2E,			FALSE,			0,			0},
+	{SID_2F,			FALSE,			0,			0},
+	{SID_28,			FALSE,			0,			0},
+	{SID_31,			FALSE,			0,			0},
+	{SID_3E,			FALSE,			0,			0},
+	{SID_85,			FALSE,			0,			0},
+	{SID_34,			FALSE,			0,			0},
+	{SID_36,			FALSE,			0,			0},
+	{SID_37,			FALSE,			0,			0},
 
 };
 
@@ -264,8 +268,11 @@ void sid_timer_start(unsigned char siu_num)
 	}
 	if (temp < SID_NUM)
 	{
-
-		uds_service_list[temp].TIMER_SID = TIMEOUT_SID;
+		if (uds_service_list[temp].timerflag == 1)
+		{
+			uds_service_list[temp].TIMER_SID = TIMEOUT_SID;
+		}
+		
 	}
 
 
@@ -367,6 +374,7 @@ int sid_timer_run(unsigned char num)
 	else if (uds_service_list[num].TIMER_SID == task_cycle )
 	{
 		uds_service_list[num].TIMER_SID = 0;          // 关闭定时器
+		uds_service_list[num].timerflag = 0;
 		
 		return -1;                  // 返回 -1，发生超时
 	}
@@ -533,8 +541,11 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 	{
 		nwf_st = FLASH_36service_finsh;
 	}
+	
 
 
+
+	uds_respone(recv_buf_sf);
 	uds_data_indication(recv_buf_sf, uds_dlc, N_OK);
 	
 	return 0;
@@ -599,6 +610,7 @@ int recv_firstframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fra
 
 	// TP 层首帧数据处理完成，通知上层
 	//N_USData.ffindication(N_OK);
+	//uds_respone(recv_buf_sf);
 	uds_data_indication(frame_buf, frame_dlc, N_FF_MSG);
 	//uds_data_indication(frame_buf, frame_dlc, N_OK);
 	return 0;
@@ -657,6 +669,7 @@ static int recv_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf
 	if (recv_len >= recv_fdl)
 	{
 		g_wait_cf = FALSE;              // 清连续帧接收标志
+		uds_respone(recv_buf);
 		uds_data_indication(recv_buf, recv_fdl, N_OK);
 		return 0;
 	}
@@ -838,7 +851,7 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 	if (sendframefun(request_id, send_buf, FRAME_SIZE) == 1)
 	{
 		//nt_timer_start(TIMER_Response);    // 启动  定时器
-		
+		sid_timer_start(msg_buf[1]);
 		uds_data_indication(msg_buf, msg_dlc, N_TX_OK);
 	}
 
@@ -1107,6 +1120,7 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		}
 		else
 		{
+			sid_timer_start(remain_buf[1]);
 			uds_data_indication(remain_buf, remain_buf_len, N_TX_OK);
 			clear_network();                    // 复位网络层状态
 			//nt_timer_start(TIMER_Response);    // 启动  定时器

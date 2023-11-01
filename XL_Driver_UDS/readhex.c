@@ -182,7 +182,7 @@ void Hex2Bin(const char* rpath, const char* wpath)
 //IHexRecord record;
 //ConvertContext ctx;
 //HEX读取
-void ReadHex(const char* rpath, const char* wpath, IHexRecord *record, ConvertContext *ctx)
+void ReadHex(const char* rpath, const char* rpath2, IHexRecord *record, ConvertContext *ctx)
 {
 	IHexResult result;
 
@@ -191,7 +191,7 @@ void ReadHex(const char* rpath, const char* wpath, IHexRecord *record, ConvertCo
 	InitContext(ctx);
 
 	// 检查路径有效
-	CheckPatchValid(rpath, wpath);
+	CheckPatchValid(rpath, rpath2);
 	// 打开HEX文件
 	if (NULL == ((*ctx).rfile = fopen(rpath, "r")))
 		ExitApplication(ctx, STRING_OPEN_FILEERROR, rpath);

@@ -3,7 +3,7 @@
 #include<stdint.h>
 #include<time.h>
 #include"uds_tp.h"
-#include"SID34_36_37TransferData.h"
+#include"uds_service_function.h"
 int isFirststart = 1;
 
 LARGE_INTEGER fre = { 0 };//
@@ -483,9 +483,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 
 				//flash("VIU_37MR_R520_RD1_179_20231020_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
-				
+				unsigned char data[4] = { 0,1,2,3 };
+				service_31_RoutineControl(1, 0x1234, 2, data, 4);
+				//service_10_SessionControl(01);
 
-				service_10_SessionControl(01);
+				//flash("VIU_37MR_R520_RD1_179_20231020_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
+
 
 
 				//LPITEMIDLIST pil = NULL;

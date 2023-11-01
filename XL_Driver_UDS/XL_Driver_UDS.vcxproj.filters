@@ -33,9 +33,6 @@
     <ClInclude Include="resource.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="SID34_36_37TransferData.h">
-      <Filter>头文件</Filter>
-    </ClInclude>
     <ClInclude Include="IntelHex.h">
       <Filter>头文件</Filter>
     </ClInclude>
@@ -60,9 +57,6 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="paneldesign.c">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="SID34_36_37TransferData.c">
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="binstr_conv.c">

@@ -1,7 +1,7 @@
 #ifndef _UDS_TP_H_
 #define _UDS_TP_H_
 #include<stdint.h>
-#include"SID34_36_37TransferData.h"
+#include"uds_service_function.h"
 typedef enum __NT_TIMER_T__
 {
 	TIMER_N_CR = 0,                 // N_CR 定时器，接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: ms
@@ -287,6 +287,7 @@ typedef struct __UDS_SERVICE_Info__
 	uint8_t uds_sid;									// 服务 ID
 	uint8_t timerflag;
 	uint32_t TIMER_SID;
+	uint8_t NCR;
 }uds_service_info_t;
 
 
