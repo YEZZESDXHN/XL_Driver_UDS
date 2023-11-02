@@ -6,7 +6,7 @@
 
 
 
-
+int display = 1;
 int             g_TXThreadRun_3E;                                        //!< flag to start/stop the TX thread (for the transmission burst)
 HANDLE          g_hTXThread_3E;
 
@@ -48,9 +48,13 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	
 	if (n_result == N_OK)//消息接收完成，包括成功接收完成多帧
 	{
-		//settexttocontrol(Edit_out, "RX:", 1);
-		//setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc,0);
-		//SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+		if (display == 1)
+		{
+			settexttocontrol(Edit_out, "RX:", 1);
+			setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
+			SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+		}
+		
 
 		//printf("main RX:");
 		//for (int i = 0; i < 8; i++)
@@ -126,9 +130,13 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	}
 	else if (n_result == N_TX_OK)
 	{
-		//settexttocontrol(Edit_out, "TX:", 1);
-		//setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
-		//SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+		if (display == 1)
+		{
+			settexttocontrol(Edit_out, "TX:", 1);
+			setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
+			SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+		}
+		
 	}
 	
 	
@@ -338,6 +346,39 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 100, 400, 300, Tab_1, (HMENU)Editout, hInstance, NULL);
 
 	
+
+
+
+
+
+
+	Flash_file_display = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL| WS_HSCROLL | ES_MULTILINE | ES_READONLY|
+		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 10, 400, 50, Tab_2, (HMENU)Flashfiledisplay, hInstance, NULL);
+
+	BT_Choose_Flash_App = CreateWindowExW(
+		0, L"button", L"选择文件", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 100,
+		100, 30, Tab_2, (HMENU)BTChooseFlashApp, GetModuleHandle(NULL), NULL
+	);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	XLstatus          xlStatus;
 	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
 	g_canFdParams.arbitrationBitRate = 500000;

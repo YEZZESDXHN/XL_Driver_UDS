@@ -3,7 +3,7 @@
 #include"XL_Driver.h"
 #include"readhex.h"
 #include <stdarg.h>
-
+#include"paneldesign.h"
 //34 req
 unsigned char dataFormatIdentifier = 0;//这是第二个字节的参数，其中高4个bit表示压缩方法，低4个bit表示加密方法，一般情况就是0x00
 unsigned char addressAndLengthFormatIdentifier = 0;//请求刷写地址和长度格式，高4个bit表示下面的memorySize参数占几个字节，低4个bit表示下面的memoryAddress参数占几个字节。常规就是0x44，就是memorySize和memoryAddress各占4个字节
@@ -15,7 +15,7 @@ unsigned short maxNumberOfBlockLength = 0;//目标ECU允许Tester传输最大的字节数,实
 
 //36
 unsigned char blockSequenceCounter = 0; //数据传输计数器，第一帧从1开始，到了0xFF后，再从0开始，循环往复，直到下载完毕
-
+char Flash_path = {0};
 IHexRecord record_t;
 ConvertContext ctx_t;
 uint32_t crc = 0;
@@ -147,15 +147,16 @@ void sid_task()
 }
 
 
-unsigned char uds_respone(unsigned char *data)
+unsigned char uds_respone(const unsigned char *data)
 {
-	if (data[0] = 0x7f)
+	
+	if (data[0] == 0x7f)
 	{
 		int temp = 0xff;
 
 		for (int i = 0; i < SID_NUM; i++)
 		{
-			if (data[1] = uds_service_list[i].uds_sid)
+			if (data[1] == uds_service_list[i].uds_sid)
 			{
 				temp = i;
 				break;
@@ -165,12 +166,16 @@ unsigned char uds_respone(unsigned char *data)
 		{
 			if (data[2] == 0x78)//忙碌
 			{
+				//settexttocontrol(Edit_out, "NCR:", 1);
+				//setHEXtocontrol(Edit_out, data[2], 0);
 				uds_service_list[temp].NCR = data[2];
-				uds_service_list[temp].TIMER_SID = 5000 * 1000;
+				uds_service_list[temp].TIMER_SID = 8000 * 1000;
 				return data[2];
 			}
 			else
 			{
+				//settexttocontrol(Edit_out, "NCR:", 1);
+				//setHEXtocontrol(Edit_out, data[2], 0);
 				uds_service_list[temp].NCR = data[2];
 				uds_service_list[temp].TIMER_SID = 0;
 				return data[2];
@@ -180,12 +185,15 @@ unsigned char uds_respone(unsigned char *data)
 	}
 	else
 	{
+		
 		int temp = 0xff;
 
 		for (int i = 0; i < SID_NUM; i++)
 		{
-			if (data[1] = uds_service_list[i].uds_sid)
+			
+			if ((data[0]-0x40) == uds_service_list[i].uds_sid)
 			{
+				
 				temp = i;
 				break;
 			}
@@ -194,12 +202,13 @@ unsigned char uds_respone(unsigned char *data)
 		{
 			uds_service_list[temp].NCR = 0;
 			uds_service_list[temp].TIMER_SID = 0;
+			//printf("temp=%d", temp);
 			return 0;
 		}
 	}
 	
 	
-	
+	//printf("sid_10 NCR=%d,TIMER=%d\n", uds_service_list[0].NCR, uds_service_list[0].TIMER_SID);
 
 }
 
@@ -424,6 +433,9 @@ void service_36_TransferData(unsigned int DataLen)
 	uint32_t index = 0;
 	uint32_t index_1 = 0;
 	unsigned char data[0x803];
+	maxNumberOfBlockLength = 0x402;
+	blockSequenceCounter = 1;
+	display = 0;
 	while (1)
 	{
 		nwf_st = FLASH_36service_runing;
@@ -468,6 +480,7 @@ void service_36_TransferData(unsigned int DataLen)
 				Sleep(10);
 				if (nwf_st == FLASH_36service_finsh)
 				{
+					display = 1;
 					break;
 				}
 			}
@@ -562,12 +575,12 @@ int sid_wait_resp(unsigned char sid_num)
 
 
 
-
-void flash_flow(file_info_t path)
+file_info_t file_path = { 0 };
+void flash_flow()
 {
-
-	//printf("falsh_;%s\n", path.driver_path);
-	loadflashfile(path.driver_path, "flash_driver_1.bin");
+	printf("flash info :%s,%s\n", file_path.driver_path, file_path.driver_path);
+	//printf("=============falsh_;%s\n", path.driver_path);
+	loadflashfile(file_path.driver_path, "flash_driver_1.bin");
 	service_10_SessionControl(0x81);
 	Sleep(500);
 
@@ -589,6 +602,10 @@ void flash_flow(file_info_t path)
 	service_27_SecurityAccess_request(0x09);
 	Sleep(500);
 
+	unsigned char data_f184[16] = { 0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11 };
+	service_2E_WriteDataByIdentifier(0xf184, data_f184, 9);
+	Sleep(500);
+
 	service_3E_TesterPresent(0x80);
 	Sleep(3000);
 
@@ -596,10 +613,41 @@ void flash_flow(file_info_t path)
 	sid_wait_resp(SID_34);
 
 	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
+	Sleep(500);
+
+	service_37_RequestTransferExit();
+	sid_wait_resp(SID_37);
+
+	unsigned char data_0202[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
+	service_31_EXRoutineControl(0x01, 0x0202, data_0202, 12);
+	sid_wait_resp(SID_31);
 
 
+	loadflashfile(file_path.app_path, "flash_driver_1.bin");
+
+	unsigned char data_ff00[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff};
+	service_31_EXRoutineControl(1, 0xff00, data_ff00, 8);
+	sid_wait_resp(SID_31);
+
+	service_34_RequestDownload(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
+	sid_wait_resp(SID_34);
+
+	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
+	Sleep(500);
+
+	service_37_RequestTransferExit();
+	sid_wait_resp(SID_37);
+
+	unsigned char data_0202_app[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
+	service_31_EXRoutineControl(0x01, 0x0202, data_0202_app, 12);
+	sid_wait_resp(SID_31);
 
 
+	service_31_RoutineControl(1, 0xff01);
+	sid_wait_resp(SID_31);
+
+	Sleep(3000);
+	service_11_EcuReset(1);
 }
 
 
@@ -607,14 +655,16 @@ void flash(const char *driver_file, const char *app_file)
 {
 
 	int pd;
-	file_info_t file_path = { 0 };
+	
 	file_path.driver_path = driver_file;
 	file_path.app_path = app_file;
+
+	printf("---------------------------------------flash info :%s,%s\n", file_path.driver_path, file_path.app_path);
 	
 	if (1)
 	{
 
-		pd = _beginthread(flash_flow, 0, file_path);
+		pd = _beginthread(flash_flow, 0, NULL);
 
 		return 1;
 

@@ -610,7 +610,9 @@ XLstatus XLTransmitMsg(unsigned int txID, unsigned int canType, unsigned char *M
 int uds_send_can_farme(unsigned int canId, unsigned char* farmeData, unsigned char farmelen)
 {
 	XLstatus             xlStatus;
+	//printf("uds_send_can_farme %02X %02X %02X %02X %02X %02X %02X %02X\n", farmeData[0], farmeData[1], farmeData[2], farmeData[3], farmeData[4], farmeData[5], farmeData[6], farmeData[7]);
 	xlStatus=XLTransmitMsg(canId, g_canMsgType, farmeData, farmelen, g_xlChannelChooseMask);
+	
 	if (XL_SUCCESS == xlStatus)
 	{
 		return 1;

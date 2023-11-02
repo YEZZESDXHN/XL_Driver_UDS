@@ -512,7 +512,7 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 
 	// 单帧第一个字节的低 4 位为有效数据长度
 	uds_dlc = NT_GET_SF_DL(frame_buf[0]);
-
+	
 	// 有效数据长度合法性检测
 	if (uds_dlc > FRAME_SIZE - 1 || 0 == uds_dlc)
 		return -1;
@@ -524,7 +524,7 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 	// TP 层单帧数据处理完成，将数据交由上层继续处理
 	////N_USData.indication(recv_buf_sf, uds_dlc, N_OK);
 
-
+	
 	if (recv_buf_sf[0] == 0x67 && recv_buf_sf[1] % 2 == 1)//收到种子，回复密钥解锁
 	{
 		service_27_SecurityAccess(sendframefun, "SeednKeyMR", recv_buf_sf, uds_dlc);
@@ -542,10 +542,19 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 		nwf_st = FLASH_36service_finsh;
 	}
 	
-
+	
 
 
 	uds_respone(recv_buf_sf);
+	//printf("recv_buf_sf:");
+	//for (int i = 0; i < 8; i++)
+	//{
+	//	printf("%02X ", recv_buf_sf[i]);
+	//}
+	//printf("\n");
+
+	
+
 	uds_data_indication(recv_buf_sf, uds_dlc, N_OK);
 	
 	return 0;
@@ -932,12 +941,15 @@ static int send_consecutiveframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, 
 	// 连续帧的最后一帧可能是不满的，需填充默认值 PADDING_VAL
 	for (; i < (FRAME_SIZE - 1); i++)
 		send_buf[1 + i] = PADDING_VAL;
+
+
 	// 发送
-	sendframefun(request_id, send_buf, FRAME_SIZE);
-	//uds_send_can_farme(0x724, send_buf, FRAME_SIZE);
+	//sendframefun(0x726, send_buf, FRAME_SIZE);
+	uds_send_can_farme(request_id, send_buf, FRAME_SIZE);
 	// 如果 msg_dlc > FRAME_SIZE - 1，说明这不是最后一个连续帧，实际发送的有效数据长度为 FRAME_SIZE - 1
 	// 否则说明这是连续帧的最后一帧，返回实际发送最后剩余的有效数据长度
 	if (msg_dlc > (FRAME_SIZE - 1))
+
 		return (FRAME_SIZE - 1);
 	else
 		return msg_dlc;
@@ -1153,7 +1165,7 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 	// 检查参数合法性
 	if (NULL == frame_buf || FRAME_SIZE != frame_dlc)
 		return;
-
+	
 	
 
 	// 每帧报文第一个字节的高 4 位表示帧类型，共 4 种：单帧(SF)、首帧(SF)、连续帧(CF)、流控帧(FC)
@@ -1168,14 +1180,14 @@ void uds_tp_recv_frame(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t 
 	case PCI_SF:                            // 单帧
 		// 处理单帧，这里不做限制，这意味着即便是在多帧收发的过程中，我们也可以处理单帧
 		// 为了不影响多帧数据的接收，我们为单帧数据单独设计一个独立的缓冲区 recv_buf_sf
-		if (NWL_IDLE == nwl_st)
+		if (/*NWL_IDLE == nwl_st*/1)
 		{
 			nt_timer_t num;
 			for (num = 0; num < TIMER_CNT; num++)
 				nt_timer_stop(num);
 			recv_singleframe(sendframefun, frame_buf, frame_dlc);
 		}
-			
+		
 		
 		break;
 	case PCI_FF:                            // 首帧

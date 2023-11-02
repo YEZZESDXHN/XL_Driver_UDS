@@ -17,6 +17,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 extern int isFirststart;
 
 
+
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -60,6 +61,9 @@ HWND BT_4;
 HWND BT_Send;
 #define BTSend		1007
 
+HWND BT_Choose_Flash_App;
+#define BTChooseFlashApp		1008
+
 
 
 
@@ -68,6 +72,9 @@ HWND Edit_in;
 
 HWND Edit_out;
 #define Editout		2001
+
+HWND Flash_file_display;
+#define Flashfiledisplay		2002
 
 
 HWND CAN_Config;

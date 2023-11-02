@@ -4,6 +4,8 @@
 #include<time.h>
 #include"uds_tp.h"
 #include"uds_service_function.h"
+#include<ShellApi.h>
+
 int isFirststart = 1;
 
 LARGE_INTEGER fre = { 0 };//
@@ -337,7 +339,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance; // 将实例句柄存储在全局变量中
 
-	GUI = CreateWindowW(szWindowClass, L"XL_UDS", WS_OVERLAPPEDWINDOW,
+	GUI = CreateWindowEx(WS_EX_ACCEPTFILES,szWindowClass, L"XL_UDS", WS_OVERLAPPEDWINDOW,
 		CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
 
 	if (!GUI)
@@ -351,6 +353,67 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 	return TRUE;
 }
 
+
+//VOID read_file(HWND hwnd, TCHAR* szFileName) {
+//	TCHAR* chBuffer; //缓冲区
+//	int file_size;
+//	long dwReadSize = 0; //实际读取字符数
+//	HWND hEdit = GetDlgItem(hwnd, ID_EDIT);
+//	HANDLE hFile = CreateFile(szFileName,     //创建文件的名称。
+//		GENERIC_READ,          // 读文件。
+//		0,                      // 不共享读写。
+//		NULL,                   // 缺省安全属性。
+//		OPEN_EXISTING,          // 如果文件存在。
+//		FILE_ATTRIBUTE_NORMAL, // 一般的文件。       
+//		NULL);                 // 模板文件为空。
+//	if (hFile == INVALID_HANDLE_VALUE) {
+//		OutputDebugString(TEXT("CreateFile fail!\r\n"));
+//	}
+//
+//	file_size = GetFileSize(hFile, NULL);
+//	chBuffer = (TCHAR*)malloc(file_size * sizeof(TCHAR) + 1);//多分配一字符用于存储'\0'
+//	ReadFile(hFile, chBuffer, file_size, &dwReadSize, NULL);
+//
+//	chBuffer[file_size] = '\0';
+//	SetWindowText(hEdit, chBuffer);
+//	CloseHandle(hFile);
+//	free(chBuffer);
+//}
+
+VOID OnDropFiles(HWND hwnd, HDROP hDropInfo)
+{
+	//  UINT  nFileCount = DragQueryFile(hDropInfo, (UINT)-1, NULL, 0);  //查询一共拖拽了几个文件
+	TCHAR szFileName[MAX_PATH] = TEXT("");
+	DragQueryFile(hDropInfo, 0, szFileName, sizeof(szFileName));  //打开拖拽的第一个(下标为0)文件
+	char temp[128];
+	SetWindowText(Flash_file_display, szFileName);
+	Wchar2Char(temp, szFileName);
+	snprintf(Flash_path, 128, szFileName);
+	//printf("%s,hwnd=%d\n", temp, hwnd);
+	//read_file(hwnd, szFileName);
+	//完成拖入文件操作，系统释放缓冲区 
+	DragFinish(hDropInfo);
+}
+
+
+
+int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData)
+{
+     switch (uMsg)
+     {
+     case BFFM_INITIALIZED:
+         {
+             SendMessage(hwnd, BFFM_SETSELECTION, TRUE, (LPARAM)lpData);
+         }
+         break;
+     default:
+         break;
+     }
+     return 0;
+}
+
+
+
 //
 //  函数: WndProc(HWND, UINT, WPARAM, LPARAM)
 //
@@ -363,6 +426,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+
+
+
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -482,9 +548,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			if (g_Run = 1)
 			{
 
-				//flash("VIU_37MR_R520_RD1_179_20231020_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
-				unsigned char data[4] = { 0,1,2,3 };
-				service_31_RoutineControl(1, 0x1234, 2, data, 4);
+				//flash("flash_driver.hex", "VIU_37MR_R520_RS2_182_20231101_BANK_1.hex");
+				flash("flash_driver.hex", Flash_path);
+				//unsigned char data[4] = { 0,1,2,3 };
+				//service_31_RoutineControl(1, 0x1234, 2, data, 4);
 				//service_10_SessionControl(01);
 
 				//flash("VIU_37MR_R520_RD1_179_20231020_BANK_1", "VIU_37FF_R500_RX1_158_20230720_BANK_1_t.bin");
@@ -516,6 +583,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			else
 			{
 				MessageBox(hWnd, L"请先运行工程", L"提示", MB_OK);
+			}
+
+			break;
+		}
+		case BTChooseFlashApp:
+		{
+			LPITEMIDLIST pil = NULL;
+			INITCOMMONCONTROLSEX InitCtrls = { 0 };
+			TCHAR szBuf[4096] = { 0 };
+			BROWSEINFO bi = { 0 };
+			bi.hwndOwner = NULL;
+			//bi.pidlRoot = _T("C:/Program Files");
+			bi.iImage = 0;
+			bi.lParam = NULL;
+			
+			bi.lpfn = NULL;
+			bi.lpszTitle = _T("请选择文件路径");
+			bi.pszDisplayName = szBuf;
+			bi.ulFlags = BIF_BROWSEINCLUDEFILES| BIF_USENEWUI | BIF_NONEWFOLDERBUTTON;
+			InitCommonControlsEx(&InitCtrls);//在调用函数SHBrowseForFolder之前需要调用该函数初始化相关环境
+			pil = SHBrowseForFolder(&bi);
+			if (NULL != pil)//若函数执行成功，并且用户选择问件路径并点击确定
+			{
+				SHGetPathFromIDList(pil, szBuf);//获取用户选择的文件路径
+				//wprintf_s(_T("%s"), szBuf);
+				//printf("%s\n", szBuf);
+				char temp[128];
+				Wchar2Char(temp, szBuf);
+				snprintf(Flash_path, 128, szBuf);
+				//printf("%s\n", temp);
+				SetWindowText(Flash_file_display, szBuf);
 			}
 
 			break;
@@ -594,6 +692,12 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		HDC hdc = BeginPaint(hWnd, &ps);
 		// TODO: 在此处添加使用 hdc 的任何绘图代码...
 		EndPaint(hWnd, &ps);
+	}
+	break;
+	case WM_DROPFILES:
+	{
+		//printf("%d\n", message);
+		OnDropFiles(hWnd, (HDROP)wParam);
 	}
 	break;
 	case WM_DESTROY:

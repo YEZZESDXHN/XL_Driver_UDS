@@ -12,6 +12,10 @@ typedef enum __NETWORK_FLASH_STATUS_
 
 }network_flash_st;
 extern network_flash_st nwf_st;
+extern char Flash_path;
+
+extern int display;
+
 void flash(const char *driver_file, const char *app_file);
 unsigned char uds_respone(unsigned char *data);
 void service_31_RoutineControl(unsigned char Subfunctions, unsigned short RID_NUM);
