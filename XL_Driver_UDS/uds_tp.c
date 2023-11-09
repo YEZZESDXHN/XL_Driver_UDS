@@ -449,7 +449,7 @@ static void clear_network(void)
 		nt_timer_stop(num);
 }
 
-int service_27_SecurityAccess(UDS_SEND_FRAME sendframefun, char *iFilename, uint8_t* msg_buf, uint16_t msg_dlc)
+int service_27_SecurityAccess(UDS_SEND_FRAME sendframefun, char *iFilename, unsigned char *msg_buf, uint16_t msg_dlc)
 {
 	unsigned char iSeed[FRAME_SIZE - 3];
 	unsigned int iSeedSize;
@@ -463,7 +463,6 @@ int service_27_SecurityAccess(UDS_SEND_FRAME sendframefun, char *iFilename, uint
 	char dllname_char[128];
 	WCHAR dllname[128];
 	int ret;
-
 	if (msg_buf[0] != 0x67)
 		return -3;
 
@@ -474,6 +473,7 @@ int service_27_SecurityAccess(UDS_SEND_FRAME sendframefun, char *iFilename, uint
 	{
 		iSeed[i] = msg_buf[i + 2];
 	}
+	//printf("%X %X %X %X\n", iSeed[0], iSeed[1], iSeed[2], iSeed[3]);
 	iSecurityLevel = msg_buf[1];
 
 	snprintf(dllname_char, 128, "./SecurityAccessDLL/");
@@ -527,7 +527,7 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 	
 	if (recv_buf_sf[0] == 0x67 && recv_buf_sf[1] % 2 == 1)//收到种子，回复密钥解锁
 	{
-		service_27_SecurityAccess(sendframefun, "SeednKeyMR", recv_buf_sf, uds_dlc);
+		//service_27_SecurityAccess(sendframefun, "SeednKeyF", recv_buf_sf, uds_dlc);
 	}
 	else if (recv_buf_sf[0] == 0x74)//下载请求正响应，Flash状态置FLASH_DOWNLOAD
 	{

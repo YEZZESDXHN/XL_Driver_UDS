@@ -174,6 +174,35 @@ void settexttocontrol(HWND hwnd, char text[], int type)
 
 
 }
+void setASCIItocontrol(HWND hwnd, unsigned char data[], int len,int type)
+{
+	SendMessageA(hwnd, EM_SETSEL, -2, -1);
+	char asc[128] = { 0 };
+	for (int i = 0; i < len; i++)
+	{
+		asc[i] = data[i];
+	}
+	asc[len] = '\0';
+	//int textlen = GetWindowTextLengthA(hwnd);
+	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
+	if (type == 1)//»»ÐÐ
+	{
+		int len = GetWindowTextLengthA(hwnd);
+		if (len > 0)
+		{
+			SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)"\r\n");
+		}
+		//wcscat_s(text, strlen(text) + 3, "\r\n");
+
+		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)asc);
+	}
+	else if (type == 0)//²»»»ÐÐ
+	{
+		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)asc);
+	}
+
+
+}
 void setHEXtocontrol(HWND hwnd, unsigned short data, int type)
 {
 	//int textlen = GetWindowTextLengthA(hwnd);
@@ -299,10 +328,6 @@ void char_to_hex(char src[], int len, unsigned char des[])
 
 
 }
-
-
-
-
 
 
 
@@ -652,10 +677,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (g_Run = 1)
 			{
-				unsigned char data[6] = { 2,4,7,3,5 };
-				setHEXDatatocontrol(Edit_out, data, 5, 1);
 				//flash("flash_driver.hex", "VIU_37MR_R520_RS2_182_20231101_BANK_1.hex");
-				//flash("Flash/flash_driver.hex", Flash_path);
+				flash("Flash/flash_driver.hex", Flash_path);
 				//unsigned char data[4] = { 0,1,2,3 };
 				//service_31_RoutineControl(1, 0x1234, 2, data, 4);
 				//service_10_SessionControl(01);

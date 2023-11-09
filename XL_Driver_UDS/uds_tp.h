@@ -321,7 +321,7 @@ extern uds_service_info_t uds_service_list[SID_NUM];
 
 
 /*---------------------------------------------------------------------------------------------------------*/
-
+int service_27_SecurityAccess(UDS_SEND_FRAME sendframefun, char *iFilename, unsigned char *msg_buf, uint16_t msg_dlc);
 
 
 /******************************************************************************

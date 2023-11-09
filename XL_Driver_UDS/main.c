@@ -28,7 +28,10 @@ void demoTransmitBurst_3E()
 }
 
 
-
+int test(unsigned char *data)
+{
+	printf("%X %X %X %X\n", data[0], data[1], data[2], data[3]);
+}
 
 
 
@@ -58,7 +61,8 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 			else
 			{
 				settexttocontrol(Edit_out, "RX:", 1);
-				//settexttocontrol()
+				setASCIItocontrol(Edit_out, msg_buf, msg_dlc, 0);
+				//settexttocontrol(Edit_out,)
 				//setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
 				SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 			}
@@ -75,8 +79,9 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 
 		if (msg_buf[0] == 0x67 && msg_buf[1]%2 == 1)
 		{
+			
 			//printf("================jiesuo=============\n");
-			//service_27_SecurityAccess("SeednKeyF", msg_buf, msg_dlc);
+			service_27_SecurityAccess(uds_send_can_farme,"SeednKeyF", msg_buf, msg_dlc);
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 03)
 		{
@@ -146,7 +151,12 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 			setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
 			SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 		}
-		
+		//printf("main TX:");
+		//for (int i = 0; i < 8; i++)
+		//{
+		//	printf("%02X ", msg_buf[i]);
+		//}
+		//printf("\n");
 	}
 	
 	
