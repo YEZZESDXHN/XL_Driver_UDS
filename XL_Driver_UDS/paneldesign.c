@@ -12,6 +12,8 @@ unsigned char ECU_Choose = 0;
 
 int isFirststart = 1;
 
+int display_ascill = 0;
+
 LARGE_INTEGER fre = { 0 };//
 LARGE_INTEGER startCount = { 0 };
 LARGE_INTEGER endCount = { 0 };
@@ -178,6 +180,7 @@ void setHEXtocontrol(HWND hwnd, unsigned short data, int type)
 	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
 	SendMessageA(hwnd, EM_SETSEL, -2, -1);
 	char text[128];
+	snprintf(text, 5, "%3.2X", data);
 	if (type == 1)//换行
 	{
 		//wcscat_s(text, strlen(text) + 3, "\r\n");
@@ -597,6 +600,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		}
+		case BTDisplayASCILL:
+		{
+			if (SendMessage(BT_Display_ASCILL, BM_GETCHECK, 0, 0) == BST_CHECKED)//选中
+			{
+				display_ascill = 1;
+
+			}
+			else if (SendMessage(BT_Display_ASCILL, BM_GETCHECK, 0, 0) == BST_UNCHECKED)//未选择
+			{
+				display_ascill = 0;
+			}
+			break;
+		}
 		case BTSend:
 		{
 			if (g_Run = 1)
@@ -636,8 +652,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (g_Run = 1)
 			{
+				unsigned char data[6] = { 2,4,7,3,5 };
+				setHEXDatatocontrol(Edit_out, data, 5, 1);
 				//flash("flash_driver.hex", "VIU_37MR_R520_RS2_182_20231101_BANK_1.hex");
-				flash("Flash/flash_driver.hex", Flash_path);
+				//flash("Flash/flash_driver.hex", Flash_path);
 				//unsigned char data[4] = { 0,1,2,3 };
 				//service_31_RoutineControl(1, 0x1234, 2, data, 4);
 				//service_10_SessionControl(01);

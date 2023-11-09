@@ -49,9 +49,20 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	{
 		if (display == 1)
 		{
-			settexttocontrol(Edit_out, "RX:", 1);
-			setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
-			SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+			if (display_ascill == 0)
+			{
+				settexttocontrol(Edit_out, "RX:", 1);
+				setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
+				SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+			}
+			else
+			{
+				settexttocontrol(Edit_out, "RX:", 1);
+				//settexttocontrol()
+				//setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
+				SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
+			}
+			
 		}
 		
 
@@ -270,7 +281,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	
 	CAN_Bud_Mode_List = CreateWindowEx(0, TEXT("comboBOX"), NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST,
 
-		140, 10, 100, 100, GUI, (HMENU)CANBudModeList, hInstance, 0);
+		140, 10, 200, 100, GUI, (HMENU)CANBudModeList, hInstance, 0);
 	CAN_Bud_Mode_List_Name = CreateWindow(MSFTEDIT_CLASS, NULL,
 		WS_CHILD | ES_READONLY | WS_VISIBLE | ES_MULTILINE | ES_UPPERCASE, 70, 10, 70, 30, GUI, (HMENU)CANBudModeListName, hInstance, NULL);
 	settexttocontrol(CAN_Bud_Mode_List_Name, "BusType:", 0);
@@ -330,6 +341,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		130, 20, Tab_1, (HMENU)BTMSGType, GetModuleHandle(NULL), NULL
 	);
 
+	BT_Display_ASCILL = CreateWindowExW(
+		0, L"button", L"RX ASCILL", WS_CHILDWINDOW | WS_VISIBLE | BS_AUTOCHECKBOX, 220, 80,
+		130, 20, Tab_1, (HMENU)BTDisplayASCILL, GetModuleHandle(NULL), NULL
+	);
 	
 
 	BT_Send = CreateWindowExW(
@@ -378,12 +393,12 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 10, 400, 50, Tab_2, (HMENU)Flashfiledisplay, hInstance, NULL);
 
 	BT_Choose_Flash_App = CreateWindowExW(
-		0, L"button", L"选择文件", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 100,
-		100, 30, Tab_2, (HMENU)BTChooseFlashApp, GetModuleHandle(NULL), NULL
+		0, L"button", L"请选择文件或拖入文件", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 100,
+		180, 30, Tab_2, (HMENU)BTChooseFlashApp, GetModuleHandle(NULL), NULL
 	);
 
 	BT_flash = CreateWindowExW(
-		0, L"button", L"flash", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 130, 100,
+		0, L"button", L"flash", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 200, 100,
 		100, 30, Tab_2, (HMENU)BTflash, GetModuleHandle(NULL), NULL
 	);
 
