@@ -3,8 +3,7 @@
 #include"uds_tp.h"
 #include<time.h>
 #include"paneldesign.h"
-
-
+#include"loadconfg.h"
 
 int display = 1;
 int             g_TXThreadRun_3E;                                        //!< flag to start/stop the TX thread (for the transmission burst)
@@ -331,15 +330,37 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		130, 20, Tab_1, (HMENU)BTMSGType, GetModuleHandle(NULL), NULL
 	);
 
-	BT_flash = CreateWindowExW(
-		0, L"button", L"flash", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 350, 10,
-		50, 30, GUI, (HMENU)BTflash, GetModuleHandle(NULL), NULL
-	);
+	
 
 	BT_Send = CreateWindowExW(
 		0, L"button", L"Send", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 220, 50,
 		50, 30, Tab_1, (HMENU)BTSend, GetModuleHandle(NULL), NULL
 	);
+
+
+
+
+	ECU_List = CreateWindowEx(0, TEXT("comboBOX"), NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST,
+
+		450, 50, 200, 200, Tab_1, (HMENU)ECUList, GetModuleHandle(NULL), 0);
+
+	Diag_List = CreateWindowEx(0, TEXT("ListBox"), NULL, WS_VISIBLE | WS_VSCROLL | WS_CHILD | WS_BORDER | LBS_NOTIFY,
+
+		700, 50, 300, 500, Tab_1, (HMENU)DiagList, hInstance, 0);
+
+	ECU_List_Name = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | ES_READONLY | WS_VISIBLE | ES_MULTILINE | ES_UPPERCASE, 450, 10, 200, 30, Tab_1, (HMENU)ECUListName, hInstance, NULL);
+
+	settexttocontrol(ECU_List_Name, "ECU List:", 0);
+
+	Diag_List_Name = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | ES_READONLY | WS_VISIBLE | ES_MULTILINE | ES_UPPERCASE, 700, 10, 200, 30, Tab_1, (HMENU)DiagListName, hInstance, NULL);
+
+	settexttocontrol(Diag_List_Name, "DIAG List:", 0);
+
+
+
+
 
 	Edit_out = CreateWindow(MSFTEDIT_CLASS, NULL,
 		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | /*WS_DISABLED|*/
@@ -361,13 +382,30 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		100, 30, Tab_2, (HMENU)BTChooseFlashApp, GetModuleHandle(NULL), NULL
 	);
 
+	BT_flash = CreateWindowExW(
+		0, L"button", L"flash", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 130, 100,
+		100, 30, Tab_2, (HMENU)BTflash, GetModuleHandle(NULL), NULL
+	);
 
 
+	
 
 
+	//======================加载配置文件=====================================
+	if (initDIAG("./Config/ECUlist.ini", &gDiag_info) == -1)
+	{
+		MessageBox(NULL, L"未添加配置文件", L"提示", MB_OK);
+	}
+	while (SendMessage(ECU_List, CB_DELETESTRING, 0, 0) > 0)
+	{
 
-
-
+	}
+	for (int i = 0; i < gDiag_info.ECU_num; i++)
+	{
+		WCHAR test[128];
+		Char2Wchar(test, gDiag_info.ECU_list[i].ECU_name);
+		SendMessage(ECU_List, CB_ADDSTRING, 0, (LPARAM)test);
+	}
 
 
 

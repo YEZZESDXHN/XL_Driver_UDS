@@ -61,6 +61,10 @@ HWND BT_4;
 HWND BT_Send;
 #define BTSend		1007
 
+
+
+
+
 HWND BT_Choose_Flash_App;
 #define BTChooseFlashApp		1008
 
@@ -87,11 +91,13 @@ HWND Channel_List_Name;
 HWND Channel_List;
 #define ChannelList		4001
 
-
-
+HWND ECU_List_Name;
+#define ECUListName		40021
 HWND ECU_List;
 #define ECUList		4002
 
+HWND Diag_List_Name;
+#define DiagListName		40031
 HWND Diag_List;
 #define DiagList		4003
 

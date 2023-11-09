@@ -45,6 +45,9 @@
     <ClInclude Include="uds_service_function.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="loadconfg.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.c">
@@ -72,6 +75,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="uds_service_function.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="loadconfg.c">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

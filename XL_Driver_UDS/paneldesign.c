@@ -5,6 +5,10 @@
 #include"uds_tp.h"
 #include"uds_service_function.h"
 #include<ShellApi.h>
+#include"loadconfg.h"
+
+
+unsigned char ECU_Choose = 0;
 
 int isFirststart = 1;
 
@@ -147,6 +151,7 @@ int Char2Wchar(wchar_t* wcharStr, const char* charStr) {
 
 void settexttocontrol(HWND hwnd, char text[], int type)
 {
+	SendMessageA(hwnd, EM_SETSEL, -2, -1);
 	//int textlen = GetWindowTextLengthA(hwnd);
 	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
 	if (type == 1)//换行
@@ -171,9 +176,8 @@ void setHEXtocontrol(HWND hwnd, unsigned short data, int type)
 {
 	//int textlen = GetWindowTextLengthA(hwnd);
 	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
-
+	SendMessageA(hwnd, EM_SETSEL, -2, -1);
 	char text[128];
-	snprintf(text, 5, "%3.2X", data);
 	if (type == 1)//换行
 	{
 		//wcscat_s(text, strlen(text) + 3, "\r\n");
@@ -194,7 +198,7 @@ void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type)
 {
 	//int textlen = GetWindowTextLengthA(hwnd);
 	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
-
+	SendMessageA(hwnd, EM_SETSEL, -2, -1);
 	char text[128];
 	int i;
 	if (type == 1)//换行
@@ -391,6 +395,7 @@ VOID OnDropFiles(HWND hwnd, HDROP hDropInfo)
 	snprintf(Flash_path, 128, szFileName);
 	//printf("%s,hwnd=%d\n", temp, hwnd);
 	//read_file(hwnd, szFileName);
+
 	//完成拖入文件操作，系统释放缓冲区 
 	DragFinish(hDropInfo);
 }
@@ -426,9 +431,6 @@ int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpDa
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-
-
-
 	switch (message)
 	{
 	case WM_COMMAND:
@@ -441,7 +443,94 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
 			break;
+		case ECUList:
+		{
+			//MessageBox(hWnd, L"列表---", L"提示", MB_OK);
+			//MessageBox(hWnd, L"ECUList", L"提示", MB_OK);
+			switch (HIWORD(wParam))
+			{
+			case CBN_SELCHANGE:
+			{
+				//HWND hCom = (HWND)lParam;
+				int Sel = SendMessage(ECU_List, CB_GETCURSEL, 0, 0);
+				//demoStopTransmitBurst_3E();
 
+				ECU_Choose = Sel;
+
+				uint8_t DIAG_REQ_FUNC_ID[2], DIAG_REQ_PHY_ID[2], DIAG_RESP_ID[2];
+
+				char_to_hex(gDiag_info.ECU_list[Sel].DIAG_REQ_FUNC_ID, 4, DIAG_REQ_FUNC_ID);
+				char_to_hex(gDiag_info.ECU_list[Sel].DIAG_REQ_PHY_ID, 4, DIAG_REQ_PHY_ID);
+				char_to_hex(gDiag_info.ECU_list[Sel].DIAG_RESP_ID, 4, DIAG_RESP_ID);
+
+
+				FUNCTION_ID = (DIAG_REQ_FUNC_ID[0] << 8) + DIAG_REQ_FUNC_ID[1];
+				REQUEST_ID = (DIAG_REQ_PHY_ID[0] << 8) + DIAG_REQ_PHY_ID[1];
+				RESPONSE_ID = (DIAG_RESP_ID[0] << 8) + DIAG_RESP_ID[1];
+
+
+				while (SendMessage(Diag_List, LB_DELETESTRING, 0, 0) > 0)
+				{
+
+				}
+
+				for (int i = 0; i < gDiag_info.ECU_DID[Sel].DID_num; i++)
+
+				{
+					WCHAR temp[128];
+					Char2Wchar(temp, gDiag_info.ECU_DID[Sel].DID_list[i].did_name);
+					SendMessage(Diag_List, LB_ADDSTRING, 0, (LPARAM)temp);
+
+				}
+
+				break;
+
+
+			}
+			default:
+				break;
+			}
+			break;
+		}
+		case DiagList:
+		{
+			int index = 0;
+			switch (HIWORD(wParam))
+			{
+
+			case LBN_SELCHANGE:
+			{
+				
+				if (g_ChannelChooes == 0xff)
+				{
+					MessageBox(hWnd, L"请选择通道", L"提示", MB_OK);
+				}
+				else
+				{
+					uint8_t getdid[2048];
+					// 获取当前选择的索引
+					index = SendMessage(Diag_List, LB_GETCURSEL, 0, 0);
+
+					int datalen = 0;
+					datalen = strlen(gDiag_info.ECU_DID[ECU_Choose].DID_list[index].did) / 2;
+
+					char_to_hex(gDiag_info.ECU_DID[ECU_Choose].DID_list[index].did, datalen * 2, getdid);
+					network_send_udsmsg(uds_send_can_farme, getdid, datalen);
+				}
+
+
+				
+
+
+
+				break;
+			}
+			
+			default:
+				break;
+			}
+			break;
+		}
 		case BTstart:
 		{
 			if (g_Run == 0)
@@ -547,9 +636,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (g_Run = 1)
 			{
-
 				//flash("flash_driver.hex", "VIU_37MR_R520_RS2_182_20231101_BANK_1.hex");
-				flash("flash_driver.hex", Flash_path);
+				flash("Flash/flash_driver.hex", Flash_path);
 				//unsigned char data[4] = { 0,1,2,3 };
 				//service_31_RoutineControl(1, 0x1234, 2, data, 4);
 				//service_10_SessionControl(01);
@@ -713,6 +801,32 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		
 		break;
 	}
+	//case WM_CREATE:
+	//{
+
+	//	//MessageBox(hWnd, L"test", L"提示", MB_OK);
+	//	
+	//	//======================加载配置文件=====================================
+	//	if (initDIAG("./Config/ECUlist.ini", &gDiag_info) == -1)
+	//	{
+	//		MessageBox(hWnd, L"未添加配置文件", L"提示", MB_OK);
+	//	}
+	//	while (SendMessage(ECU_List, CB_DELETESTRING, 0, 0) > 0)
+	//	{
+
+	//	}
+	//	for (int i = 0; i < gDiag_info.ECU_num; i++)
+	//	{
+	//		WCHAR test[128];
+	//		Char2Wchar(test, gDiag_info.ECU_list[i].ECU_name);
+	//		SendMessage(ECU_List, CB_ADDSTRING, 0, (LPARAM)test);
+	//	}
+
+
+
+
+	//	break;
+	//}
 	case WM_NOTIFY:
 	{
 		NMHDR *lParam_t;

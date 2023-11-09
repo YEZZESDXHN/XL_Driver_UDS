@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClInclude Include="..\bin\vxlapi.h" />
     <ClInclude Include="IntelHex.h" />
+    <ClInclude Include="loadconfg.h" />
     <ClInclude Include="paneldesign.h" />
     <ClInclude Include="readhex.h" />
     <ClInclude Include="resource.h" />
@@ -33,6 +34,7 @@
   <ItemGroup>
     <ClCompile Include="binstr_conv.c" />
     <ClCompile Include="IntelHex.c" />
+    <ClCompile Include="loadconfg.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="paneldesign.c" />
     <ClCompile Include="readhex.c" />
