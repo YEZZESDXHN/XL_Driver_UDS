@@ -17,7 +17,7 @@ WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 extern int display_ascill;
 extern int isFirststart;
 
-
+extern unsigned char ECU_Choose;
 
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
@@ -69,6 +69,9 @@ HWND BT_Choose_Flash_App;
 
 HWND BT_Display_ASCILL;
 #define BTDisplayASCILL		1009
+
+HWND BT_SEND_3E;
+#define BTSEND3E		1010
 
 
 HWND Edit_in;

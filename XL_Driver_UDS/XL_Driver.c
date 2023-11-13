@@ -624,22 +624,23 @@ int uds_send_can_farme(unsigned int canId, unsigned char* farmeData, unsigned ch
 }
 
 
-int service_3e_TesterPresent()
-{
-	unsigned char senddata[FRAME_SIZE];
-	senddata[0] = 0x3e;
-	senddata[1] = 0x80;
-	send_singleframe(uds_send_can_farme, senddata, 2);
-}
-
-DWORD WINAPI TxThread_3E(LPVOID par)
-{
-	
-	while (1) {
-
-		Sleep(3300);
-		service_3e_TesterPresent();
-		
-
-	}
-}
+//int service_3e_TesterPresent()
+//{
+//	unsigned char senddata[FRAME_SIZE];
+//	senddata[0] = 0x3e;
+//	senddata[1] = 0x80;
+//	send_singleframe(uds_send_can_farme, senddata, 2);
+//}
+//
+//
+//
+//DWORD WINAPI TxThread_3E(LPVOID par)
+//{
+//	
+//	while (1) {
+//
+//		Sleep(3300);
+//		service_3e_TesterPresent();
+//
+//	}
+//}

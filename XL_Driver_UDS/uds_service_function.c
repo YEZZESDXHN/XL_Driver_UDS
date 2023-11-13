@@ -596,7 +596,7 @@ void flash_flow()
 	service_10_SessionControl(0x02);
 	sid_wait_resp(SID_10);
 
-	service_3E_TesterPresent(0x80);
+	//service_3E_TesterPresent(0x80);
 	Sleep(3000);
 
 	service_27_SecurityAccess_request(0x09);

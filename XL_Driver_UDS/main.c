@@ -8,11 +8,49 @@
 int display = 1;
 int             g_TXThreadRun_3E;                                        //!< flag to start/stop the TX thread (for the transmission burst)
 HANDLE          g_hTXThread_3E;
+int g_3e_flag = 0;
+int service_3e_TesterPresent()
+{
+	unsigned char senddata[FRAME_SIZE];
+	senddata[0] = 0x3e;
+	senddata[1] = 0x80;
+	send_singleframe(uds_send_can_farme, senddata, 2);
+}
+
+
+
+DWORD WINAPI TxThread_3E(LPVOID par)
+{
+
+	while (g_TXThreadRun_3E) {
+		if (g_3e_flag == 2)
+		{
+			service_3e_TesterPresent();
+			Sleep(3000);
+
+		}
+		else if (g_3e_flag == 1)
+		{
+			Sleep(3000);
+			service_3e_TesterPresent();
+			Sleep(3000);
+			g_3e_flag = 2;
+		}
+		else if (g_3e_flag == 0)
+		{
+
+		}
+		
+		
+
+	}
+}
 
 void demoStopTransmitBurst_3E()
 {
 	if (g_hTXThread_3E) {
 		g_TXThreadRun_3E = 0;
+		g_3e_flag = 0;
 		WaitForSingleObject(g_hTXThread_3E, 10);
 		g_hTXThread_3E = 0;
 	}
@@ -22,16 +60,13 @@ void demoTransmitBurst_3E()
 {
 	// first collect old TX-Thread
 	demoStopTransmitBurst_3E();
-
+	g_3e_flag = 1;
 	g_TXThreadRun_3E = 1;
 	g_hTXThread_3E = CreateThread(0, 0x1000, TxThread_3E, NULL, 0, NULL);
 }
 
 
-int test(unsigned char *data)
-{
-	printf("%X %X %X %X\n", data[0], data[1], data[2], data[3]);
-}
+
 
 
 
@@ -80,20 +115,22 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 		if (msg_buf[0] == 0x67 && msg_buf[1]%2 == 1)
 		{
 			
-			//printf("================jiesuo=============\n");
-			service_27_SecurityAccess(uds_send_can_farme,"SeednKeyF", msg_buf, msg_dlc);
+			service_27_SecurityAccess(uds_send_can_farme, gDiag_info.ECU_list[ECU_Choose].SecurityAccessDLL, msg_buf, msg_dlc);
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 03)
 		{
-			//demoTransmitBurst_3E();
+			demoTransmitBurst_3E();
+			SendMessage(BT_SEND_3E, BM_SETCHECK, BST_CHECKED, 0);
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 02)
 		{
-			//demoTransmitBurst_3E();
+			demoTransmitBurst_3E();
+			SendMessage(BT_SEND_3E, BM_SETCHECK, BST_CHECKED, 0);
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 01)
 		{
-			//demoStopTransmitBurst_3E();
+			demoStopTransmitBurst_3E();
+			SendMessage(BT_SEND_3E, BM_SETCHECK, BST_UNCHECKED, 0);
 		}
 		
 	}
@@ -352,17 +389,26 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	);
 
 	BT_Display_ASCILL = CreateWindowExW(
-		0, L"button", L"RX ASCILL", WS_CHILDWINDOW | WS_VISIBLE | BS_AUTOCHECKBOX, 220, 80,
+		0, L"button", L"ÏÔÊ¾ASCII", WS_CHILDWINDOW | WS_VISIBLE | BS_AUTOCHECKBOX, 10, 120,
 		130, 20, Tab_1, (HMENU)BTDisplayASCILL, GetModuleHandle(NULL), NULL
 	);
 	
+	BT_SEND_3E = CreateWindowExW(
+		0, L"button", L"3E Present", WS_CHILDWINDOW | WS_VISIBLE | BS_AUTOCHECKBOX, 150, 120,
+		130, 20, Tab_1, (HMENU)BTSEND3E, GetModuleHandle(NULL), NULL
+	);
+
+
+
 
 	BT_Send = CreateWindowExW(
 		0, L"button", L"Send", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 220, 50,
 		50, 30, Tab_1, (HMENU)BTSend, GetModuleHandle(NULL), NULL
 	);
 
-
+	Edit_out = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | /*WS_DISABLED|*/
+		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 140, 400, 300, Tab_1, (HMENU)Editout, hInstance, NULL);
 
 
 	ECU_List = CreateWindowEx(0, TEXT("comboBOX"), NULL, WS_CHILD | WS_VISIBLE | WS_VSCROLL | CBS_DROPDOWNLIST,
@@ -387,9 +433,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 
 
-	Edit_out = CreateWindow(MSFTEDIT_CLASS, NULL,
-		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | ES_MULTILINE | ES_READONLY | /*WS_DISABLED|*/
-		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 100, 400, 300, Tab_1, (HMENU)Editout, hInstance, NULL);
+	
 
 	
 

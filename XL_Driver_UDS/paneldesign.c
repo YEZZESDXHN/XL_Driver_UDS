@@ -625,6 +625,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		}
+		case BTSEND3E:
+		{
+			if (SendMessage(BT_SEND_3E, BM_GETCHECK, 0, 0) == BST_CHECKED)//选中
+			{
+				demoTransmitBurst_3E();
+			}
+			else if (SendMessage(BT_SEND_3E, BM_GETCHECK, 0, 0) == BST_UNCHECKED)//未选择
+			{
+				demoStopTransmitBurst_3E();
+			}
+			break;
+		}
 		case BTDisplayASCILL:
 		{
 			if (SendMessage(BT_Display_ASCILL, BM_GETCHECK, 0, 0) == BST_CHECKED)//选中

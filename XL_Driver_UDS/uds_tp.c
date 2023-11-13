@@ -531,6 +531,7 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 	}
 	else if (recv_buf_sf[0] == 0x74)//下载请求正响应，Flash状态置FLASH_DOWNLOAD
 	{
+		demoStopTransmitBurst_3E();//停止发送3e
 		nwf_st = FLASH_REQUEST_Postive;
 	}
 	else if (recv_buf_sf[0] == 0x77)//退出下载请求正响应，Flash状态置FLASH_IDLE
