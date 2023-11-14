@@ -565,6 +565,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				if (isFirststart == 1)
 				{
+					//g_ChannelChooes = 1;
 					if (g_ChannelChooes == 0xff)
 					{
 						MessageBox(hWnd, L"请选择通道", L"提示", MB_OK);
@@ -575,8 +576,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
 						if (xlStatus == XL_SUCCESS)
 						{
-
+							
 							xlStatus = CreateRxThread();
+						}
+						else
+						{
+							MessageBox(hWnd, L"启动失败，请尝试停止其他CANoe工程后重试", L"提示", MB_OK);
+							return;
 						}
 
 						if (XL_SUCCESS == xlStatus) {

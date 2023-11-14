@@ -89,6 +89,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 		{
 			if (display_ascill == 0)
 			{
+				printf("RX\n");
 				settexttocontrol(Edit_out, "RX:", 1);
 				setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
 				SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
@@ -500,7 +501,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	g_canFdParams.sjwDbr = 2;
 	
 	xlStatus = GetVectorHWInfo();
-	//if()
+	
 	
 	if (xlStatus == XL_SUCCESS)
 	{
