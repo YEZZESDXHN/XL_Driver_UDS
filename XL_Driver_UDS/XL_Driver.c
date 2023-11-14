@@ -105,6 +105,8 @@ XLstatus GetVectorHWInfo()
 				if ((g_xlDrvConfig.channel[i].channelCapabilities & XL_CHANNEL_FLAG_CANFD_ISO_SUPPORT)
 					/*&& (g_xlDrvConfig.channel[i].hwType != XL_HWTYPE_VIRTUAL)*/) {
 					g_xlChannelCANFDMask |= g_xlDrvConfig.channel[i].channelMask;//支持CANFD IOS
+					g_xlChannelCANMask |= g_xlDrvConfig.channel[i].channelMask;//支持CANFD IOS，则也支持CAN
+					g_canFdSupport = 1;//支持CANFD,设置CANFD标志位
 
 					// check CAN FD NO ISO support
 					if (g_xlDrvConfig.channel[i].channelCapabilities & XL_CHANNEL_FLAG_CANFD_BOSCH_SUPPORT) {
@@ -118,19 +120,19 @@ XLstatus GetVectorHWInfo()
 			}
 		}
 
-		//如果检测支持CANFD,那么也支持CAN,设置g_xlChannelMask
-		if (g_xlChannelCANFDMask && g_canFdModeNoIso == 0) //支持CANFD,CAN IOS模式
-		{
-			g_xlChannelCANMask |= g_xlChannelCANFDMask;
-			g_canFdSupport = 1;//支持CANFD
+		////如果检测支持CANFD,那么也支持CAN,设置g_xlChannelMask
+		//if (g_xlChannelCANFDMask && g_canFdModeNoIso == 0) //支持CANFD,CAN IOS模式
+		//{
+		//	g_xlChannelCANMask |= g_xlChannelCANFDMask;
+		//	g_canFdSupport = 1;//支持CANFD
 
-		}
+		//}
 
-		if (g_xlChannelCANFDNOISOMask && g_canFdModeNoIso) //支持CANFD,CAN NO IOS模式
-		{
-			g_xlChannelCANMask |= g_xlChannelCANFDNOISOMask;
-			g_canFdSupport = 1;//支持CANFD
-		}
+		//if (g_xlChannelCANFDNOISOMask && g_canFdModeNoIso) //支持CANFD,CAN NO IOS模式
+		//{
+		//	g_xlChannelCANMask |= g_xlChannelCANFDNOISOMask;
+		//	g_canFdSupport = 1;//支持CANFD
+		//}
 
 		if (!g_xlChannelCANMask) //无CAN通道
 		{
@@ -276,6 +278,11 @@ XLstatus InitCANDriver(
 		// if we have permission we set the
 		// bus parameters (baudrate)
 		// ------------------------------------
+
+
+
+
+		printf("g_xlPermissionMask=0x%I64x\ng_xlChannelCANFDMask=0x%I64x\n");
 		if (1) //默认给所有权限
 		{
 
