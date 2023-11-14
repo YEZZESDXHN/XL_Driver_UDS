@@ -17,29 +17,38 @@ int service_3e_TesterPresent()
 	send_singleframe(uds_send_can_farme, senddata, 2);
 }
 
-
+void demoStopTransmitBurst_3E();
 
 DWORD WINAPI TxThread_3E(LPVOID par)
 {
 
-	while (g_TXThreadRun_3E) {
-		if (g_3e_flag == 2)
+	while (g_TXThreadRun_3E) 
+	{
+		if (g_Run == 1)
 		{
-			service_3e_TesterPresent();
-			Sleep(3000);
+			if (g_3e_flag == 2)
+			{
+				service_3e_TesterPresent();
+				Sleep(3000);
 
-		}
-		else if (g_3e_flag == 1)
-		{
-			Sleep(3000);
-			service_3e_TesterPresent();
-			Sleep(3000);
-			g_3e_flag = 2;
-		}
-		else if (g_3e_flag == 0)
-		{
+			}
+			else if (g_3e_flag == 1)
+			{
+				Sleep(3000);
+				service_3e_TesterPresent();
+				Sleep(3000);
+				g_3e_flag = 2;
+			}
+			else if (g_3e_flag == 0)
+			{
 
+			}
 		}
+		else
+		{
+			demoStopTransmitBurst_3E();
+		}
+		
 		
 		
 
@@ -89,7 +98,6 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 		{
 			if (display_ascill == 0)
 			{
-				printf("RX\n");
 				settexttocontrol(Edit_out, "RX:", 1);
 				setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
 				SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息

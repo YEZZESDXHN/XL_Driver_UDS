@@ -282,45 +282,38 @@ XLstatus InitCANDriver(
 
 
 
-		printf("g_xlPermissionMask=0x%I64x\ng_xlChannelCANFDMask=0x%I64x\n");
-		if (1) //默认给所有权限
+		//printf("g_xlPermissionMask=0x%I64x\ng_xlChannelCANFDMask=0x%I64x\n", g_xlPermissionMask, g_xlChannelCANFDMask);
+		
+		if (g_canBusMode)
 		{
 
-			if (g_canBusMode)
+			if (g_canFdModeNoIso) {
+				canParams.options = CANFD_CONFOPT_NO_ISO;
+			}
+			else
 			{
-
-				if (g_canFdModeNoIso) {
-					canParams.options = CANFD_CONFOPT_NO_ISO;
-				}
-				else
-				{
-					canParams.options = 0;
-				}
-
-
-				xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlChannelCANFDMask, &canParams);
-				if (XL_SUCCESS == xlStatus)
-				{
-					printf("CANFD Set Success,g_xlPortHandle=%d,g_xlChannelCANFDMask=0x%I64x\n", g_xlPortHandle, g_xlChannelCANFDMask);
-				}
-				else
-				{
-					printf("CANFD Set Success,g_xlPortHandle=%d,g_xlChannelCANFDMask=0x%I64x\n", g_xlPortHandle, g_xlChannelCANFDMask);
-				}
+				canParams.options = 0;
 			}
-			else {
-				xlStatus = xlCanSetChannelBitrate(g_xlPortHandle, g_xlChannelCANMask, g_BaudRate);
-				if (XL_SUCCESS == xlStatus)
-				{
-					printf("CAN Set Success\n");
-				}
-			}
-			
-		}
-		else
-		{
 
+
+			xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlPermissionMask, &canParams);
+			//if (XL_SUCCESS == xlStatus)
+			//{
+			//	printf("CANFD Set Success,g_xlPortHandle=%d,g_xlPermissionMask=0x%I64x\n", g_xlPortHandle, g_xlPermissionMask);
+			//}
+			//else
+			//{
+			//	printf("CANFD Set error,g_xlPortHandle=%d,g_xlPermissionMask=0x%I64x\n", g_xlPortHandle, g_xlPermissionMask);
+			//}
 		}
+		else {
+			xlStatus = xlCanSetChannelBitrate(g_xlPortHandle, g_xlPermissionMask, g_BaudRate);
+			//if (XL_SUCCESS == xlStatus)
+			//{
+			//	printf("CAN Set Success\n");
+			//}
+		}
+		
 	}
 	else
 	{
