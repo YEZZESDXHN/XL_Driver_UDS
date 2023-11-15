@@ -6,7 +6,7 @@
 #include"uds_service_function.h"
 #include<ShellApi.h>
 #include"loadconfg.h"
-
+#include"windowsx.h"
 
 unsigned char ECU_Choose = 0;
 
@@ -607,6 +607,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 						timer_tu(1);
 						SetWindowText(BT_start, TEXT("Stop"));
 						isFirststart = 0;
+						ComboBox_Enable(Channel_List, FALSE);
+						ComboBox_Enable(CAN_Bud_Mode_List, FALSE);
 					}
 				}
 				else
@@ -621,9 +623,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 
 				g_Run = 0;
-
+				xlDeactivateChannel(g_xlPortHandle, g_xlChannelChooseMask);
 
 				SetWindowText(BT_start, TEXT("Start"));
+				ComboBox_Enable(Channel_List, TRUE);
+				ComboBox_Enable(CAN_Bud_Mode_List, TRUE);
 			}
 			
 			break;
