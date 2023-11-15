@@ -160,7 +160,8 @@ XLstatus GetVectorHWInfo()
 XLstatus InitCANDriver(
 
 	XLcanFdConf canParams,
-	unsigned int  *BaudRate
+	unsigned int  *BaudRate,
+	XLaccess initChannelCM
 )
 {
 
@@ -236,39 +237,37 @@ XLstatus InitCANDriver(
 
 
 
-	// ------------------------------------
-	// 打开全部端口,默认给所有权限
-	// ------------------------------------
-	if (/*XL_SUCCESS == xlStatus*/1) {
-		
-		// check if we can use CAN FD
-		if (g_canFdSupport)
+	
+	// check if we can use CAN FD
+	if (g_canFdSupport)
+	{
+		if (g_canBusMode == 1)
 		{
-			if (g_canBusMode == 1)
+			if (initChannelCM & g_xlChannelCANFDMask)
 			{
-				
-				g_xlPermissionMask = g_xlChannelCANFDMask;//默认给所有权限
-				xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, g_xlChannelCANFDMask, &g_xlPermissionMask, RX_QUEUE_SIZE_FD, XL_INTERFACE_VERSION_V4, XL_BUS_TYPE_CAN);
-				//printf("g_canBusMode=1,g_xlChannelCANFDMask=0x%I64x,g_xlPermissionMask=0x%I64x\n", g_xlChannelCANFDMask, g_xlPermissionMask);
-			}
-			else
-			{
-				
-				g_xlPermissionMask = g_xlChannelCANMask; //默认给所有权限
-				xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, g_xlChannelCANMask, &g_xlPermissionMask, RX_QUEUE_SIZE, XL_INTERFACE_VERSION, XL_BUS_TYPE_CAN);
-				//printf("g_canBusMode=0,g_xlChannelCANMask=0x%I64x,g_xlPermissionMask=0x%I64x\n", g_xlChannelCANMask, g_xlPermissionMask);
+				g_xlPermissionMask = initChannelCM;//默认给所有权限
+				xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, initChannelCM, &g_xlPermissionMask, RX_QUEUE_SIZE_FD, XL_INTERFACE_VERSION_V4, XL_BUS_TYPE_CAN);
+				//printf("g_canBusMode=1,g_xlChannelCANFDMask=0x%I64x,g_xlPermissionMask=0x%I64x，initChannelCM=0x%I64x\n", g_xlChannelCANFDMask, g_xlPermissionMask, initChannelCM);
 			}
 
+			
 		}
-		// if not, we make 'normal' CAN
 		else
 		{
-			g_canBusMode = 0;//硬件不支持CANFD,总线类型只能用CAN
-
-			g_xlPermissionMask = g_xlChannelCANMask;//默认给所有权限
-			xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, g_xlChannelCANMask, &g_xlPermissionMask, RX_QUEUE_SIZE, XL_INTERFACE_VERSION, XL_BUS_TYPE_CAN);
-
+				
+			g_xlPermissionMask = initChannelCM; //默认给所有权限
+			xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, initChannelCM, &g_xlPermissionMask, RX_QUEUE_SIZE, XL_INTERFACE_VERSION, XL_BUS_TYPE_CAN);
+			//printf("g_canBusMode=0,g_xlChannelCANMask=0x%I64x,g_xlPermissionMask=0x%I64x\n", g_xlChannelCANMask, g_xlPermissionMask);
 		}
+
+	}
+	// if not, we make 'normal' CAN
+	else
+	{
+		g_canBusMode = 0;//硬件不支持CANFD,总线类型只能用CAN
+
+		g_xlPermissionMask = initChannelCM;//默认给所有权限
+		xlStatus = xlOpenPort(&g_xlPortHandle, g_AppName, initChannelCM, &g_xlPermissionMask, RX_QUEUE_SIZE, XL_INTERFACE_VERSION, XL_BUS_TYPE_CAN);
 
 	}
 	
@@ -283,36 +282,39 @@ XLstatus InitCANDriver(
 
 
 		//printf("g_xlPermissionMask=0x%I64x\ng_xlChannelCANFDMask=0x%I64x\n", g_xlPermissionMask, g_xlChannelCANFDMask);
-		
-		if (g_canBusMode)
+		if (g_xlPermissionMask == initChannelCM)
 		{
-
-			if (g_canFdModeNoIso) {
-				canParams.options = CANFD_CONFOPT_NO_ISO;
-			}
-			else
+			if (g_canBusMode)
 			{
-				canParams.options = 0;
+
+				if (g_canFdModeNoIso) {
+					canParams.options = CANFD_CONFOPT_NO_ISO;
+				}
+				else
+				{
+					canParams.options = 0;
+				}
+
+
+				xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlPermissionMask, &canParams);
+				//if (XL_SUCCESS == xlStatus)
+				//{
+				//	printf("CANFD Set Success,g_xlPortHandle=%d,g_xlPermissionMask=0x%I64x\n", g_xlPortHandle, g_xlPermissionMask);
+				//}
+				//else
+				//{
+				//	printf("CANFD Set error,g_xlPortHandle=%d,g_xlPermissionMask=0x%I64x\n", g_xlPortHandle, g_xlPermissionMask);
+				//}
 			}
-
-
-			xlStatus = xlCanFdSetConfiguration(g_xlPortHandle, g_xlPermissionMask, &canParams);
-			//if (XL_SUCCESS == xlStatus)
-			//{
-			//	printf("CANFD Set Success,g_xlPortHandle=%d,g_xlPermissionMask=0x%I64x\n", g_xlPortHandle, g_xlPermissionMask);
-			//}
-			//else
-			//{
-			//	printf("CANFD Set error,g_xlPortHandle=%d,g_xlPermissionMask=0x%I64x\n", g_xlPortHandle, g_xlPermissionMask);
-			//}
+			else {
+				xlStatus = xlCanSetChannelBitrate(g_xlPortHandle, g_xlPermissionMask, g_BaudRate);
+				//if (XL_SUCCESS == xlStatus)
+				//{
+				//	printf("CAN Set Success\n");
+				//}
+			}
 		}
-		else {
-			xlStatus = xlCanSetChannelBitrate(g_xlPortHandle, g_xlPermissionMask, g_BaudRate);
-			//if (XL_SUCCESS == xlStatus)
-			//{
-			//	printf("CAN Set Success\n");
-			//}
-		}
+		
 		
 	}
 	else

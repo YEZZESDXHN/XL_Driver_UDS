@@ -119,7 +119,8 @@ XLstatus GetVectorHWInfo();
 XLstatus InitCANDriver(
 
 	XLcanFdConf canParams,
-	unsigned int  *BaudRate
+	unsigned int  *BaudRate,
+	XLaccess initChannelCM
 );
 
 

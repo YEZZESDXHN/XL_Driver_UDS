@@ -573,7 +573,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					else
 					{
 						XLstatus xlStatus;
-						xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate);
+						xlStatus = InitCANDriver(g_canFdParams, &g_BaudRate,g_xlChannelChooseMask);
 						if (xlStatus == XL_SUCCESS)
 						{
 							
@@ -589,8 +589,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 							// ------------------------------------
 							// go with all selected channels on bus
 							// ------------------------------------
-							xlStatus = xlActivateChannel(g_xlPortHandle, g_xlChannelCANFDMask, XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
+							xlStatus = xlActivateChannel(g_xlPortHandle, g_xlChannelChooseMask, XL_BUS_TYPE_CAN, XL_ACTIVATE_RESET_CLOCK);
 
+						}
+
+						if (xlStatus == XL_SUCCESS)
+						{
+
+						}
+						else
+						{
+							MessageBox(hWnd, L"∆Ù∂Ø ß∞‹", L"Ã· æ", MB_OK);
+							return;
 						}
 
 						g_Run = 1;
