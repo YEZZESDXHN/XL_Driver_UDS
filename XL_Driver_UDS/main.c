@@ -342,6 +342,16 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		WS_CHILD | ES_READONLY | WS_VISIBLE | ES_MULTILINE | ES_UPPERCASE, 70, 10, 70, 30, GUI, (HMENU)CANBudModeListName, hInstance, NULL);
 	settexttocontrol(CAN_Bud_Mode_List_Name, "BusType:", 0);
 
+	BT_Load_CAN_Confg = CreateWindowExW(
+		0, L"button", L"º”‘ÿCAN≈‰÷√", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 350, 10,
+		100, 20, GUI, (HMENU)BTLoadCANConfg, GetModuleHandle(NULL), NULL
+	);
+
+	
+
+
+
+
 	SendMessage(CAN_Bud_Mode_List, CB_ADDSTRING, 0, L"CAN");
 	SendMessage(CAN_Bud_Mode_List, CB_ADDSTRING, 0, L"CANFD IOS");
 	SendMessage(CAN_Bud_Mode_List, CB_ADDSTRING, 0, L"CANFD NO IOS");
@@ -485,9 +495,39 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		SendMessage(ECU_List, CB_ADDSTRING, 0, (LPARAM)test);
 	}
 
+	struct CANConfg_Char
+	{
+		char arbitrationBitRate[16];
+		char tseg1Abr[16];
+		char tseg2Abr[16];
+		char sjwAbr[16];
 
+		// data bitrate
+		char dataBitRate[16];
+		char tseg1Dbr[16];
+		char tseg2Dbr[16];
+		char sjwDbr[16];
+	};
 
+	struct CANConfg_Char CANConfgInfo;
 
+	//unsigned char temp[16];
+	//GetIniKeyString("CAN", "arbitrationBitRate", "./Config/CANconfg.ini", CANConfgInfo.arbitrationBitRate);
+	//printf("%d\n", strlen(CANConfgInfo.arbitrationBitRate));
+	//char_to_hex(CANConfgInfo.arbitrationBitRate, strlen(CANConfgInfo.arbitrationBitRate)-1,)
+	//for (int i = 0; i < strlen(CANConfgInfo.arbitrationBitRate) - 1; i++)
+	//{
+	//	g_canFdParams.arbitrationBitRate= g_canFdParams.arbitrationBitRate+ temp[i]*
+	//}
+	//GetIniKeyString("CAN", "tseg1Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Abr);
+	//GetIniKeyString("CAN", "tseg2Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Abr);
+	//GetIniKeyString("CAN", "sjwAbr", "./Config/CANconfg.ini", CANConfgInfo.sjwAbr);
+
+	//GetIniKeyString("CAN", "dataBitRate", "./Config/CANconfg.ini", CANConfgInfo.dataBitRate);
+	//GetIniKeyString("CAN", "tseg1Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Dbr);
+	//GetIniKeyString("CAN", "tseg2Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Dbr);
+	//GetIniKeyString("CAN", "sjwDbr", "./Config/CANconfg.ini", CANConfgInfo.sjwDbr);
+	
 
 
 
@@ -501,7 +541,6 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	g_canFdParams.tseg1Abr = 63;
 	g_canFdParams.tseg2Abr = 16;
 	g_canFdParams.sjwAbr = 2;
-	
 	// data bitrate
 	g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
 	g_canFdParams.tseg1Dbr = 15;

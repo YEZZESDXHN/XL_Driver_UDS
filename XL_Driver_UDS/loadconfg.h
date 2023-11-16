@@ -38,6 +38,8 @@ struct DIAG_info gDiag_info;
 
 
 
+
+
 int GetIniKeyString(char *title, char *key, char *filename, char *buf);
 
 int PutIniKeyString(char *title, char *key, char *val, char *filename);

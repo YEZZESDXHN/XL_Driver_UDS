@@ -73,6 +73,11 @@ HWND BT_Display_ASCILL;
 HWND BT_SEND_3E;
 #define BTSEND3E		1010
 
+HWND BT_Load_CAN_Confg;
+#define BTLoadCANConfg		1011
+
+
+
 
 HWND Edit_in;
 #define Editin		2001
@@ -82,6 +87,33 @@ HWND Edit_out;
 
 HWND Flash_file_display;
 #define Flashfiledisplay		2002
+
+HWND arbitrationBitRate;
+#define arbitrationBitRate_d		2010
+
+HWND tseg1Abr;
+#define tseg1Abr_d		2011
+
+HWND tseg2Abr;
+#define tseg2Abr_d		2012
+
+HWND sjwAbr;
+#define sjwAbr_d		2013
+
+HWND dataBitRate;
+#define dataBitRate_d		2014
+
+HWND tseg1Dbr;
+#define tseg1Dbr_d		2015
+
+HWND tseg2Dbr;
+#define tseg2Dbr_d		2016
+
+HWND sjwDbr;
+#define sjwDbr_d		2017
+
+HWND options;
+#define options_d		2018
 
 
 HWND CAN_Config;

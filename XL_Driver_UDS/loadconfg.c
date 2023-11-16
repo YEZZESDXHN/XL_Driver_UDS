@@ -67,7 +67,7 @@ int GetIniKeyString(char *title, char *key, char *filename, char *buf)
 		wTmp = strchr(sLine, '=');
 		if ((NULL != wTmp) && (1 == flag)) {
 			if (0 == strncmp(key, sLine, strlen(key))) { // 长度依文件读取的为准  
-				sLine[strlen(sLine) - 1] = '\0';
+				sLine[strlen(sLine) - 0] = '\0';
 				fclose(fp);
 				while (*(wTmp + 1) == ' ') {
 					wTmp++;
@@ -336,3 +336,5 @@ int initDIAG(char *filename, struct DIAG_info *DIAG)
 
 	return 1;
 }
+
+
