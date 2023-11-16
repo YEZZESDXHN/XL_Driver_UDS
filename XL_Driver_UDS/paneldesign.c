@@ -616,6 +616,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					g_Run = 1;
 					timer_tu(1);
 					SetWindowText(BT_start, TEXT("Stop"));
+					ComboBox_Enable(Channel_List, FALSE);
+					ComboBox_Enable(CAN_Bud_Mode_List, FALSE);
 				}
 				
 			}
