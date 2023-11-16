@@ -268,7 +268,67 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 
 
 
-
+//void loadcanconfg(char *filename)
+//{
+//	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
+//	GetIniKeyString("CAN", "arbitrationBitRate", "./Config/CANconfg.ini", CANConfgInfo.arbitrationBitRate);
+//	g_canFdParams.arbitrationBitRate = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.arbitrationBitRate) - 1; i++)
+//	{
+//
+//		g_canFdParams.arbitrationBitRate = g_canFdParams.arbitrationBitRate + (CANConfgInfo.arbitrationBitRate[i] - '0') * pow(10, strlen(CANConfgInfo.arbitrationBitRate) - 2 - i);
+//	}
+//	GetIniKeyString("CAN", "tseg1Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Abr);
+//	g_canFdParams.tseg1Abr = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.tseg1Abr) - 1; i++)
+//	{
+//
+//		g_canFdParams.tseg1Abr = g_canFdParams.tseg1Abr + (CANConfgInfo.tseg1Abr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg1Abr) - 2 - i);
+//	}
+//	GetIniKeyString("CAN", "tseg2Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Abr);
+//	g_canFdParams.tseg2Abr = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.tseg2Abr) - 1; i++)
+//	{
+//
+//		g_canFdParams.tseg2Abr = g_canFdParams.tseg2Abr + (CANConfgInfo.tseg2Abr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg2Abr) - 2 - i);
+//	}
+//	GetIniKeyString("CAN", "sjwAbr", "./Config/CANconfg.ini", CANConfgInfo.sjwAbr);
+//	g_canFdParams.sjwAbr = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.sjwAbr) - 1; i++)
+//	{
+//
+//		g_canFdParams.sjwAbr = g_canFdParams.sjwAbr + (CANConfgInfo.sjwAbr[i] - '0') * pow(10, strlen(CANConfgInfo.sjwAbr) - 2 - i);
+//	}
+//
+//	GetIniKeyString("CAN", "dataBitRate", "./Config/CANconfg.ini", CANConfgInfo.dataBitRate);
+//	g_canFdParams.dataBitRate = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.dataBitRate) - 1; i++)
+//	{
+//
+//		g_canFdParams.dataBitRate = g_canFdParams.dataBitRate + (CANConfgInfo.dataBitRate[i] - '0') * pow(10, strlen(CANConfgInfo.dataBitRate) - 2 - i);
+//	}
+//	GetIniKeyString("CAN", "tseg1Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Dbr);
+//	g_canFdParams.tseg1Dbr = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.tseg1Dbr) - 1; i++)
+//	{
+//
+//		g_canFdParams.tseg1Dbr = g_canFdParams.tseg1Dbr + (CANConfgInfo.tseg1Dbr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg1Dbr) - 2 - i);
+//	}
+//	GetIniKeyString("CAN", "tseg2Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Dbr);
+//	g_canFdParams.tseg2Dbr = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.tseg2Dbr) - 1; i++)
+//	{
+//
+//		g_canFdParams.tseg2Dbr = g_canFdParams.tseg2Dbr + (CANConfgInfo.tseg2Dbr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg2Dbr) - 2 - i);
+//	}
+//	GetIniKeyString("CAN", "sjwDbr", "./Config/CANconfg.ini", CANConfgInfo.sjwDbr);
+//	g_canFdParams.sjwDbr = 0;
+//	for (int i = 0; i < strlen(CANConfgInfo.sjwDbr) - 1; i++)
+//	{
+//
+//		g_canFdParams.sjwDbr = g_canFdParams.sjwDbr + (CANConfgInfo.sjwDbr[i] - '0') * pow(10, strlen(CANConfgInfo.sjwDbr) - 2 - i);
+//	}
+//}
 
 
 
@@ -495,38 +555,66 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		SendMessage(ECU_List, CB_ADDSTRING, 0, (LPARAM)test);
 	}
 
-	struct CANConfg_Char
+	
+
+	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
+	GetIniKeyString("CAN", "arbitrationBitRate", "./Config/CANconfg.ini", CANConfgInfo.arbitrationBitRate);
+	g_canFdParams.arbitrationBitRate = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.arbitrationBitRate) - 1; i++)
 	{
-		char arbitrationBitRate[16];
-		char tseg1Abr[16];
-		char tseg2Abr[16];
-		char sjwAbr[16];
+		
+		g_canFdParams.arbitrationBitRate = g_canFdParams.arbitrationBitRate + (CANConfgInfo.arbitrationBitRate[i]-'0') * pow(10, strlen(CANConfgInfo.arbitrationBitRate) - 2 - i);
+	}
+	GetIniKeyString("CAN", "tseg1Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Abr);
+	g_canFdParams.tseg1Abr = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.tseg1Abr) - 1; i++)
+	{
 
-		// data bitrate
-		char dataBitRate[16];
-		char tseg1Dbr[16];
-		char tseg2Dbr[16];
-		char sjwDbr[16];
-	};
+		g_canFdParams.tseg1Abr = g_canFdParams.tseg1Abr + (CANConfgInfo.tseg1Abr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg1Abr) - 2 - i);
+	}
+	GetIniKeyString("CAN", "tseg2Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Abr);
+	g_canFdParams.tseg2Abr = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.tseg2Abr) - 1; i++)
+	{
 
-	struct CANConfg_Char CANConfgInfo;
+		g_canFdParams.tseg2Abr = g_canFdParams.tseg2Abr + (CANConfgInfo.tseg2Abr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg2Abr) - 2 - i);
+	}
+	GetIniKeyString("CAN", "sjwAbr", "./Config/CANconfg.ini", CANConfgInfo.sjwAbr);
+	g_canFdParams.sjwAbr = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.sjwAbr) - 1; i++)
+	{
 
-	//unsigned char temp[16];
-	//GetIniKeyString("CAN", "arbitrationBitRate", "./Config/CANconfg.ini", CANConfgInfo.arbitrationBitRate);
-	//printf("%d\n", strlen(CANConfgInfo.arbitrationBitRate));
-	//char_to_hex(CANConfgInfo.arbitrationBitRate, strlen(CANConfgInfo.arbitrationBitRate)-1,)
-	//for (int i = 0; i < strlen(CANConfgInfo.arbitrationBitRate) - 1; i++)
-	//{
-	//	g_canFdParams.arbitrationBitRate= g_canFdParams.arbitrationBitRate+ temp[i]*
-	//}
-	//GetIniKeyString("CAN", "tseg1Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Abr);
-	//GetIniKeyString("CAN", "tseg2Abr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Abr);
-	//GetIniKeyString("CAN", "sjwAbr", "./Config/CANconfg.ini", CANConfgInfo.sjwAbr);
+		g_canFdParams.sjwAbr = g_canFdParams.sjwAbr + (CANConfgInfo.sjwAbr[i] - '0') * pow(10, strlen(CANConfgInfo.sjwAbr) - 2 - i);
+	}
 
-	//GetIniKeyString("CAN", "dataBitRate", "./Config/CANconfg.ini", CANConfgInfo.dataBitRate);
-	//GetIniKeyString("CAN", "tseg1Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Dbr);
-	//GetIniKeyString("CAN", "tseg2Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Dbr);
-	//GetIniKeyString("CAN", "sjwDbr", "./Config/CANconfg.ini", CANConfgInfo.sjwDbr);
+	GetIniKeyString("CAN", "dataBitRate", "./Config/CANconfg.ini", CANConfgInfo.dataBitRate);
+	g_canFdParams.dataBitRate = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.dataBitRate) - 1; i++)
+	{
+
+		g_canFdParams.dataBitRate = g_canFdParams.dataBitRate + (CANConfgInfo.dataBitRate[i] - '0') * pow(10, strlen(CANConfgInfo.dataBitRate) - 2 - i);
+	}
+	GetIniKeyString("CAN", "tseg1Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg1Dbr);
+	g_canFdParams.tseg1Dbr = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.tseg1Dbr) - 1; i++)
+	{
+
+		g_canFdParams.tseg1Dbr = g_canFdParams.tseg1Dbr + (CANConfgInfo.tseg1Dbr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg1Dbr) - 2 - i);
+	}
+	GetIniKeyString("CAN", "tseg2Dbr", "./Config/CANconfg.ini", CANConfgInfo.tseg2Dbr);
+	g_canFdParams.tseg2Dbr = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.tseg2Dbr) - 1; i++)
+	{
+
+		g_canFdParams.tseg2Dbr = g_canFdParams.tseg2Dbr + (CANConfgInfo.tseg2Dbr[i] - '0') * pow(10, strlen(CANConfgInfo.tseg2Dbr) - 2 - i);
+	}
+	GetIniKeyString("CAN", "sjwDbr", "./Config/CANconfg.ini", CANConfgInfo.sjwDbr);
+	g_canFdParams.sjwDbr = 0;
+	for (int i = 0; i < strlen(CANConfgInfo.sjwDbr) - 1; i++)
+	{
+
+		g_canFdParams.sjwDbr = g_canFdParams.sjwDbr + (CANConfgInfo.sjwDbr[i] - '0') * pow(10, strlen(CANConfgInfo.sjwDbr) - 2 - i);
+	}
 	
 
 
@@ -536,17 +624,21 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 
 	XLstatus          xlStatus;
-	memset(&g_canFdParams, 0, sizeof(g_canFdParams));
-	g_canFdParams.arbitrationBitRate = 500000;
-	g_canFdParams.tseg1Abr = 63;
-	g_canFdParams.tseg2Abr = 16;
-	g_canFdParams.sjwAbr = 2;
-	// data bitrate
-	g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
-	g_canFdParams.tseg1Dbr = 15;
-	g_canFdParams.tseg2Dbr = 4;
-	g_canFdParams.sjwDbr = 2;
 	
+	//g_canFdParams.arbitrationBitRate = 500000;
+	//g_canFdParams.tseg1Abr = 63;
+	//g_canFdParams.tseg2Abr = 16;
+	//g_canFdParams.sjwAbr = 2;
+	//// data bitrate
+	//g_canFdParams.dataBitRate = g_canFdParams.arbitrationBitRate * 4;
+	//g_canFdParams.tseg1Dbr = 15;
+	//g_canFdParams.tseg2Dbr = 4;
+	//g_canFdParams.sjwDbr = 2;
+	
+
+
+
+
 	xlStatus = GetVectorHWInfo();
 	
 	

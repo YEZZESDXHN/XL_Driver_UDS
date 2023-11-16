@@ -36,7 +36,21 @@ struct DIAG_info
 };
 struct DIAG_info gDiag_info;
 
+struct CANConfg_Char
+{
+	char arbitrationBitRate[16];
+	char tseg1Abr[16];
+	char tseg2Abr[16];
+	char sjwAbr[16];
 
+	// data bitrate
+	char dataBitRate[16];
+	char tseg1Dbr[16];
+	char tseg2Dbr[16];
+	char sjwDbr[16];
+};
+
+struct CANConfg_Char CANConfgInfo;
 
 
 
