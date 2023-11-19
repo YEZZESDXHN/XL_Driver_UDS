@@ -420,7 +420,7 @@ VOID OnDropFiles(HWND hwnd, HDROP hDropInfo)
 	char temp[128];
 	SetWindowText(Flash_file_display, szFileName);
 	Wchar2Char(temp, szFileName);
-	snprintf(Flash_path, 128, szFileName);
+	snprintf(Flash_path, 128, temp);
 	//printf("%s,hwnd=%d\n", temp, hwnd);
 	//read_file(hwnd, szFileName);
 

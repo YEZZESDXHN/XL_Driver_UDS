@@ -12,7 +12,7 @@ typedef enum __NETWORK_FLASH_STATUS_
 
 }network_flash_st;
 extern network_flash_st nwf_st;
-extern char Flash_path;
+extern char Flash_path[256];
 
 extern int display;
 

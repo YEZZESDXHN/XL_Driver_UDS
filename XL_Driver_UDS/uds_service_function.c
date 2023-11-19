@@ -15,7 +15,7 @@ unsigned short maxNumberOfBlockLength = 0;//目标ECU允许Tester传输最大的字节数,实
 
 //36
 unsigned char blockSequenceCounter = 0; //数据传输计数器，第一帧从1开始，到了0xFF后，再从0开始，循环往复，直到下载完毕
-char Flash_path = {0};
+char Flash_path[256] = {0};
 IHexRecord record_t;
 ConvertContext ctx_t;
 uint32_t crc = 0;
