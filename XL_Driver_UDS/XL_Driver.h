@@ -82,6 +82,8 @@ typedef struct _channel_
 	unsigned char channelindex;//通道编号，从1开始
 	char channeltype[128];
 	char channelname[128];
+	unsigned int        articleNumber;
+	unsigned int        serialNumber;
 	XLaccess channelMask;
 }channel;
 

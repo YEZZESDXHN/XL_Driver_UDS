@@ -493,7 +493,13 @@ void initHWinfo(channelInfo *channel_info)
 
 
 			snprintf((*channel_info).ch[index].channelname, strlen(g_xlDrvConfig.channel[i].name)+1, g_xlDrvConfig.channel[i].name);
-			g_xlDrvConfig.channel[index].name[strlen(g_xlDrvConfig.channel[i].name) + 1] = '\0';
+			(*channel_info).ch[index].channelname[strlen(g_xlDrvConfig.channel[i].name)+1] = "\0";
+
+			(*channel_info).ch[index].articleNumber = g_xlDrvConfig.channel[i].articleNumber;
+			(*channel_info).ch[index].serialNumber = g_xlDrvConfig.channel[i].serialNumber;
+
+			//snprintf((*channel_info).ch[index].articleNumber, strlen(g_xlDrvConfig.channel[i].articleNumber) + 1, g_xlDrvConfig.channel[i].articleNumber);
+			//(*channel_info).ch[index].articleNumber[strlen(g_xlDrvConfig.channel[i].articleNumber) + 1] = "\0";
 			
 			//printf("i=%d,(*channel_info).ch[%d].channelindex=%d,channelcount=%d,name:%s\n", i, index, (*channel_info).ch[index].channelindex, channelcount,g_xlDrvConfig.channel[i].name);
 			channelcount++;

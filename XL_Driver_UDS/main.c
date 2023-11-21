@@ -453,7 +453,7 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	Channel_List = CreateWindowEx(0, TEXT("comboBOX"), L"Name", WS_CHILD | WS_VISIBLE | WS_VSCROLL  | CBS_DROPDOWNLIST,
 
-		140, 50, 200, 200, GUI, (HMENU)ChannelList, GetModuleHandle(NULL), 0);
+		140, 50, 300, 200, GUI, (HMENU)ChannelList, GetModuleHandle(NULL), 0);
 	Channel_List_Name = CreateWindow(MSFTEDIT_CLASS, NULL,
 		WS_CHILD | ES_READONLY | WS_VISIBLE | ES_MULTILINE | ES_UPPERCASE, 70, 50, 70, 30, GUI, (HMENU)ChannelListName, hInstance, NULL);
 	settexttocontrol(Channel_List_Name, "Channel:", 0);
@@ -650,9 +650,17 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		{
 			WCHAR temp_wchar[128];
 			char temp_char[128];
+
+			char serialNumber[8];
+			snprintf(serialNumber, 128, "(%06d)", g_channel_info.ch[i].serialNumber);
+
 			snprintf(temp_char, 128, g_channel_info.ch[i].channelname);
+
 			strncat_s(temp_char, 128, " ", 3);
 			strncat_s(temp_char, 128, g_channel_info.ch[i].channeltype, 6);
+			strncat_s(temp_char, 128, serialNumber, 8);
+
+			//strncat_s(temp_char, 128, "%06d", 3);
 			Char2Wchar(temp_wchar, temp_char);
 			SendMessage(Channel_List, CB_ADDSTRING, 0, (LPARAM)temp_wchar);
 		}
