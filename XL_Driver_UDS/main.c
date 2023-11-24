@@ -115,7 +115,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 		
 
 		//printf("main RX:");
-		//for (int i = 0; i < 8; i++)
+		//for (int i = 0; i < msg_dlc; i++)
 		//{
 		//	printf("%02X ", msg_buf[i]);
 		//}
@@ -198,7 +198,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 			SendMessageA(Edit_out, WM_VSCROLL, SB_BOTTOM, 0);//设置滚轮到末尾，这样就可以看到最新信息
 		}
 		//printf("main TX:");
-		//for (int i = 0; i < 8; i++)
+		//for (int i = 0; i < msg_dlc; i++)
 		//{
 		//	printf("%02X ", msg_buf[i]);
 		//}

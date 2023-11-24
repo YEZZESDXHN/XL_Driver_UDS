@@ -19,6 +19,9 @@ extern int isFirststart;
 
 extern unsigned char ECU_Choose;
 
+
+#define  WM_AAA    WM_USER+1
+
 // 此代码模块中包含的函数的前向声明:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);

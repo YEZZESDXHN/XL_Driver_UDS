@@ -232,6 +232,7 @@ void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type)
 	//SendMessageA(hwnd, EM_SETSEL, (WPARAM)textlen, (LPARAM)textlen);
 	SendMessageA(hwnd, EM_SETSEL, -2, -1);
 	char text[128];
+	memset(text, 0, sizeof(text));
 	int i;
 	if (type == 1)//»»ÐÐ
 	{
@@ -242,8 +243,16 @@ void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type)
 		}
 		for (i = 0; i < length; i++)
 		{
-			setHEXtocontrol(hwnd, data[i], 0);
+			char datastr[4];
+			snprintf(datastr, 4, "%3.2X", data[i]);
+			strcat(text, datastr);
 		}
+		//printf("setHEXDatatocontrol text:%s", text);
+		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
+		/*for (i = 0; i < length; i++)
+		{
+			setHEXtocontrol(hwnd, data[i], 0);
+		}*/
 
 
 	}
@@ -251,13 +260,21 @@ void setHEXDatatocontrol(HWND hwnd, unsigned char data[], int length, int type)
 	{
 		for (i = 0; i < length; i++)
 		{
-			//snprintf(text, 5, "%3.2X", hex[i]);
-			//wcscat_s(text, strlen(text) + 3, "\r\n");
-			//SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)"t_t\r\n");
-
-			//SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
-			setHEXtocontrol(hwnd, data[i], 0);
+			char datastr[4];
+			snprintf(datastr, 4, "%3.2X", data[i]);
+			strcat(text, datastr);
 		}
+		//printf("setHEXDatatocontrol text:%s", text);
+		SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
+		//for (i = 0; i < length; i++)
+		//{
+		//	//snprintf(text, 5, "%3.2X", hex[i]);
+		//	//wcscat_s(text, strlen(text) + 3, "\r\n");
+		//	//SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)"t_t\r\n");
+
+		//	//SendMessageA(hwnd, EM_REPLACESEL, (WPARAM)TRUE, (LPARAM)text);
+		//	setHEXtocontrol(hwnd, data[i], 0);
+		//}
 	}
 }
 
