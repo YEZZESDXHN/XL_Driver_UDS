@@ -123,8 +123,9 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 
 		if (msg_buf[0] == 0x67 && msg_buf[1]%2 == 1)
 		{
-			
+			Sleep(30);
 			service_27_SecurityAccess(uds_send_can_farme, gDiag_info.ECU_list[ECU_Choose].SecurityAccessDLL, msg_buf, msg_dlc);
+			
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 03)
 		{
@@ -346,11 +347,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	setlocale(LC_ALL, "");
 
-	//打开控制台
-	AllocConsole();
-	FILE* stream;
-	//freopen_s(&stream, "CON", "r", stdin);//重定向输入流
-	freopen_s(&stream, "CON", "w", stdout);//重定向输入流
+	////打开控制台
+	//AllocConsole();
+	//FILE* stream;
+	////freopen_s(&stream, "CON", "r", stdin);//重定向输入流
+	//freopen_s(&stream, "CON", "w", stdout);//重定向输入流
 
 
 
