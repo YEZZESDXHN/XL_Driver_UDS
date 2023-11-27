@@ -4,3 +4,17 @@ Release
 .vs
 *.hex
 *.bin
+
+
+
+
+
+# Debug
+# bin
+# XL_Driver_UDS
+# README.md
+# .vs
+# XL_Driver_UDS.sln
+# *.iobj
+# *.ipdb
+# *.pdb
