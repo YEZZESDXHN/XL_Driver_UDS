@@ -12,7 +12,7 @@ unsigned char ECU_Choose = 0;
 
 int isFirststart = 1;
 
-int display_ascill = 0;
+int display_ascii = 0;
 
 LARGE_INTEGER fre = { 0 };//
 LARGE_INTEGER startCount = { 0 };
@@ -676,16 +676,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			break;
 		}
-		case BTDisplayASCILL:
+		case BTDisplayASCII:
 		{
-			if (SendMessage(BT_Display_ASCILL, BM_GETCHECK, 0, 0) == BST_CHECKED)//选中
+			if (SendMessage(BT_Display_ASCII, BM_GETCHECK, 0, 0) == BST_CHECKED)//选中
 			{
-				display_ascill = 1;
+				display_ascii = 1;
+				settexttocontrol(Edit_out, "ASCII显示，下一个指令生效",1);
 
 			}
-			else if (SendMessage(BT_Display_ASCILL, BM_GETCHECK, 0, 0) == BST_UNCHECKED)//未选择
+			else if (SendMessage(BT_Display_ASCII, BM_GETCHECK, 0, 0) == BST_UNCHECKED)//未选择
 			{
-				display_ascill = 0;
+				display_ascii = 0;
 			}
 			break;
 		}

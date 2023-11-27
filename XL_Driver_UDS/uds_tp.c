@@ -3,8 +3,9 @@
 #include<stdio.h>
 #include<Windows.h>
 #include<time.h>
-
-
+#include"XL_Driver.h"
+#include"loadconfg.h"
+#include"paneldesign.h"
 // 网络层状态, 共有 3 种 空闲状态(NWL_IDLE)、发送状态(NWL_XMIT)、接收状态(NWL_RECV)
 // 当接收到首帧时，状态被置为 NWL_RECV，直到连续帧接收完成才置为 NWL_IDLE
 // 当发送多帧时，该状态被置为 NWL_XMIT，直到发送完成后才置为 NWL_IDLE
@@ -102,6 +103,12 @@ unsigned int REQUEST_ID = 0x726;			// 请求 ID
 unsigned int FUNCTION_ID = 0x7df;			// 功能 ID
 unsigned int RESPONSE_ID = 0x7A6;			// 应答 ID
 
+
+
+unsigned char seedmsg[8] = { 0 };
+unsigned char seedmsglen = 0;
+
+
 /******************************************************************************
 * 函数名称: static void nt_timer_start(nt_timer_t num)
 * 功能说明: 启动 TP 层定时器
@@ -126,7 +133,9 @@ static void nt_timer_start(nt_timer_t num)
 	// 启动 STmin 定时器
 	if (num == TIMER_STmin)
 		nt_timer[TIMER_STmin] = g_rfc_stmin;
-
+	// 启动 seed 定时器
+	if (num == TIMER_Seed)
+		nt_timer[TIMER_Seed] = TIMEOUT_N_SEED + task_cycle;
 	
 
 	//for(int i=0;i<sid_timer_t)
@@ -162,6 +171,10 @@ static void nt_timer_start_wv(nt_timer_t num, uint32_t value)
 	// 重新设置 STmin 定时器的计数值
 	if (num == TIMER_STmin)
 		nt_timer[TIMER_STmin] = value;
+
+	// 重新设置 seed 定时器
+	if (num == TIMER_Seed)
+		nt_timer[TIMER_Seed] = value;
 }
 
 
@@ -491,7 +504,8 @@ int service_27_SecurityAccess(UDS_SEND_FRAME sendframefun, char *iFilename, unsi
 		}
 
 
-		send_singleframe(sendframefun, senddata, iSeedSize + 2);
+		//send_singleframe(sendframefun, senddata, iSeedSize + 2);
+		send_singleframe(uds_send_can_farme, senddata, iSeedSize + 2);
 		return ret;
 	}
 
@@ -527,6 +541,12 @@ int recv_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* frame_buf, uint8_t fr
 	
 	if (recv_buf_sf[0] == 0x67 && recv_buf_sf[1] % 2 == 1)//收到种子，回复密钥解锁
 	{
+		for (int i = 0; i < uds_dlc; i++)
+		{
+			seedmsg[i] = recv_buf_sf[i];
+			seedmsglen = uds_dlc;
+		}
+		nt_timer_start(TIMER_Seed);
 		//service_27_SecurityAccess(sendframefun, "SeednKeyF", recv_buf_sf, uds_dlc);
 	}
 	else if (recv_buf_sf[0] == 0x74)//下载请求正响应，Flash状态置FLASH_DOWNLOAD
@@ -1077,6 +1097,15 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		clear_network();
 		//N_USData.confirm(N_TIMEOUT_Bs);
 		uds_data_indication(NULL, NULL, N_TIMEOUT_Bs);
+	}
+
+	if (nt_timer_run(TIMER_Seed) < 0)
+	{
+		//clear_network();
+		//N_USData.confirm(N_TIMEOUT_Bs);
+		//uds_data_indication(NULL, NULL, N_TIMEOUT_Bs);
+		//send_singleframe(uds_send_can_farme, seedmsg, seedmsglen);
+		service_27_SecurityAccess(sendframefun, gDiag_info.ECU_list[ECU_Choose].SecurityAccessDLL, seedmsg, seedmsglen);
 	}
 
 	//// 如果 N_BS 定时器超时，复位网络层状态，并通知上层做异常处理

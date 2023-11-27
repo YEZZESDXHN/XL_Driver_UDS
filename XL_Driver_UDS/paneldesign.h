@@ -14,7 +14,7 @@ HINSTANCE hInst;                                // 当前实例
 WCHAR szTitle[MAX_LOADSTRING];                  // 标题栏文本
 WCHAR szWindowClass[MAX_LOADSTRING];            // 主窗口类名
 
-extern int display_ascill;
+extern int display_ascii;
 extern int isFirststart;
 
 extern unsigned char ECU_Choose;
@@ -70,8 +70,8 @@ HWND BT_Send;
 HWND BT_Choose_Flash_App;
 #define BTChooseFlashApp		1008
 
-HWND BT_Display_ASCILL;
-#define BTDisplayASCILL		1009
+HWND BT_Display_ASCII;
+#define BTDisplayASCII		1009
 
 HWND BT_SEND_3E;
 #define BTSEND3E		1010

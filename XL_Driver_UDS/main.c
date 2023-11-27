@@ -96,7 +96,7 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 	{
 		if (display == 1)
 		{
-			if (display_ascill == 0)
+			if (display_ascii == 0)
 			{
 				settexttocontrol(Edit_out, "RX:", 1);
 				setHEXDatatocontrol(Edit_out, msg_buf, msg_dlc, 0);
@@ -123,8 +123,8 @@ void uds_data_indication(uint8_t* msg_buf, uint16_t msg_dlc, n_result_t n_result
 
 		if (msg_buf[0] == 0x67 && msg_buf[1]%2 == 1)
 		{
-			Sleep(30);
-			service_27_SecurityAccess(uds_send_can_farme, gDiag_info.ECU_list[ECU_Choose].SecurityAccessDLL, msg_buf, msg_dlc);
+			//Sleep(30);
+			//service_27_SecurityAccess(uds_send_can_farme, gDiag_info.ECU_list[ECU_Choose].SecurityAccessDLL, msg_buf, msg_dlc);
 			
 		}
 		else if (msg_buf[0] == 0x50 && msg_buf[1] == 03)
@@ -468,9 +468,9 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 		130, 20, Tab_1, (HMENU)BTMSGType, GetModuleHandle(NULL), NULL
 	);
 
-	BT_Display_ASCILL = CreateWindowExW(
+	BT_Display_ASCII = CreateWindowExW(
 		0, L"button", L"œ‘ æASCII", WS_CHILDWINDOW | WS_VISIBLE | BS_AUTOCHECKBOX, 10, 120,
-		130, 20, Tab_1, (HMENU)BTDisplayASCILL, GetModuleHandle(NULL), NULL
+		130, 20, Tab_1, (HMENU)BTDisplayASCII, GetModuleHandle(NULL), NULL
 	);
 	
 	BT_SEND_3E = CreateWindowExW(

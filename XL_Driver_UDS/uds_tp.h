@@ -7,7 +7,7 @@ typedef enum __NT_TIMER_T__
 	TIMER_N_CR = 0,                 // N_CR 定时器，接收方收到连续帧间隔时间不能大于 TIMEOUT_N_CR，单位: ms
 	TIMER_N_BS,                     // N_BS 定时器，发送方发送完成首帧后到接收到流控帧之间的时间不能大于 TIMEOUT_N_BS，单位: ms
 	TIMER_STmin,                    // STmin 定时器，发送连续帧时，间隔时间最小为 g_rfc_stmin,单位: ms
-	//TIMER_Response,
+	TIMER_Seed,						//发送seed
 	TIMER_CNT                       // 定时器总个数
 }nt_timer_t;
 
@@ -136,7 +136,7 @@ extern unsigned int RESPONSE_ID;			// 应答 ID
 #define TIMEOUT_N_CR                (1000*1000)
 
 // 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: ms
-#define TIMEOUT_Response                (1000*1000)
+#define TIMEOUT_N_SEED                (30*1000)
 
 // 接收方收到响应时间不能大于 TIMEOUT_N_Response，单位: ms
 #define TIMEOUT_SID                (1000*1000)
