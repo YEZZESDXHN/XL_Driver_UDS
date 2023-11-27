@@ -68,10 +68,14 @@ void demoStopTransmitBurst_3E()
 void demoTransmitBurst_3E()
 {
 	// first collect old TX-Thread
-	demoStopTransmitBurst_3E();
-	g_3e_flag = 1;
-	g_TXThreadRun_3E = 1;
-	g_hTXThread_3E = CreateThread(0, 0x1000, TxThread_3E, NULL, 0, NULL);
+	//demoStopTransmitBurst_3E();
+	if (g_3e_flag == 0)
+	{
+		g_3e_flag = 1;
+		g_TXThreadRun_3E = 1;
+		g_hTXThread_3E = CreateThread(0, 0x1000, TxThread_3E, NULL, 0, NULL);
+	}
+	
 }
 
 
