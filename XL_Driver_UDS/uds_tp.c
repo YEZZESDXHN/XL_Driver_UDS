@@ -68,6 +68,8 @@ static uint16_t recv_len = 0;
 
 
 unsigned int task_cycle = 100;
+
+//unsigned int task_cycle = 1000*1000;
 uds_service_info_t uds_service_list[SID_NUM]=
 {
 	/* SID				是否需要响应		超时时间		NCR
@@ -270,7 +272,6 @@ static int nt_timer_chk(nt_timer_t num)
 void sid_timer_start(unsigned char siu_num)
 {
 	int temp=0xff;
-
 	for (int i = 0; i < SID_NUM; i++)
 	{
 		if (siu_num = uds_service_list[i].uds_sid)
@@ -381,6 +382,7 @@ int sid_timer_run(unsigned char num)
 	// 如果计数值为 0，表示定时器已经关闭，不再工作
 	if (uds_service_list[num].TIMER_SID == 0)
 	{
+		uds_service_list[num].timerflag = 0;
 		return 0;                   // 返回 0，定时器已经被关闭
 	}
 	// 如果计数值为 1，表示定时器超时已发生
@@ -388,6 +390,8 @@ int sid_timer_run(unsigned char num)
 	{
 		uds_service_list[num].TIMER_SID = 0;          // 关闭定时器
 		uds_service_list[num].timerflag = 0;
+		uds_service_list[num].NCR = -1;//-1代表超时
+		//printf("DID=%x,NCR=%d\n", uds_service_list[num].uds_sid, uds_service_list[num].NCR);
 		
 		return -1;                  // 返回 -1，发生超时
 	}

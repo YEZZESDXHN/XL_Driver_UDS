@@ -141,7 +141,7 @@ void sid_task()
 			
 			printf("SID_%02X超时\n", uds_service_list[i].uds_sid);
 		}
-
+		//printf("SID_%X,timer=%d,flag=%d\n", uds_service_list[i].uds_sid, uds_service_list[i].TIMER_SID, uds_service_list[i].timerflag);
 	}
 	
 }
@@ -229,6 +229,7 @@ void sid_timer_start_flag(unsigned char siu_num)
 	{
 
 		uds_service_list[temp].timerflag = 1;
+		uds_service_list[temp].NCR = 0xff;
 	}
 
 
@@ -238,27 +239,53 @@ void sid_timer_start_flag(unsigned char siu_num)
 }
 
 
+int check_ncr(unsigned char sid)
+{
+	int temp = 0xff;
+
+	for (int i = 0; i < SID_NUM; i++)
+	{
+		if (sid == uds_service_list[i].uds_sid)
+		{
+			temp = i;
+			break;
+		}
+	}
+
+	// 如果定时器计数值 > 0,表示定时器正在工作
+	if (uds_service_list[temp].NCR == 0)
+	{
+
+		return 0;                   // 返回 0，定时器正在计时运行
+	}
+	else
+	{
+
+		return uds_service_list[temp].NCR;                   // 返回 -1，定时器已停止运行
+	}
+}
+
+
 
 
 
 void service_10_SessionControl(unsigned char session)
 {
-	if (sid_timer_chk(SID_10)==task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
-	unsigned char data[16] = {0x10,session };
-
-	network_send_udsmsg(uds_send_can_farme, data, 2);
 	if (session & 0x80)
 	{
-		
+
 	}
 	else
 	{
 		sid_timer_start_flag(SID_10);
+		//printf("DID=%x,NCR=%d,flag=%d\n", uds_service_list[0].uds_sid, uds_service_list[0].NCR, uds_service_list[0].timerflag);
 	}
+	
+
+	unsigned char data[16] = {0x10,session };
+
+	network_send_udsmsg(uds_send_can_farme, data, 2);
+	
 }
 
 void service_11_EcuReset(unsigned char Subfunctions)
@@ -513,6 +540,133 @@ void service_37_RequestTransferExit()
 
 
 
+int service_10_SessionControl_with_rep(unsigned char session)
+{
+	int ret;
+	service_10_SessionControl(session);
+	Sleep(TIMEOUT_SID/1000);
+
+	ret=check_ncr(SID_10);
+	return ret;
+	
+}
+
+void service_11_EcuReset_with_rep(unsigned char Subfunctions)
+{
+	int ret;
+	service_11_EcuReset(Subfunctions);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_11);
+	return ret;
+}
+
+void service_27_SecurityAccess_request_with_rep(unsigned char level)
+{
+	int ret;
+	service_27_SecurityAccess_request(level);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_27);
+	return ret;
+}
+
+void service_28_CommunicationControl_with_rep(unsigned char Subfunctions, unsigned char CommunicationContorlType)
+{
+	int ret;
+	service_28_CommunicationControl(Subfunctions, CommunicationContorlType);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_28);
+	return ret;
+}
+
+void service_3E_TesterPresent_with_rep(unsigned char Subfunctions)
+{
+	int ret;
+	service_3E_TesterPresent(Subfunctions);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_3E);
+	return ret;
+}
+
+void service_85_ControlDTCSetting_with_rep(unsigned char Subfunctions)
+{
+	int ret;
+	service_85_ControlDTCSetting(Subfunctions);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_85);
+	return ret;
+}
+
+void service_22_ReadDataByIdentifier_with_rep(unsigned short DID_NUM)
+{
+	int ret;
+	service_22_ReadDataByIdentifier(DID_NUM);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_22);
+	return ret;
+}
+
+void service_2E_WriteDataByIdentifier_with_rep(unsigned short DID_NUM, unsigned char *exdata, unsigned char datalen)
+{
+	int ret;
+	service_2E_WriteDataByIdentifier(DID_NUM, exdata, datalen);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_2E);
+	return ret;
+}
+
+void service_31_RoutineControl_with_rep(unsigned char Subfunctions, unsigned short RID_NUM)
+{
+	int ret;
+	service_31_RoutineControl(Subfunctions, RID_NUM);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_31);
+	return ret;
+}
+
+void service_31_EXRoutineControl_with_rep(unsigned char Subfunctions, unsigned short RID_NUM, unsigned char *exdata, unsigned char datalen)
+{
+	int ret;
+	service_31_EXRoutineControl(Subfunctions, RID_NUM, exdata, datalen);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_31);
+	return ret;
+}
+
+void service_34_RequestDownload_with_rep(unsigned int StartAddr, unsigned int DataLen)
+{
+	int ret;
+	service_34_RequestDownload(StartAddr, DataLen);
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_34);
+	return ret;
+
+}
+
+
+
+
+
+void service_37_RequestTransferExit_with_rep()
+{
+	int ret;
+	service_37_RequestTransferExit();
+	Sleep(TIMEOUT_SID);
+
+	ret = check_ncr(SID_37);
+	return ret;
+}
+
+
 
 
 
@@ -578,10 +732,13 @@ int sid_wait_resp(unsigned char sid_num)
 file_info_t file_path = { 0 };
 void flash_flow()
 {
+	int ret=-1;
 	printf("flash info :%s,%s\n", file_path.driver_path, file_path.driver_path);
 	//printf("=============falsh_;%s\n", path.driver_path);
 	loadflashfile(file_path.driver_path, "flash_driver_1.bin");
-	service_10_SessionControl(0x81);
+	service_10_SessionControl(0x01);
+	//ret=service_10_SessionControl_with_rep(0x01);
+	//printf("ret=%d", ret);
 	Sleep(500);
 
 	service_10_SessionControl(0x83);

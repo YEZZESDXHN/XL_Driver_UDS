@@ -287,7 +287,7 @@ typedef struct __UDS_SERVICE_Info__
 	uint8_t uds_sid;									// ·þÎñ ID
 	uint8_t timerflag;
 	uint32_t TIMER_SID;
-	uint8_t NCR;
+	int NCR;
 }uds_service_info_t;
 
 

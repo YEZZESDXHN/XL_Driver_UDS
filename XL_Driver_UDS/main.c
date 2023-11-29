@@ -351,11 +351,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	setlocale(LC_ALL, "");
 
-	////打开控制台
-	//AllocConsole();
-	//FILE* stream;
-	////freopen_s(&stream, "CON", "r", stdin);//重定向输入流
-	//freopen_s(&stream, "CON", "w", stdout);//重定向输入流
+	//打开控制台
+	AllocConsole();
+	FILE* stream;
+	//freopen_s(&stream, "CON", "r", stdin);//重定向输入流
+	freopen_s(&stream, "CON", "w", stdout);//重定向输入流
 
 
 
