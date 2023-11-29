@@ -139,7 +139,7 @@ void sid_task()
 		if (sid_timer_run(i) < 0)
 		{
 			
-			printf("SID_%02X超时\n", uds_service_list[i].uds_sid);
+			printf("---SID_%02X超时\n", uds_service_list[i].uds_sid);
 		}
 		//printf("SID_%X,timer=%d,flag=%d\n", uds_service_list[i].uds_sid, uds_service_list[i].TIMER_SID, uds_service_list[i].timerflag);
 	}
@@ -219,7 +219,7 @@ void sid_timer_start_flag(unsigned char siu_num)
 
 	for (int i = 0; i < SID_NUM; i++)
 	{
-		if (siu_num = uds_service_list[i].uds_sid)
+		if (siu_num == uds_service_list[i].uds_sid)
 		{
 			temp = i;
 			break;
@@ -227,7 +227,7 @@ void sid_timer_start_flag(unsigned char siu_num)
 	}
 	if (temp < SID_NUM)
 	{
-
+		uds_service_list[temp].TIMER_SID = TIMEOUT_SID;
 		uds_service_list[temp].timerflag = 1;
 		uds_service_list[temp].NCR = 0xff;
 	}
@@ -271,16 +271,6 @@ int check_ncr(unsigned char sid)
 
 void service_10_SessionControl(unsigned char session)
 {
-	if (session & 0x80)
-	{
-
-	}
-	else
-	{
-		sid_timer_start_flag(SID_10);
-		//printf("DID=%x,NCR=%d,flag=%d\n", uds_service_list[0].uds_sid, uds_service_list[0].NCR, uds_service_list[0].timerflag);
-	}
-	
 
 	unsigned char data[16] = {0x10,session };
 
@@ -290,103 +280,52 @@ void service_10_SessionControl(unsigned char session)
 
 void service_11_EcuReset(unsigned char Subfunctions)
 {
-	if (sid_timer_chk(SID_11) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
 	unsigned char data[16] = { 0x11,Subfunctions };
 
 	network_send_udsmsg(uds_send_can_farme, data, 2);
-	if (Subfunctions & 0x80)
-	{
-
-	}
-	else
-	{
-		sid_timer_start_flag(SID_11);
-	}
+	
 }
 
 void service_27_SecurityAccess_request(unsigned char level)
 {
-	if (sid_timer_chk(SID_27) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
 	unsigned char data[16] = { 0x27,level };
 
 	network_send_udsmsg(uds_send_can_farme, data, 2);
-	sid_timer_start_flag(SID_27);
 }
 
 void service_28_CommunicationControl(unsigned char Subfunctions, unsigned char CommunicationContorlType)
 {
-	if (sid_timer_chk(SID_28) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
+	
 	unsigned char data[16] = { 0x28,Subfunctions ,CommunicationContorlType};
 
 	network_send_udsmsg(uds_send_can_farme, data, 3);
-	sid_timer_start_flag(SID_28);
 }
 
 void service_3E_TesterPresent(unsigned char Subfunctions)
 {
-	if (sid_timer_chk(SID_3E) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
 	unsigned char data[16] = { 0x3E,Subfunctions };
 
 	network_send_udsmsg(uds_send_can_farme, data, 2);
-	if (Subfunctions & 0x80)
-	{
-
-	}
-	else
-	{
-		sid_timer_start_flag(SID_3E);
-	}
+	
 }
 
 void service_85_ControlDTCSetting(unsigned char Subfunctions)
 {
-	if (sid_timer_chk(SID_85) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
 
 	unsigned char data[16] = { 0x85,Subfunctions };
 
 	network_send_udsmsg(uds_send_can_farme, data, 2);
-	sid_timer_start_flag(SID_85);
 }
 
 void service_22_ReadDataByIdentifier(unsigned short DID_NUM)
 {
-	if (sid_timer_chk(SID_22) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
 	unsigned char data[16] = { 0x22,(DID_NUM >> 8) & 0xff,DID_NUM & 0xff };
 
 	network_send_udsmsg(uds_send_can_farme, data, 3);
-	sid_timer_start_flag(SID_22);
 }
 
 void service_2E_WriteDataByIdentifier(unsigned short DID_NUM, unsigned char *exdata, unsigned char datalen)
 {
-	if (sid_timer_chk(SID_2E) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
 	unsigned char data[64] = { 0x2E,(DID_NUM >> 8) & 0xff,DID_NUM & 0xff };
 
 	for (int i = 0; i < datalen; i++)
@@ -396,29 +335,17 @@ void service_2E_WriteDataByIdentifier(unsigned short DID_NUM, unsigned char *exd
 
 
 	network_send_udsmsg(uds_send_can_farme, data, datalen+3);
-	sid_timer_start_flag(SID_2E);
 }
 
 void service_31_RoutineControl(unsigned char Subfunctions,unsigned short RID_NUM)
 {
-	if (sid_timer_chk(SID_31) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
 	unsigned char data[16] = { 0x31,Subfunctions,(RID_NUM >> 8) & 0xff,RID_NUM & 0xff };
 
 	network_send_udsmsg(uds_send_can_farme, data, 4);
-	sid_timer_start_flag(SID_31);
 }
 
 void service_31_EXRoutineControl(unsigned char Subfunctions, unsigned short RID_NUM,unsigned char *exdata,unsigned char datalen)
 {
-	if (sid_timer_chk(SID_31) == task_cycle)
-	{
-		printf("上一指令未回复\n");
-	}
-
 	unsigned char data[32] = { 0x31,Subfunctions,(RID_NUM >> 8) & 0xff,RID_NUM & 0xff };
 
 	for (int i = 0; i < datalen; i++)
@@ -428,7 +355,6 @@ void service_31_EXRoutineControl(unsigned char Subfunctions, unsigned short RID_
 
 
 	network_send_udsmsg(uds_send_can_farme, data, 4+ datalen);
-	sid_timer_start_flag(SID_31);
 }
 
 void service_34_RequestDownload(unsigned int StartAddr, unsigned int DataLen)
@@ -450,7 +376,6 @@ void service_34_RequestDownload(unsigned int StartAddr, unsigned int DataLen)
 	unsigned char data[16] ={ 0x34,0x00,0x44, start[0] ,start[1] ,start[2] ,start[3] ,len[0] ,len[1] ,len[2] ,len[3] };
 
 	network_send_udsmsg(uds_send_can_farme, data, 11);
-	sid_timer_start_flag(SID_34);
 
 }
 
@@ -532,7 +457,6 @@ void service_37_RequestTransferExit()
 {
 	unsigned char data[8] = { 0x37 };
 	network_send_udsmsg(uds_send_can_farme, data, 1);
-	sid_timer_start_flag(SID_37);
 }
 
 

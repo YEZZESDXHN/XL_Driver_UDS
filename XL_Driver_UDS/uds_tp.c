@@ -274,12 +274,13 @@ void sid_timer_start(unsigned char siu_num)
 	int temp=0xff;
 	for (int i = 0; i < SID_NUM; i++)
 	{
-		if (siu_num = uds_service_list[i].uds_sid)
+		if (siu_num == uds_service_list[i].uds_sid)
 		{
 			temp = i;
 			break;
 		}
 	}
+
 	if (temp < SID_NUM)
 	{
 		if (uds_service_list[temp].timerflag == 1)
@@ -391,7 +392,6 @@ int sid_timer_run(unsigned char num)
 		uds_service_list[num].TIMER_SID = 0;          // 关闭定时器
 		uds_service_list[num].timerflag = 0;
 		uds_service_list[num].NCR = -1;//-1代表超时
-		//printf("DID=%x,NCR=%d\n", uds_service_list[num].uds_sid, uds_service_list[num].NCR);
 		
 		return -1;                  // 返回 -1，发生超时
 	}
@@ -885,7 +885,24 @@ int send_singleframe(UDS_SEND_FRAME sendframefun, uint8_t* msg_buf, uint8_t msg_
 	if (sendframefun(request_id, send_buf, FRAME_SIZE) == 1)
 	{
 		//nt_timer_start(TIMER_Response);    // 启动  定时器
-		sid_timer_start(msg_buf[1]);
+		if (msg_buf[0]==0x10|| msg_buf[0] == 0x3E)
+		{
+			if (msg_buf[1] & 0x80)
+			{
+
+			}
+			else
+			{
+				sid_timer_start_flag(msg_buf[0]);
+			}
+		}
+		else
+		{
+			sid_timer_start_flag(msg_buf[0]);
+		}
+		
+		//sid_timer_start(msg_buf[0]);
+		//printf("7 DID=%x,NCR=%d,flag=%d,t=%d\n", uds_service_list[0].uds_sid, uds_service_list[0].NCR, uds_service_list[0].timerflag, uds_service_list[0].TIMER_SID);
 		uds_data_indication(msg_buf, msg_dlc, N_TX_OK);
 	}
 
@@ -1166,7 +1183,11 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		}
 		else
 		{
-			sid_timer_start(remain_buf[1]);
+			if (remain_buf[1] & 0x80)
+			{
+				sid_timer_start_flag(remain_buf[0]);
+			}
+			//sid_timer_start(remain_buf[1]);
 			uds_data_indication(remain_buf, remain_buf_len, N_TX_OK);
 			clear_network();                    // 复位网络层状态
 			//nt_timer_start(TIMER_Response);    // 启动  定时器
