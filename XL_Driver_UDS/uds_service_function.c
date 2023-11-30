@@ -490,7 +490,7 @@ void service_36_TransferData(unsigned int DataLen)
 	unsigned char data[0x803];
 	maxNumberOfBlockLength = 0x402;
 	blockSequenceCounter = 1;
-	display = 0;
+	//display = 0;
 	while (1)
 	{
 		nwf_st = FLASH_36service_runing;
@@ -535,7 +535,7 @@ void service_36_TransferData(unsigned int DataLen)
 				Sleep(10);
 				if (nwf_st == FLASH_36service_finsh)
 				{
-					display = 1;
+					//display = 1;
 					break;
 				}
 			}
@@ -563,7 +563,94 @@ void service_37_RequestTransferExit()
 }
 
 
+int service_36_TransferData1(unsigned int DataLen)
+{
+	uint32_t index = 0;
+	uint32_t index_1 = 0;
+	unsigned char data[0x803];
+	maxNumberOfBlockLength = 0x402;
+	blockSequenceCounter = 1;
+	//display = 0;
+	while (1)
+	{
+		//nwf_st = FLASH_36service_runing;
+		if ((DataLen - index) > maxNumberOfBlockLength - 2)
+		{
+			data[0] = 0x36;
+			data[1] = blockSequenceCounter;
+			for (int n = 0; n < maxNumberOfBlockLength - 2; n++)
+			{
+				data[2 + n] = ctx_t.rambuff[index];
+				index++;
+			}
+			index_1 = index;
+			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
+			uds_service_list[14].TIMER_SID = 2000 * 1000;
+			blockSequenceCounter++;
+			while (1)
+			{
+				Sleep(10);
+				if (uds_service_list[14].uds_sid==0x36)
+				{
 
+					if (uds_service_list[14].TIMER_SID == 0 && uds_service_list[14].NCR == 0)
+					{
+						break;
+					}
+					else if (uds_service_list[14].TIMER_SID == 0 && uds_service_list[14].NCR != 0)
+					{
+						return uds_service_list[14].NCR;
+					}
+
+					
+				}
+			}
+			
+			//break;
+		}
+		else
+		{
+			//nwf_st = FLASH_36service_runing;
+			data[0] = 0x36;
+			data[1] = blockSequenceCounter;
+			for (int n = 0; n < DataLen - index_1; n++)
+			{
+				//printf("index=%d\n", index);
+				data[2 + n] = ctx_t.rambuff[index];
+				index++;
+			}
+			index_1 = index;
+			network_send_udsmsg(uds_send_can_farme, data, maxNumberOfBlockLength);
+			uds_service_list[14].TIMER_SID = 2000 * 1000;
+			//nwf_st = FLASH_36service_runing;
+			while (1)
+			{
+				Sleep(10);
+				if (uds_service_list[14].uds_sid == 0x36)
+				{
+					if (uds_service_list[14].TIMER_SID == 0 && uds_service_list[14].NCR == 0)
+					{
+						break;
+					}
+					else if (uds_service_list[14].TIMER_SID == 0 && uds_service_list[14].NCR != 0)
+					{
+						return uds_service_list[14].NCR;
+					}
+
+
+				}
+			}
+			
+			break;
+		}
+
+	}
+
+	if (ctx_t.binbuff) free(ctx_t.binbuff);
+	if (ctx_t.strbuff) free(ctx_t.strbuff);
+	if (ctx_t.rambuff) free(ctx_t.rambuff);
+
+}
 
 
 
@@ -812,7 +899,7 @@ void flash_flow()
 
 
 
-
+	display = 0;
 	int ret = -1;
 	printf("flash info :%s,%s\n", file_path.driver_path, file_path.driver_path);
 	//printf("=============falsh_;%s\n", path.driver_path);
@@ -820,7 +907,7 @@ void flash_flow()
 	ret=service_10_SessionControl_with_rep(0x01);
 	if (ret != 0)
 	{
-
+		display = 1;
 		return;
 	}
 
@@ -833,6 +920,7 @@ void flash_flow()
 	ret = service_31_RoutineControl_with_rep(1, 0x0203);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -842,6 +930,7 @@ void flash_flow()
 	ret = service_10_SessionControl_with_rep(0x02);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -850,6 +939,7 @@ void flash_flow()
 	ret = service_27_SecurityAccess_request_with_rep(0x09);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -857,6 +947,7 @@ void flash_flow()
 	ret = service_2E_WriteDataByIdentifier_with_rep(0xf184, data_f184, 9);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -866,15 +957,18 @@ void flash_flow()
 	ret = service_34_RequestDownload_with_rep(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
 	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
+	
 	Sleep(500);
 
 	ret = service_37_RequestTransferExit_with_rep();
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -882,6 +976,7 @@ void flash_flow()
 	ret = service_31_EXRoutineControl_with_rep(0x01, 0x0202, data_0202, 12);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -892,22 +987,25 @@ void flash_flow()
 	ret = service_31_EXRoutineControl_with_rep(1, 0xff00, data_ff00, 8);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
 	ret = service_34_RequestDownload_with_rep(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
-
 	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
+	
 	Sleep(500);
 
 	ret = service_37_RequestTransferExit_with_rep();
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -916,6 +1014,7 @@ void flash_flow()
 	ret = service_31_EXRoutineControl_with_rep(0x01, 0x0202, data_0202_app, 12);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -923,6 +1022,7 @@ void flash_flow()
 	ret = service_31_RoutineControl_with_rep(1, 0xff01);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 
@@ -930,6 +1030,7 @@ void flash_flow()
 	ret = service_11_EcuReset_with_rep(1);
 	if (ret != 0)
 	{
+		display = 1;
 		return;
 	}
 }
