@@ -1183,10 +1183,7 @@ void network_task(UDS_SEND_FRAME sendframefun)
 		}
 		else
 		{
-			if (remain_buf[1] & 0x80)
-			{
-				sid_timer_start_flag(remain_buf[0]);
-			}
+			sid_timer_start_flag(remain_buf[0]);
 			//sid_timer_start(remain_buf[1]);
 			uds_data_indication(remain_buf, remain_buf_len, N_TX_OK);
 			clear_network();                    // ¸´Î»ÍøÂç²ã×´Ì¬

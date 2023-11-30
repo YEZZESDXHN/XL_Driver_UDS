@@ -171,6 +171,7 @@ unsigned char uds_respone(const unsigned char *data)
 				uds_service_list[temp].NCR = data[2];
 				uds_service_list[temp].TIMER_SID = 8000 * 1000;
 				return data[2];
+				
 			}
 			else
 			{
@@ -237,7 +238,107 @@ void sid_timer_start_flag(unsigned char siu_num)
 
 
 }
+int sid_resp_chk(unsigned char siu_num)
+{
+	int temp = 0xff;
 
+	for (int i = 0; i < SID_NUM; i++)
+	{
+		if (siu_num == uds_service_list[i].uds_sid)
+		{
+			temp = i;
+			break;
+		}
+	}
+	// 如果定时器计数值 > 0,表示定时器正在工作
+	if (uds_service_list[temp].TIMER_SID > 0)
+	{
+
+		//uds_service_list[temp].TIMER_SID = 0;          // 关闭定时器
+		return 1;                   // 返回 1，定时器正在计时运行
+	}
+	else
+	{
+		uds_service_list[temp].TIMER_SID = 0;          // 定时器已停止运行
+		Sleep(300);
+		return 0;                   // 返回 0，定时器已停止运行
+	}
+
+
+}
+
+int sid_resp_chk1(unsigned char temp)
+{
+
+	// 如果定时器计数值 > 0,表示定时器正在工作
+	if (uds_service_list[temp].TIMER_SID > 0)
+	{
+
+		//uds_service_list[temp].TIMER_SID = 0;          // 关闭定时器
+		return 1;                   // 返回 1，定时器正在计时运行
+	}
+	else
+	{
+		uds_service_list[temp].TIMER_SID = 0;          // 定时器已停止运行
+		Sleep(300);
+		return 0;                   // 返回 0，定时器已停止运行
+	}
+
+
+}
+
+
+int sid_wait_resp(unsigned char sid_num)
+{
+	while (1)
+	{
+		Sleep(300);
+		if (sid_resp_chk(sid_num) <= 0)
+		{
+			Sleep(200);
+			break;
+		}
+	}
+}
+
+int sid_wait_resp1(unsigned char temp)
+{
+	while (1)
+	{
+		Sleep(300);
+		if (sid_resp_chk1(temp) <= 0)
+		{
+			Sleep(200);
+			break;
+		}
+	}
+}
+
+//int check_ncr(unsigned char sid)
+//{
+//	int temp = 0xff;
+//
+//	for (int i = 0; i < SID_NUM; i++)
+//	{
+//		if (sid == uds_service_list[i].uds_sid)
+//		{
+//			temp = i;
+//			break;
+//		}
+//	}
+
+//	// 如果定时器计数值 > 0,表示定时器正在工作
+//	if (uds_service_list[temp].NCR == 0)
+//	{
+//
+//		return 0;                   // 返回 0，定时器正在计时运行
+//	}
+//	else
+//	{
+//
+//		return uds_service_list[temp].NCR;                   // 返回 -1，定时器已停止运行
+//	}
+//}
 
 int check_ncr(unsigned char sid)
 {
@@ -252,6 +353,10 @@ int check_ncr(unsigned char sid)
 		}
 	}
 
+
+
+	sid_wait_resp1(temp);
+
 	// 如果定时器计数值 > 0,表示定时器正在工作
 	if (uds_service_list[temp].NCR == 0)
 	{
@@ -264,8 +369,6 @@ int check_ncr(unsigned char sid)
 		return uds_service_list[temp].NCR;                   // 返回 -1，定时器已停止运行
 	}
 }
-
-
 
 
 
@@ -468,108 +571,109 @@ int service_10_SessionControl_with_rep(unsigned char session)
 {
 	int ret;
 	service_10_SessionControl(session);
-	Sleep(TIMEOUT_SID/1000);
 
 	ret=check_ncr(SID_10);
 	return ret;
 	
 }
 
-void service_11_EcuReset_with_rep(unsigned char Subfunctions)
+int service_11_EcuReset_with_rep(unsigned char Subfunctions)
 {
 	int ret;
 	service_11_EcuReset(Subfunctions);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_11);
 	return ret;
 }
 
-void service_27_SecurityAccess_request_with_rep(unsigned char level)
+int service_27_SecurityAccess_request_with_rep(unsigned char level)
 {
 	int ret;
 	service_27_SecurityAccess_request(level);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
+	ret = check_ncr(SID_27);
+	Sleep(500);
 	ret = check_ncr(SID_27);
 	return ret;
 }
 
-void service_28_CommunicationControl_with_rep(unsigned char Subfunctions, unsigned char CommunicationContorlType)
+int service_28_CommunicationControl_with_rep(unsigned char Subfunctions, unsigned char CommunicationContorlType)
 {
 	int ret;
 	service_28_CommunicationControl(Subfunctions, CommunicationContorlType);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_28);
 	return ret;
 }
 
-void service_3E_TesterPresent_with_rep(unsigned char Subfunctions)
+int service_3E_TesterPresent_with_rep(unsigned char Subfunctions)
 {
 	int ret;
 	service_3E_TesterPresent(Subfunctions);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_3E);
 	return ret;
 }
 
-void service_85_ControlDTCSetting_with_rep(unsigned char Subfunctions)
+int service_85_ControlDTCSetting_with_rep(unsigned char Subfunctions)
 {
 	int ret;
 	service_85_ControlDTCSetting(Subfunctions);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_85);
 	return ret;
 }
 
-void service_22_ReadDataByIdentifier_with_rep(unsigned short DID_NUM)
+int service_22_ReadDataByIdentifier_with_rep(unsigned short DID_NUM)
 {
 	int ret;
 	service_22_ReadDataByIdentifier(DID_NUM);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_22);
 	return ret;
 }
 
-void service_2E_WriteDataByIdentifier_with_rep(unsigned short DID_NUM, unsigned char *exdata, unsigned char datalen)
+int service_2E_WriteDataByIdentifier_with_rep(unsigned short DID_NUM, unsigned char *exdata, unsigned char datalen)
 {
 	int ret;
 	service_2E_WriteDataByIdentifier(DID_NUM, exdata, datalen);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_2E);
 	return ret;
 }
 
-void service_31_RoutineControl_with_rep(unsigned char Subfunctions, unsigned short RID_NUM)
+int service_31_RoutineControl_with_rep(unsigned char Subfunctions, unsigned short RID_NUM)
 {
 	int ret;
 	service_31_RoutineControl(Subfunctions, RID_NUM);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_31);
 	return ret;
 }
 
-void service_31_EXRoutineControl_with_rep(unsigned char Subfunctions, unsigned short RID_NUM, unsigned char *exdata, unsigned char datalen)
+int service_31_EXRoutineControl_with_rep(unsigned char Subfunctions, unsigned short RID_NUM, unsigned char *exdata, unsigned char datalen)
 {
 	int ret;
 	service_31_EXRoutineControl(Subfunctions, RID_NUM, exdata, datalen);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_31);
 	return ret;
 }
 
-void service_34_RequestDownload_with_rep(unsigned int StartAddr, unsigned int DataLen)
+int service_34_RequestDownload_with_rep(unsigned int StartAddr, unsigned int DataLen)
 {
 	int ret;
 	service_34_RequestDownload(StartAddr, DataLen);
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_34);
 	return ret;
@@ -580,11 +684,11 @@ void service_34_RequestDownload_with_rep(unsigned int StartAddr, unsigned int Da
 
 
 
-void service_37_RequestTransferExit_with_rep()
+int service_37_RequestTransferExit_with_rep()
 {
 	int ret;
 	service_37_RequestTransferExit();
-	Sleep(TIMEOUT_SID);
+	//Sleep(TIMEOUT_SID / 1000);
 
 	ret = check_ncr(SID_37);
 	return ret;
@@ -607,128 +711,227 @@ network_flash_st nwf_st = FLASH_IDLE;
 
 
 
-int sid_resp_chk(unsigned char siu_num)
+void return_result(int ret,int choose)
 {
-	int temp = 0xff;
-
-	for (int i = 0; i < SID_NUM; i++)
+	if (choose)
 	{
-		if (siu_num = uds_service_list[i].uds_sid)
+		if (ret != 0)
 		{
-			temp = i;
-			break;
-		}
-	}
-
-	// 如果定时器计数值 > 0,表示定时器正在工作
-	if (uds_service_list[temp].TIMER_SID > 0)
-	{
-		//uds_service_list[temp].TIMER_SID = 0;          // 关闭定时器
-		return 1;                   // 返回 1，定时器正在计时运行
-	}
-	else
-	{
-		uds_service_list[temp].TIMER_SID = 0;          // 定时器已停止运行
-		Sleep(300);
-		return 0;                   // 返回 0，定时器已停止运行
-	}
-
-
-}
-
-
-int sid_wait_resp(unsigned char sid_num)
-{
-	while (1)
-	{
-		Sleep(300);
-		if (sid_resp_chk(sid_num) <= 0)
-		{
-			Sleep(200);
-			break;
+			return;
 		}
 	}
 }
 
+void test()
+{
+
+	_endthread();
+}
 
 
 
 file_info_t file_path = { 0 };
 void flash_flow()
 {
-	int ret=-1;
+	//int ret=-1;
+	//printf("flash info :%s,%s\n", file_path.driver_path, file_path.driver_path);
+	////printf("=============falsh_;%s\n", path.driver_path);
+	//loadflashfile(file_path.driver_path, "flash_driver_1.bin");
+	//service_10_SessionControl(0x01);
+	////ret=service_10_SessionControl_with_rep(0x01);
+	////printf("ret=%d", ret);
+	//Sleep(500);
+
+	//service_10_SessionControl(0x83);
+	//Sleep(500);
+
+	//service_31_RoutineControl(1, 0x0203);
+	//sid_wait_resp(SID_31);
+
+	//service_10_SessionControl(0x83);
+	//Sleep(500);
+
+	//service_10_SessionControl(0x02);
+	//sid_wait_resp(SID_10);
+
+	////service_3E_TesterPresent(0x80);
+	//Sleep(3000);
+
+	//service_27_SecurityAccess_request(0x09);
+	//Sleep(500);
+
+	//unsigned char data_f184[16] = { 0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11 };
+	//service_2E_WriteDataByIdentifier(0xf184, data_f184, 9);
+	//Sleep(500);
+
+	//service_3E_TesterPresent(0x80);
+	//Sleep(3000);
+
+	//service_34_RequestDownload(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
+	//sid_wait_resp(SID_34);
+
+	//service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
+	//Sleep(500);
+
+	//service_37_RequestTransferExit();
+	//sid_wait_resp(SID_37);
+
+	//unsigned char data_0202[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
+	//service_31_EXRoutineControl(0x01, 0x0202, data_0202, 12);
+	//sid_wait_resp(SID_31);
+
+
+	//loadflashfile(file_path.app_path, "flash_driver_1.bin");
+
+	//unsigned char data_ff00[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff};
+	//service_31_EXRoutineControl(1, 0xff00, data_ff00, 8);
+	//sid_wait_resp(SID_31);
+	//service_34_RequestDownload(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
+	//sid_wait_resp(SID_34);
+
+	//service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
+	//Sleep(500);
+
+	//service_37_RequestTransferExit();
+	//sid_wait_resp(SID_37);
+
+	//unsigned char data_0202_app[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
+	//service_31_EXRoutineControl(0x01, 0x0202, data_0202_app, 12);
+	//sid_wait_resp(SID_31);
+
+
+	//service_31_RoutineControl(1, 0xff01);
+	//sid_wait_resp(SID_31);
+
+	//Sleep(3000);
+	//service_11_EcuReset(1);
+
+
+
+
+
+
+
+
+	int ret = -1;
 	printf("flash info :%s,%s\n", file_path.driver_path, file_path.driver_path);
 	//printf("=============falsh_;%s\n", path.driver_path);
 	loadflashfile(file_path.driver_path, "flash_driver_1.bin");
-	service_10_SessionControl(0x01);
-	//ret=service_10_SessionControl_with_rep(0x01);
+	ret=service_10_SessionControl_with_rep(0x01);
+	if (ret != 0)
+	{
+
+		return;
+	}
+
+
 	//printf("ret=%d", ret);
+	//Sleep(500);
+	service_10_SessionControl(0x83);
 	Sleep(500);
+
+	ret = service_31_RoutineControl_with_rep(1, 0x0203);
+	if (ret != 0)
+	{
+		return;
+	}
 
 	service_10_SessionControl(0x83);
 	Sleep(500);
 
-	//service_31_RoutineControl(1, 0x0203);
-	sid_wait_resp(SID_31);
-
-	service_10_SessionControl(0x83);
-	Sleep(500);
-
-	service_10_SessionControl(0x02);
-	sid_wait_resp(SID_10);
+	ret = service_10_SessionControl_with_rep(0x02);
+	if (ret != 0)
+	{
+		return;
+	}
 
 	//service_3E_TesterPresent(0x80);
-	Sleep(3000);
 
-	service_27_SecurityAccess_request(0x09);
-	Sleep(500);
+	ret = service_27_SecurityAccess_request_with_rep(0x09);
+	if (ret != 0)
+	{
+		return;
+	}
 
 	unsigned char data_f184[16] = { 0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11 };
-	service_2E_WriteDataByIdentifier(0xf184, data_f184, 9);
-	Sleep(500);
+	ret = service_2E_WriteDataByIdentifier_with_rep(0xf184, data_f184, 9);
+	if (ret != 0)
+	{
+		return;
+	}
 
 	service_3E_TesterPresent(0x80);
 	Sleep(3000);
 
-	service_34_RequestDownload(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
-	sid_wait_resp(SID_34);
+	ret = service_34_RequestDownload_with_rep(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
+	if (ret != 0)
+	{
+		return;
+	}
 
 	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
 	Sleep(500);
 
-	service_37_RequestTransferExit();
-	sid_wait_resp(SID_37);
+	ret = service_37_RequestTransferExit_with_rep();
+	if (ret != 0)
+	{
+		return;
+	}
 
 	unsigned char data_0202[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
-	service_31_EXRoutineControl(0x01, 0x0202, data_0202, 12);
-	sid_wait_resp(SID_31);
+	ret = service_31_EXRoutineControl_with_rep(0x01, 0x0202, data_0202, 12);
+	if (ret != 0)
+	{
+		return;
+	}
 
 
 	loadflashfile(file_path.app_path, "flash_driver_1.bin");
 
-	unsigned char data_ff00[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff};
-	service_31_EXRoutineControl(1, 0xff00, data_ff00, 8);
-	sid_wait_resp(SID_31);
+	unsigned char data_ff00[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff };
+	ret = service_31_EXRoutineControl_with_rep(1, 0xff00, data_ff00, 8);
+	if (ret != 0)
+	{
+		return;
+	}
 
-	service_34_RequestDownload(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
-	sid_wait_resp(SID_34);
+	ret = service_34_RequestDownload_with_rep(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
+	if (ret != 0)
+	{
+		return;
+	}
+
 
 	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
 	Sleep(500);
 
-	service_37_RequestTransferExit();
-	sid_wait_resp(SID_37);
+	ret = service_37_RequestTransferExit_with_rep();
+	if (ret != 0)
+	{
+		return;
+	}
+
 
 	unsigned char data_0202_app[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
-	service_31_EXRoutineControl(0x01, 0x0202, data_0202_app, 12);
-	sid_wait_resp(SID_31);
+	ret = service_31_EXRoutineControl_with_rep(0x01, 0x0202, data_0202_app, 12);
+	if (ret != 0)
+	{
+		return;
+	}
 
 
-	service_31_RoutineControl(1, 0xff01);
-	sid_wait_resp(SID_31);
+	ret = service_31_RoutineControl_with_rep(1, 0xff01);
+	if (ret != 0)
+	{
+		return;
+	}
 
 	Sleep(3000);
-	service_11_EcuReset(1);
+	ret = service_11_EcuReset_with_rep(1);
+	if (ret != 0)
+	{
+		return;
+	}
 }
 
 
