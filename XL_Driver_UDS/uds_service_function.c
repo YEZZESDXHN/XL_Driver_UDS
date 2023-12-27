@@ -897,25 +897,28 @@ void flash_flow()
 
 
 
-
+	Flashing_Progress = 0;
 
 	display = 0;
 	int ret = -1;
 	printf("flash info :%s,%s\n", file_path.driver_path, file_path.driver_path);
 	//printf("=============falsh_;%s\n", path.driver_path);
 	loadflashfile(file_path.driver_path, "flash_driver_1.bin");
+	Flashing_Progress_total = ((record_t.maxAddr - record_t.minAddr + 1) / 0x400) + 1 + 16;
+
 	ret=service_10_SessionControl_with_rep(0x01);
 	if (ret != 0)
 	{
 		display = 1;
 		return;
 	}
-
+	Flashing_Progress = Flashing_Progress + 1;
 
 	//printf("ret=%d", ret);
 	//Sleep(500);
 	service_10_SessionControl(0x83);
 	Sleep(500);
+	Flashing_Progress = Flashing_Progress + 1;
 
 	ret = service_31_RoutineControl_with_rep(1, 0x0203);
 	if (ret != 0)
@@ -923,9 +926,11 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	service_10_SessionControl(0x83);
 	Sleep(500);
+	Flashing_Progress = Flashing_Progress + 1;
 
 	ret = service_10_SessionControl_with_rep(0x02);
 	if (ret != 0)
@@ -933,6 +938,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	//service_3E_TesterPresent(0x80);
 
@@ -942,6 +948,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	unsigned char data_f184[16] = { 0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11,0x11 };
 	ret = service_2E_WriteDataByIdentifier_with_rep(0xf184, data_f184, 9);
@@ -950,6 +957,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	service_3E_TesterPresent(0x80);
 	Sleep(3000);
@@ -960,6 +968,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
 	
@@ -971,6 +980,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	unsigned char data_0202[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
 	ret = service_31_EXRoutineControl_with_rep(0x01, 0x0202, data_0202, 12);
@@ -979,6 +989,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 
 	loadflashfile(file_path.app_path, "flash_driver_1.bin");
@@ -990,6 +1001,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	ret = service_34_RequestDownload_with_rep(record_t.minAddr, record_t.maxAddr - record_t.minAddr + 1);
 	if (ret != 0)
@@ -997,6 +1009,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	service_36_TransferData(record_t.maxAddr - record_t.minAddr + 1);
 	
@@ -1008,6 +1021,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 
 	unsigned char data_0202_app[16] = { (record_t.minAddr >> 24) & 0xff,(record_t.minAddr >> 16) & 0xff,(record_t.minAddr >> 8) & 0xff,(record_t.minAddr) & 0xff ,(record_t.maxAddr - record_t.minAddr + 1 >> 24) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 16) & 0xff,(record_t.maxAddr - record_t.minAddr + 1 >> 8) & 0xff,(record_t.maxAddr - record_t.minAddr + 1) & 0xff ,(crc >> 24) & 0xff,(crc >> 16) & 0xff,(crc >> 8) & 0xff,(crc) & 0xff };
@@ -1017,6 +1031,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 
 	ret = service_31_RoutineControl_with_rep(1, 0xff01);
@@ -1025,6 +1040,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 
 	Sleep(3000);
 	ret = service_11_EcuReset_with_rep(1);
@@ -1033,6 +1049,7 @@ void flash_flow()
 		display = 1;
 		return;
 	}
+	Flashing_Progress = Flashing_Progress + 1;
 }
 
 

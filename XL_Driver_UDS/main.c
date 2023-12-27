@@ -28,14 +28,21 @@ DWORD WINAPI TxThread_3E(LPVOID par)
 		{
 			if (g_3e_flag == 2)
 			{
-				service_3e_TesterPresent();
+				if (g_3e_flag == 1)
+				{
+					service_3e_TesterPresent();
+				}
 				Sleep(3000);
 
 			}
 			else if (g_3e_flag == 1)
 			{
 				Sleep(3000);
-				service_3e_TesterPresent();
+				if (g_3e_flag == 1)
+				{
+					service_3e_TesterPresent();
+				}
+				
 				Sleep(3000);
 				g_3e_flag = 2;
 			}
@@ -351,11 +358,11 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 
 	setlocale(LC_ALL, "");
 
-	//打开控制台
-	AllocConsole();
-	FILE* stream;
-	//freopen_s(&stream, "CON", "r", stdin);//重定向输入流
-	freopen_s(&stream, "CON", "w", stdout);//重定向输入流
+	////打开控制台
+	//AllocConsole();
+	//FILE* stream;
+	////freopen_s(&stream, "CON", "r", stdin);//重定向输入流
+	//freopen_s(&stream, "CON", "w", stdout);//重定向输入流
 
 
 
@@ -529,6 +536,10 @@ int APIENTRY wWinMain(_In_ HINSTANCE hInstance,
 	Flash_file_display = CreateWindow(MSFTEDIT_CLASS, NULL,
 		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL| WS_HSCROLL | ES_MULTILINE | ES_READONLY|
 		ES_UPPERCASE | ES_AUTOVSCROLL, 10, 10, 400, 50, Tab_2, (HMENU)Flashfiledisplay, hInstance, NULL);
+
+	Flash_Info_display = CreateWindow(MSFTEDIT_CLASS, NULL,
+		WS_CHILD | WS_BORDER | WS_VISIBLE | WS_VSCROLL | WS_HSCROLL | ES_MULTILINE | ES_READONLY |
+		ES_UPPERCASE | ES_AUTOVSCROLL, 420, 10, 300, 400, Tab_2, (HMENU)FlashInfodisplay, hInstance, NULL);
 
 	BT_Choose_Flash_App = CreateWindowExW(
 		0, L"button", L"请选择文件或拖入文件", WS_CHILDWINDOW | WS_VISIBLE | BS_PUSHBUTTON, 10, 100,

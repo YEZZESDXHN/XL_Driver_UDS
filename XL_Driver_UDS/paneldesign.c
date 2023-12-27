@@ -580,7 +580,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (g_Run == 0)
 			{
-				if (isFirststart == 1)
+				if (/*isFirststart == 1*/1)
 				{
 					//g_ChannelChooes = 1;
 					if (g_ChannelChooes == 0xff)

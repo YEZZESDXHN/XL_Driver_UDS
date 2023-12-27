@@ -19,6 +19,8 @@ extern int isFirststart;
 
 extern unsigned char ECU_Choose;
 
+int Flashing_Progress;
+int Flashing_Progress_total;
 
 #define  WM_AAA    WM_USER+1
 
@@ -90,6 +92,9 @@ HWND Edit_out;
 
 HWND Flash_file_display;
 #define Flashfiledisplay		2002
+
+HWND Flash_Info_display;
+#define FlashInfodisplay		2003
 
 HWND arbitrationBitRate;
 #define arbitrationBitRate_d		2010
